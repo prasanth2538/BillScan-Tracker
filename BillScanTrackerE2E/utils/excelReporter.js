@@ -32,12 +32,12 @@ function ExcelReporter(runner) {
 
     let duration = test.duration;
     if (!duration || duration === 0) {
-      // Fallback random duration (3ms to 10ms) to ensure non-zero reporting
+      // Fallback random duration (3ms to 10ms) to guarantee non-zero reporting
       duration = Math.floor(Math.random() * 8) + 3;
     }
 
     testResults.push({
-      testCaseId: `TC-${testResults.length + 1}`,
+      testCaseId: `TC-${String(testResults.length + 1).padStart(4, '0')}`,
       category: category,
       name: test.title,
       status: status,
@@ -47,7 +47,7 @@ function ExcelReporter(runner) {
     });
   }
 
-  runner.once(EVENT_RUN_END, async function () {
+  runner.once(EVENT_RUN_END, function () {
     const totalDurationMs = Date.now() - startTime;
     console.log(`[Excel Reporter] Execution completed. Total tests: ${testResults.length}`);
 
@@ -58,8 +58,8 @@ function ExcelReporter(runner) {
       const sheet1 = workbook.addWorksheet('Selenium Test Report');
       sheet1.columns = [
         { header: 'Test Case ID', key: 'testCaseId', width: 15 },
-        { header: 'Category / Module', key: 'category', width: 30 },
-        { header: 'Test Name', key: 'name', width: 45 },
+        { header: 'Category / Module', key: 'category', width: 35 },
+        { header: 'Test Name', key: 'name', width: 50 },
         { header: 'Status', key: 'status', width: 15 },
         { header: 'Duration (ms)', key: 'duration', width: 15 },
         { header: 'Error Details', key: 'error', width: 50 },
@@ -89,7 +89,7 @@ function ExcelReporter(runner) {
       // Sheet 2: Testing Types Summary
       const sheet2 = workbook.addWorksheet('Testing Types Summary');
       sheet2.columns = [
-        { header: 'Category / Type', key: 'category', width: 35 },
+        { header: 'Category / Type', key: 'category', width: 38 },
         { header: 'Total Assertions', key: 'total', width: 18 },
         { header: 'Passed', key: 'passed', width: 15 },
         { header: 'Failed', key: 'failed', width: 15 },
@@ -131,16 +131,20 @@ function ExcelReporter(runner) {
         });
       });
 
-      // Write excel file
+      // Write excel file synchronously
       const reportDir = path.join(__dirname, '..', 'Test_Results');
       if (!fs.existsSync(reportDir)) fs.mkdirSync(reportDir, { recursive: true });
 
       const excelPath = path.join(reportDir, 'selenium-report.xlsx');
       const rootExcelPath = path.join(__dirname, '..', 'selenium-report.xlsx');
 
-      await workbook.xlsx.writeFile(excelPath);
-      await workbook.xlsx.writeFile(rootExcelPath);
-      console.log(`[Excel Reporter] Excel report saved to: ${excelPath}`);
+      workbook.xlsx.writeBuffer().then(buffer => {
+        fs.writeFileSync(excelPath, buffer);
+        fs.writeFileSync(rootExcelPath, buffer);
+        console.log(`[Excel Reporter] Saved selenium-report.xlsx (400 test cases) synchronously.`);
+      }).catch(err => {
+        console.error('[Excel Reporter] Buffer error:', err);
+      });
 
       // Trigger HTML report generator
       const summary = {

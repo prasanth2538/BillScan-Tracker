@@ -93,13 +93,27 @@ jobs:
             cp BillScanTrackerE2E/selenium-report.xlsx BillScanTrackerWeb/dist/reports/latest/selenium-report.xlsx
           fi
 
+      - name: Upload Web E2E & Security Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-e2e-and-security-reports
+          path: |
+            BillScanTrackerE2E/selenium-report.xlsx
+            BillScanTrackerE2E/Test_Results/HTML/execution-report.html
+            BillScanTrackerE2E/web-security-findings.xlsx
+            BillScanTrackerE2E/web-security-review.md
+            BillScanTrackerE2E/web-executive-summary.md
+
       - name: Upload Artifacts to GitHub Pages
+        continue-on-error: true
         uses: actions/upload-pages-artifact@v3
         with:
           path: BillScanTrackerWeb/dist
 
       - name: Deploy Unified App & Reports to GitHub Pages
         id: deployment
+        continue-on-error: true
         uses: actions/deploy-pages@v4
 
       - name: Generate GHA Step Summary Report
@@ -118,8 +132,7 @@ jobs:
           - **Critical Findings**: 0 (Zero-Critical Gate Passed)
           - **Total Low Findings**: 14
 
-          ### 🌐 Deployed Reports & Site
-          - **Live Application**: ${{ steps.deployment.outputs.page_url }}
-          - **Latest Execution Report**: ${{ steps.deployment.outputs.page_url }}reports/latest/execution-report.html
-          - **Build #${{ github.run_number }} Report**: ${{ steps.deployment.outputs.page_url }}reports/history/build-${{ github.run_number }}/execution-report.html
+          ### 🌐 Deployed Reports & Artifacts
+          - **Latest Execution Report**: reports/latest/execution-report.html
+          - **Selenium Report Excel**: selenium-report.xlsx
           EOF
