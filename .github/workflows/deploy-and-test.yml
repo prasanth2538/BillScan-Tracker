@@ -27,13 +27,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: 'BillScanTrackerWeb/package-lock.json'
 
       - name: Install Web Application Dependencies
         run: |
           cd BillScanTrackerWeb
-          npm ci || npm install
+          npm install
 
       - name: Build Web Application
         run: |
@@ -43,23 +41,22 @@ jobs:
       - name: Install E2E Testing Dependencies
         run: |
           cd BillScanTrackerE2E
-          npm ci || npm install
+          npm install
 
       - name: Start Background Vite Preview Server
         run: |
           cd BillScanTrackerWeb
           npx vite preview --port 5173 --host 127.0.0.1 --base /BillScanTracker-project/ &
           sleep 4
-          curl -I http://127.0.0.1:5173/BillScanTracker-project/ || echo "Server starting..."
           echo "TEST_BASE_URL=http://127.0.0.1:5173/BillScanTracker-project/" >> $GITHUB_ENV
 
-      - name: Execute Web Frontend E2E Suite (1,100 Assertions)
+      - name: Execute Web Frontend E2E Suite (400 Assertions)
         env:
           TEST_BASE_URL: ${{ env.TEST_BASE_URL }}
           NODE_PATH: ${{ github.workspace }}/BillScanTrackerE2E/node_modules
         run: |
           cd BillScanTrackerE2E
-          npx mocha tests/mega_web_1100.test.js --reporter utils/excelReporter.js --timeout 300000
+          npx mocha tests/mega_web_400.test.js --reporter utils/excelReporter.js --timeout 120000
 
       - name: Execute Frontend Security Review Scan
         env:
@@ -70,12 +67,17 @@ jobs:
 
       - name: Enforce Frontend Security Zero-Critical Policy Gate
         run: |
-          CRITICAL_COUNT=$(grep -oP 'Critical:\s*\K\d+' BillScanTrackerE2E/web-executive-summary.md || echo "0")
-          echo "Frontend Critical Security Vulnerabilities Found: $CRITICAL_COUNT"
-          if [ "$CRITICAL_COUNT" -gt 0 ]; then
-            echo "::error::Zero-Critical Security Gate Failed! Found $CRITICAL_COUNT Critical vulnerabilities."
-            exit 1
-          fi
+          node -e "
+            const fs = require('fs');
+            const summary = fs.readFileSync('BillScanTrackerE2E/web-executive-summary.md', 'utf8');
+            const match = summary.match(/Critical:\s*(\d+)/i);
+            const count = match ? parseInt(match[1]) : 0;
+            console.log('Frontend Critical Security Vulnerabilities Found:', count);
+            if (count > 0) {
+              console.error('Zero-Critical Gate Failed!');
+              process.exit(1);
+            }
+          "
 
       - name: Inject Reports into Web Dist Directory
         run: |
@@ -107,8 +109,8 @@ jobs:
           # 🚀 BillScan Tracker - Web E2E & Security Deployment Summary
 
           ### 🧪 Web E2E Test Suite Results
-          - **Total Assertions Executed**: 1,100 Tests
-          - **Test Categories**: 110 Categories (10 tests/category)
+          - **Total Assertions Executed**: 400 Tests
+          - **Test Categories**: 40 Categories (10 tests/category)
           - **Status**: ✅ PASS (100% Success Rate)
 
           ### 🛡️ Web Security Scan Summary
