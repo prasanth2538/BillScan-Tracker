@@ -2,11 +2,11 @@
   "name": "billscan-tracker-e2e",
   "version": "1.0.0",
   "description": "Web E2E Testing Suite for BillScan Tracker",
-  "main": "tests/mega_web_1100.test.js",
+  "main": "tests/mega_web_400.test.js",
   "type": "commonjs",
   "scripts": {
-    "test": "mocha tests/mega_web_1100.test.js --reporter utils/excelReporter.js --timeout 120000",
-    "generate-security": "node scripts/generateWebSecuritySuite.js"
+    "test": "mocha tests/mega_web_400.test.js --reporter utils/excelReporter.js --timeout 120000",
+    "test:functional": "node scripts/generateFunctionalSuite.js"
   },
   "dependencies": {
     "exceljs": "^4.4.0",

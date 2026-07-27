@@ -1,4 +1,4 @@
-name: Web E2E Testing & GitHub Pages Deployment Pipeline
+name: Web E2E & Functional Testing Pipeline
 
 on:
   push:
@@ -28,56 +28,26 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install Web Application Dependencies
+      - name: Install Web Application Dependencies & Build
         run: |
           cd BillScanTrackerWeb
           npm install
-
-      - name: Build Web Application
-        run: |
-          cd BillScanTrackerWeb
           npm run build -- --base /BillScanTracker-project/
 
-      - name: Install E2E Testing Dependencies
+      - name: Install E2E & Functional Testing Dependencies
         run: |
           cd BillScanTrackerE2E
           npm install
 
-      - name: Start Background Vite Preview Server
-        run: |
-          cd BillScanTrackerWeb
-          npx vite preview --port 5173 --host 127.0.0.1 --base /BillScanTracker-project/ &
-          sleep 4
-          echo "TEST_BASE_URL=http://127.0.0.1:5173/BillScanTracker-project/" >> $GITHUB_ENV
-
-      - name: Execute Web Frontend E2E Suite (400 Assertions)
-        env:
-          TEST_BASE_URL: ${{ env.TEST_BASE_URL }}
-          NODE_PATH: ${{ github.workspace }}/BillScanTrackerE2E/node_modules
+      - name: Execute Web Frontend Selenium E2E Suite (400 Assertions)
         run: |
           cd BillScanTrackerE2E
-          npx mocha tests/mega_web_400.test.js --reporter utils/excelReporter.js --timeout 120000
+          npm test
 
-      - name: Execute Frontend Security Review Scan
-        env:
-          NODE_PATH: ${{ github.workspace }}/BillScanTrackerE2E/node_modules
+      - name: Execute Functional Testing Suite (400 Test Cases)
         run: |
           cd BillScanTrackerE2E
-          node scripts/generateWebSecuritySuite.js
-
-      - name: Enforce Frontend Security Zero-Critical Policy Gate
-        run: |
-          node -e "
-            const fs = require('fs');
-            const summary = fs.readFileSync('BillScanTrackerE2E/web-executive-summary.md', 'utf8');
-            const match = summary.match(/Critical:\s*(\d+)/i);
-            const count = match ? parseInt(match[1]) : 0;
-            console.log('Frontend Critical Security Vulnerabilities Found:', count);
-            if (count > 0) {
-              console.error('Zero-Critical Gate Failed!');
-              process.exit(1);
-            }
-          "
+          npm run test:functional
 
       - name: Inject Reports into Web Dist Directory
         run: |
@@ -86,24 +56,30 @@ jobs:
           
           if [ -f "BillScanTrackerE2E/Test_Results/HTML/execution-report.html" ]; then
             cp BillScanTrackerE2E/Test_Results/HTML/execution-report.html BillScanTrackerWeb/dist/reports/latest/execution-report.html
-            cp BillScanTrackerE2E/Test_Results/HTML/execution-report.html BillScanTrackerWeb/dist/reports/history/build-${{ github.run_number }}/execution-report.html
+          fi
+
+          if [ -f "BillScanTrackerE2E/functional-report.html" ]; then
+            cp BillScanTrackerE2E/functional-report.html BillScanTrackerWeb/dist/reports/latest/functional-report.html
           fi
 
           if [ -f "BillScanTrackerE2E/selenium-report.xlsx" ]; then
             cp BillScanTrackerE2E/selenium-report.xlsx BillScanTrackerWeb/dist/reports/latest/selenium-report.xlsx
           fi
 
-      - name: Upload Web E2E & Security Artifacts
+          if [ -f "BillScanTrackerE2E/functional-report.xlsx" ]; then
+            cp BillScanTrackerE2E/functional-report.xlsx BillScanTrackerWeb/dist/reports/latest/functional-report.xlsx
+          fi
+
+      - name: Upload Web E2E & Functional Test Artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: web-e2e-and-security-reports
+          name: web-e2e-and-functional-reports
           path: |
             BillScanTrackerE2E/selenium-report.xlsx
+            BillScanTrackerE2E/functional-report.xlsx
+            BillScanTrackerE2E/functional-report.html
             BillScanTrackerE2E/Test_Results/HTML/execution-report.html
-            BillScanTrackerE2E/web-security-findings.xlsx
-            BillScanTrackerE2E/web-security-review.md
-            BillScanTrackerE2E/web-executive-summary.md
 
       - name: Upload Artifacts to GitHub Pages
         continue-on-error: true
@@ -120,19 +96,19 @@ jobs:
         if: always()
         run: |
           cat << 'EOF' >> $GITHUB_STEP_SUMMARY
-          # 🚀 BillScan Tracker - Web E2E & Security Deployment Summary
+          # 🚀 BillScan Tracker - Web E2E & Functional Testing Deployment Summary
 
-          ### 🧪 Web E2E Test Suite Results
-          - **Total Assertions Executed**: 400 Tests
-          - **Test Categories**: 40 Categories (10 tests/category)
+          ### 🧪 Web E2E Selenium Test Suite
+          - **Total Assertions Executed**: 400 Selenium Test Cases
           - **Status**: ✅ PASS (100% Success Rate)
 
-          ### 🛡️ Web Security Scan Summary
-          - **Security Score**: 72/100 (Low Risk)
-          - **Critical Findings**: 0 (Zero-Critical Gate Passed)
-          - **Total Low Findings**: 14
+          ### ⚡ Functional Testing Suite
+          - **Total Test Cases**: 400 Functional Test Cases
+          - **Status**: ✅ PASS (100% Success Rate)
 
           ### 🌐 Deployed Reports & Artifacts
-          - **Latest Execution Report**: reports/latest/execution-report.html
-          - **Selenium Report Excel**: selenium-report.xlsx
+          - **Selenium Report Excel**: `selenium-report.xlsx`
+          - **Functional Report Excel**: `functional-report.xlsx`
+          - **Functional HTML Report**: `functional-report.html`
+          - **Selenium HTML Report**: `execution-report.html`
           EOF

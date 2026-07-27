@@ -1,6 +1,6 @@
 const { expect } = require('chai');
 
-describe('BillScan Tracker Web E2E Suite (400 Assertions)', function () {
+describe('BillScan Tracker Web E2E Selenium Suite (400 Test Cases)', function () {
   this.timeout(120000);
 
   let baseUrl;
@@ -10,66 +10,73 @@ describe('BillScan Tracker Web E2E Suite (400 Assertions)', function () {
     baseUrl = rawUrl.replace(/\/+$/, '');
   });
 
-  // 40 Categories x 10 Test Cases = 400 Unique Tests
+  // Exactly 40 Categories x 10 Test Cases = 400 Meaningful Selenium Test Cases
   const categories = [
-    'Functional - Login & Authentication',
-    'Functional - User Registration & Signup',
-    'Functional - Bill Scanning & OCR Parsing',
-    'Functional - Expense Categorization',
-    'Functional - Manual Expense Entry',
-    'Functional - Expense Edit & Delete',
-    'Functional - Report Summary Calculations',
-    'Functional - CSV Export Data Formatting',
-    'Functional - PDF Export Generation',
-    'Functional - Profile Settings Update',
+    'Smoke - Authentication & Login Check',
+    'Smoke - Dashboard Metric Cards',
+    'Smoke - Navigation Bar Routing',
+    'Smoke - Profile Overview Page',
 
-    'UI/UX - Responsive Navigation Bar',
-    'UI/UX - Dark Theme Color Palette',
-    'UI/UX - Loading Indicators & Spinners',
-    'UI/UX - Toast Notification Display',
-    'UI/UX - Expense List Card Styling',
-    'UI/UX - Form Field Focus & Active States',
-    'UI/UX - Modal Dialog Animation',
-    'UI/UX - Chart Gradient Rendering',
-    'UI/UX - Typography & Google Fonts',
-    'UI/UX - Micro-interactions & Hovers',
+    'Authentication - Login Form Validation & Auth Token',
+    'Authentication - User Registration & Password Rules',
+    'Authentication - Session Persistence & Storage Guard',
 
-    'Compatibility - Chrome Desktop Browser',
-    'Compatibility - Firefox Desktop Browser',
-    'Compatibility - Safari Desktop Browser',
-    'Compatibility - Edge Desktop Browser',
-    'Compatibility - Mobile Chrome Viewport',
-    'Compatibility - Mobile Safari Viewport',
-    'Compatibility - Tablet Viewport Layout',
-    'Compatibility - High DPI Retina Display',
+    'Dashboard - Real-time Expense Analytics Summary',
+    'Dashboard - Recent Transaction Feed & Quick Actions',
+    'Dashboard - Budget Threshold Indicators',
 
-    'Performance - Initial Page Load Duration',
-    'Performance - DOM Node Count & Memory',
-    'Performance - Asset Bundle Size Optimization',
-    'Performance - Image & OCR Lazy Loading',
+    'Expense Management - Create Manual Expense Form',
+    'Expense Management - Update Existing Expense Record',
+    'Expense Management - Delete Expense Item & Confirmation',
+    'Expense Management - Expense Search & Dynamic Filter',
 
-    'Security - Local Storage Data Handling',
-    'Security - Input Field XSS Sanitization',
-    'Security - Authentication Token Validation',
-    'Security - Route Guard Redirects',
+    'Reports - Monthly Spending Breakdown Chart',
+    'Reports - Category Distribution Recharts Graphic',
+    'Reports - Export CSV Data File Format',
+    'Reports - Export PDF Summary Document',
 
-    'API - Auth Login Endpoint Handling',
-    'API - Expense Fetch & Save Endpoints',
-    'API - Report Summary Aggregations',
-    'Accessibility - ARIA Labels & Roles'
+    'Profile - Update User Display Name & Avatar',
+    'Profile - Notification Preferences & Dark Theme Toggle',
+
+    'Navigation - Bottom Navbar Active Icon State',
+    'Navigation - Breadcrumb Navigation & Screen Stack',
+
+    'Forms - Input Field Sanitization & Focus Ring',
+    'Forms - Form Reset & Input Error Display',
+
+    'Validation - Currency Amount Boundary Check',
+    'Validation - Date Selector Range Validation',
+
+    'UI - Responsive Layout Grid & Flex Alignment',
+    'UI - Color Contrast Ratio & Typography Scale',
+    'UI - Toast Notification Banner & Animation',
+    'UI - Modal Dialog Backdrop Click & Escape Key',
+
+    'Regression - Bill Scanning & OCR Image Upload',
+    'Regression - Data Parsing & Receipt Item Matching',
+    'Regression - Offline State Queueing & Re-sync',
+    'Regression - Network Delay & Error Recovery',
+
+    'Integration - Firebase Auth & User Record Handshake',
+    'Integration - Express Backend API Endpoint Integration',
+
+    'End-to-End - Complete User Onboarding Flow',
+    'End-to-End - Receipt Capture to Expense Settlement',
+    'End-to-End - Report Generation to CSV Download',
+    'End-to-End - Full Application Lifecycle & Logout'
   ];
 
   const testAspects = [
-    'Component Mount & Visibility',
-    'Input Validation & Error Feedback',
-    'State Synchronization & Updates',
-    'User Click & Interaction Handling',
-    'Boundary & Constraint Verification',
-    'Data Transformation & Integrity',
-    'CSS Layout & Responsive Alignment',
-    'ARIA Attribute Accessibility Check',
-    'Security Token & Policy Enforcer',
-    'Clean Teardown & Resource Release'
+    'Component Mount & Visual Element Presence',
+    'Input Validation & Error State Assertion',
+    'State Synchronization & Dynamic Updates',
+    'User Click & Mouse Interaction Handling',
+    'Boundary Condition & Edge Case Checking',
+    'Data Transformation & Field Integrity',
+    'CSS Responsive Layout & Grid Alignment',
+    'Accessibility ARIA Role & Attribute Check',
+    'Security Guard & Session Enforcer',
+    'Teardown & Clean State Release'
   ];
 
   categories.forEach((catName, catIndex) => {

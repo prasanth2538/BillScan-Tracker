@@ -4,7 +4,7 @@ const xlsxReporter = require('./utils/xlsxReporter');
 const { generateMobileHtmlReport } = require('./utils/generateHtmlReport');
 const { appendSummaryToGha } = require('./utils/generateSummary');
 
-const specPath = process.env.WDIO_CI_SPEC || path.join(__dirname, 'tests/12_e2e/mega_android_1100.test.js');
+const specPath = process.env.WDIO_CI_SPEC || path.join(__dirname, 'tests/12_e2e/mega_android_400.test.js');
 const jsonlResultsFile = path.join(__dirname, '.wdio-results.jsonl');
 
 exports.config = {

@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node server.js",
     "security-review": "node scripts/generateSecuritySuite.js",
-    "load-test": "k6 run scripts/load-test.js --summary-export=summary.json"
+    "load-test": "k6 run scripts/load-test.js --summary-export=summary.json",
+    "test:load": "node scripts/parseK6Summary.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

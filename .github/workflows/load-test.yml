@@ -51,7 +51,9 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: k6-load-testing-summary
+          name: k6-load-testing-reports
           path: |
             BillScanTrackerBackend/summary.json
             BillScanTrackerBackend/k6-load-summary.md
+            BillScanTrackerBackend/load-testing-report.xlsx
+            BillScanTrackerBackend/load-testing-report.html
