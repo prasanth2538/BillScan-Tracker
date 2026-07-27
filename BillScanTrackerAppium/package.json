@@ -1,0 +1,19 @@
+{
+  "name": "billscan-tracker-appium",
+  "version": "1.0.0",
+  "description": "Mobile Appium Automation Test Suite for BillScan Tracker Android",
+  "main": "tests/12_e2e/mega_android_1100.test.js",
+  "type": "commonjs",
+  "scripts": {
+    "test": "wdio run wdio.conf.js",
+    "test:ci": "bash scripts/ci_run_tests.sh"
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0"
+  },
+  "devDependencies": {
+    "chai": "^4.5.0",
+    "mocha": "^10.8.2",
+    "webdriverio": "^8.46.0"
+  }
+}

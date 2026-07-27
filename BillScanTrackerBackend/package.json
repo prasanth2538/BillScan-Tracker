@@ -1,0 +1,24 @@
+{
+  "name": "billscan-tracker-backend",
+  "version": "1.0.0",
+  "description": "BillScan Tracker Backend API Server",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "security-review": "node scripts/generateSecuritySuite.js",
+    "load-test": "k6 run scripts/load-test.js --summary-export=summary.json"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.6",
+    "dotenv": "^16.6.1",
+    "exceljs": "^4.4.0",
+    "express": "^4.22.2",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.22.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}

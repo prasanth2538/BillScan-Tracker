@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>BillScan Tracker - Web E2E Test Execution Report</title>
+  <style>
+    :root {
+      --bg-dark: #0f172a;
+      --card-bg: #1e293b;
+      --border-color: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-green: #22c55e;
+      --accent-red: #ef4444;
+      --accent-blue: #3b82f6;
+      --accent-purple: #8b5cf6;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding: 2rem;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 2rem;
+    }
+    .header h1 { font-size: 1.8rem; font-weight: 700; color: #ffffff; }
+    .header .meta { font-size: 0.9rem; color: var(--text-muted); }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.25rem;
+      text-align: center;
+    }
+    .stat-value { font-size: 2.2rem; font-weight: 700; margin-top: 0.25rem; }
+    .stat-label { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+    .val-pass { color: var(--accent-green); }
+    .val-fail { color: var(--accent-red); }
+    .val-blue { color: var(--accent-blue); }
+    .val-purple { color: var(--accent-purple); }
+
+    .progress-bar-container {
+      background: var(--border-color);
+      border-radius: 999px;
+      height: 14px;
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+    .progress-fill {
+      background: linear-gradient(90deg, #22c55e, #10b981);
+      height: 100%;
+      width: 99.9%;
+    }
+
+    .section {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .section-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: #fff; }
+    
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th, td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.95rem; }
+    th { background: #0f172a; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; }
+    tr:hover { background: rgba(255,255,255,0.02); }
+    
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .badge-pass { background: rgba(34, 197, 94, 0.2); color: var(--accent-green); border: 1px solid var(--accent-green); }
+    .badge-fail { background: rgba(239, 68, 68, 0.2); color: var(--accent-red); border: 1px solid var(--accent-red); }
+    .text-success { color: var(--accent-green); }
+    .text-danger { color: var(--accent-red); }
+
+    .fail-card {
+      background: rgba(239, 68, 68, 0.08);
+      border-left: 4px solid var(--accent-red);
+      padding: 1rem;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+    }
+    .fail-title { font-weight: 600; color: #f87171; margin-bottom: 0.5rem; }
+    .fail-error pre { white-space: pre-wrap; font-family: monospace; font-size: 0.85rem; color: #fca5a5; }
+    
+    .footer { text-align: center; color: var(--text-muted); font-size: 0.85rem; margin-top: 2rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div>
+        <h1>BillScan Tracker — Web E2E Test Execution Report</h1>
+        <div class="meta">Automated Selenium Mocha Test Execution • Generated 2026-07-27T04:31:46.296Z</div>
+      </div>
+      <div>
+        <span class="badge badge-fail">Pass Rate: 99.9%</span>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Assertions</div>
+        <div class="stat-value val-blue">1100</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Passed</div>
+        <div class="stat-value val-pass">1099</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Failed</div>
+        <div class="stat-value val-fail">1</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Duration</div>
+        <div class="stat-value val-purple">39.48s</div>
+      </div>
+    </div>
+
+    <div class="progress-bar-container">
+      <div class="progress-fill"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Category Breakdown (110 Categories)</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Category / Testing Type</th>
+            <th>Total Tests</th>
+            <th>Passed</th>
+            <th>Failed</th>
+            <th>Pass Rate</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+      <tr>
+        <td><strong>Functional - Authentication [Category #1]</strong></td>
+        <td>10</td>
+        <td class="text-success">9</td>
+        <td class="text-danger">1</td>
+        <td><span class="badge badge-fail">90.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Functional - User Profile [Category #2]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Functional - Bill Scanning OCR [Category #3]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Functional - Expense Dashboard [Category #4]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Functional - Analytics & Charts [Category #5]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Functional - Export PDF/CSV [Category #6]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Functional - Budget Alerts [Category #7]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Functional - Notification Engine [Category #8]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Functional - Session Management [Category #9]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Functional - Data Encryption [Category #10]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>UI/UX - Authentication [Category #11]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>UI/UX - User Profile [Category #12]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>UI/UX - Bill Scanning OCR [Category #13]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>UI/UX - Expense Dashboard [Category #14]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>UI/UX - Analytics & Charts [Category #15]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>UI/UX - Export PDF/CSV [Category #16]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>UI/UX - Budget Alerts [Category #17]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>UI/UX - Notification Engine [Category #18]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>UI/UX - Session Management [Category #19]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>UI/UX - Data Encryption [Category #20]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Compatibility - Authentication [Category #21]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Compatibility - User Profile [Category #22]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Compatibility - Bill Scanning OCR [Category #23]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Compatibility - Expense Dashboard [Category #24]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Compatibility - Analytics & Charts [Category #25]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Compatibility - Export PDF/CSV [Category #26]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Compatibility - Budget Alerts [Category #27]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Compatibility - Notification Engine [Category #28]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Compatibility - Session Management [Category #29]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Compatibility - Data Encryption [Category #30]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Performance - Authentication [Category #31]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Performance - User Profile [Category #32]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Performance - Bill Scanning OCR [Category #33]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Performance - Expense Dashboard [Category #34]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Performance - Analytics & Charts [Category #35]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Performance - Export PDF/CSV [Category #36]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Performance - Budget Alerts [Category #37]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Performance - Notification Engine [Category #38]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Performance - Session Management [Category #39]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Performance - Data Encryption [Category #40]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Security - Authentication [Category #41]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Security - User Profile [Category #42]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Security - Bill Scanning OCR [Category #43]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Security - Expense Dashboard [Category #44]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Security - Analytics & Charts [Category #45]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Security - Export PDF/CSV [Category #46]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Security - Budget Alerts [Category #47]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Security - Notification Engine [Category #48]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Security - Session Management [Category #49]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Security - Data Encryption [Category #50]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>API - Authentication [Category #51]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>API - User Profile [Category #52]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>API - Bill Scanning OCR [Category #53]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>API - Expense Dashboard [Category #54]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>API - Analytics & Charts [Category #55]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>API - Export PDF/CSV [Category #56]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>API - Budget Alerts [Category #57]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>API - Notification Engine [Category #58]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>API - Session Management [Category #59]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>API - Data Encryption [Category #60]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Database - Authentication [Category #61]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Database - User Profile [Category #62]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Database - Bill Scanning OCR [Category #63]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Database - Expense Dashboard [Category #64]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Database - Analytics & Charts [Category #65]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Database - Export PDF/CSV [Category #66]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Database - Budget Alerts [Category #67]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Database - Notification Engine [Category #68]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Database - Session Management [Category #69]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Database - Data Encryption [Category #70]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Accessibility - Authentication [Category #71]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Accessibility - User Profile [Category #72]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Accessibility - Bill Scanning OCR [Category #73]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Accessibility - Expense Dashboard [Category #74]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Accessibility - Analytics & Charts [Category #75]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Accessibility - Export PDF/CSV [Category #76]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Accessibility - Budget Alerts [Category #77]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Accessibility - Notification Engine [Category #78]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Accessibility - Session Management [Category #79]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Accessibility - Data Encryption [Category #80]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Mobile - Authentication [Category #81]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Mobile - User Profile [Category #82]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Mobile - Bill Scanning OCR [Category #83]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Mobile - Expense Dashboard [Category #84]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Mobile - Analytics & Charts [Category #85]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Mobile - Export PDF/CSV [Category #86]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Mobile - Budget Alerts [Category #87]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Mobile - Notification Engine [Category #88]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Mobile - Session Management [Category #89]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Mobile - Data Encryption [Category #90]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Regression - Authentication [Category #91]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Regression - User Profile [Category #92]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Regression - Bill Scanning OCR [Category #93]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Regression - Expense Dashboard [Category #94]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Regression - Analytics & Charts [Category #95]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Regression - Export PDF/CSV [Category #96]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Regression - Budget Alerts [Category #97]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Regression - Notification Engine [Category #98]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Regression - Session Management [Category #99]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Regression - Data Encryption [Category #100]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>End-to-End - Authentication [Category #101]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>End-to-End - User Profile [Category #102]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>End-to-End - Bill Scanning OCR [Category #103]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>End-to-End - Expense Dashboard [Category #104]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>End-to-End - Analytics & Charts [Category #105]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>End-to-End - Export PDF/CSV [Category #106]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>End-to-End - Budget Alerts [Category #107]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>End-to-End - Notification Engine [Category #108]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>End-to-End - Session Management [Category #109]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+      <tr>
+        <td><strong>End-to-End - Data Encryption [Category #110]</strong></td>
+        <td>10</td>
+        <td class="text-success">10</td>
+        <td class="text-danger">0</td>
+        <td><span class="badge badge-pass">100.0%</span></td>
+      </tr>
+    
+        </tbody>
+      </table>
+    </div>
+
+    
+    <div class="section">
+      <div class="section-title" style="color: var(--accent-red);">Failed Assertions (1)</div>
+      
+    <div class="fail-card">
+      <div class="fail-title">#1: [TC-0001] Verification of Initial Rendering & Component Mount (Functional - Authentication [Category #1])</div>
+      <div class="fail-error"><pre>WebDriverError: unknown error: net::ERR_CONNECTION_REFUSED
+  (Session info: chrome=150.0.7871.186)
+    at Object.throwDecodedError (node_modules\selenium-webdriver\lib\error.js:523:15)
+    at parseHttpResponse (node_modules\selenium-webdriver\lib\http.js:527:13)
+    at Executor.execute (node_modules\selenium-webdriver\lib\http.js:459:28)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Driver.execute (node_modules\selenium-webdriver\lib\webdriver.js:745:17)
+    at async Context.<anonymous> (tests\mega_web_1100.test.js:83:13)</pre></div>
+    </div>
+  
+    </div>
+    
+
+    <div class="footer">
+      BillScan Tracker Web E2E Pipeline • Powered by Selenium & Mocha Excel Reporter
+    </div>
+  </div>
+</body>
+</html>

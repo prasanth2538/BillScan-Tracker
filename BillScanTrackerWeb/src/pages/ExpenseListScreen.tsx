@@ -1,0 +1,468 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronRight, X, Loader2, ShoppingCart, UtensilsCrossed, Fuel, Heart, Clapperboard, Bus } from 'lucide-react';
+import { getThisMonthExpenses, RawExpense } from '../services/expenseService';
+import { saveExpense } from "../services/saveExpense";
+
+// ─── Category config ──────────────────────────────────────────────────────────
+
+interface CategoryConfig {
+  label: string;
+  icon: React.ReactNode;
+  emoji: string;
+  bg: string;
+  darkBg: string;
+  iconBg: string;
+  iconColor: string;
+  keywords: string[];
+}
+
+const CATEGORIES: CategoryConfig[] = [
+  {
+    label: 'Groceries', emoji: '🛒',
+    icon: <ShoppingCart size={18} />,
+    bg: '#F0FAF5', darkBg: '#0D2E1E',
+    iconBg: '#C8EFE0', iconColor: '#2E7D58',
+    keywords: ['groceries', 'grocery', 'supermarket'],
+  },
+  {
+    label: 'Food', emoji: '🍽️',
+    icon: <UtensilsCrossed size={18} />,
+    bg: '#FFF8EE', darkBg: '#2B1E00',
+    iconBg: '#FFE5B4', iconColor: '#C97A00',
+    keywords: ['food', 'restaurant', 'dining', 'café', 'cafe', 'pizza', 'zomato', 'swiggy'],
+  },
+  {
+    label: 'Petrol', emoji: '⛽',
+    icon: <Fuel size={18} />,
+    bg: '#EDF4FD', darkBg: '#0A1A2E',
+    iconBg: '#BFDBFE', iconColor: '#1D4ED8',
+    keywords: ['petrol', 'fuel', 'transport', 'gas'],
+  },
+  {
+    label: 'Hospital', emoji: '🏥',
+    icon: <Heart size={18} />,
+    bg: '#FEF2F2', darkBg: '#2E0A0A',
+    iconBg: '#FECACA', iconColor: '#DC2626',
+    keywords: ['health', 'hospital', 'medical', 'pharmacy', 'medicine', 'doctor', 'clinic'],
+  },
+  {
+    label: 'Movies', emoji: '🎬',
+    icon: <Clapperboard size={18} />,
+    bg: '#F3F0FD', darkBg: '#1A0E2E',
+    iconBg: '#DDD6FE', iconColor: '#7C3AED',
+    keywords: ['entertainment', 'movies', 'cinema', 'pvr', 'inox'],
+  },
+  {
+    label: 'Travel', emoji: '🚌',
+    icon: <Bus size={18} />,
+    bg: '#F0FDF4', darkBg: '#062010',
+    iconBg: '#BBF7D0', iconColor: '#15803D',
+    keywords: ['travel', 'bus', 'train', 'metro', 'ticket', 'cab', 'uber', 'ola', 'auto'],
+  },
+  {
+    label: 'Other', emoji: '📄',
+    icon: <span className="text-sm">📄</span>,
+    bg: '#F5F5F5', darkBg: '#1C1C1E',
+    iconBg: '#E5E7EB', iconColor: '#6B7280',
+    keywords: ['other', 'misc', 'miscellaneous', 'unknown'],
+  },
+];
+
+function resolveCategory(raw: string): CategoryConfig {
+  const lower = (raw || '').toLowerCase();
+  return CATEGORIES.find(c => c.keywords.some(k => lower.includes(k))) ?? CATEGORIES[1];
+}
+
+function formatDateLabel(dateStr: string): string {
+  if (!dateStr) return 'Unknown Date';
+  if (/^[A-Z]/.test(dateStr) && dateStr.length < 15) return dateStr;
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+    if (d.toDateString() === today.toDateString()) return 'TODAY';
+    if (d.toDateString() === yesterday.toDateString()) return 'YESTERDAY';
+    return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
+  } catch { return dateStr; }
+}
+
+// ─── Category Detail Bottom Sheet (slides up from bottom) ────────────────────
+
+interface CategorySheetProps {
+  config: CategoryConfig;
+  expenses: RawExpense[];
+  total: number;
+  isDark: boolean;
+  onClose: () => void;
+}
+
+function CategorySheet({ config, expenses, total, isDark, onClose }: CategorySheetProps) {
+  const grouped = useMemo(() => {
+    const map: Record<string, RawExpense[]> = {};
+    for (const e of expenses) {
+      const label = formatDateLabel(e.date || '');
+      if (!map[label]) map[label] = [];
+      map[label].push(e);
+    }
+    return map;
+  }, [expenses]);
+
+  return (
+    <motion.div
+      className="absolute inset-0 z-50 flex items-end"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      {/* Dim backdrop — tap to close */}
+      <motion.div
+        className="absolute inset-0 bg-black/40"
+        onClick={onClose}
+      />
+
+      {/* Sheet slides up from bottom */}
+      <motion.div
+        className="relative w-full rounded-t-[32px] max-h-[88vh] flex flex-col overflow-hidden glass-effect dark:bg-dark-card shadow-floating border-t border-white/20 dark:border-white/5"
+        initial={{ y: '100%' }}
+        animate={{ y: 0 }}
+        exit={{ y: '100%' }}
+        transition={{ type: 'spring', damping: 28, stiffness: 280 }}
+      >
+        {/* Drag handle */}
+        <div className="w-10 h-1 bg-black/10 dark:bg-white/20 rounded-full mx-auto mt-3 mb-1 flex-shrink-0" />
+
+        {/* Header row */}
+        <div className="px-5 pt-3 pb-4 flex items-center justify-between flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <div
+              className="w-12 h-12 rounded-full flex items-center justify-center shadow-sm"
+              style={{ backgroundColor: config.iconBg, color: config.iconColor }}
+            >
+              {config.icon}
+            </div>
+            <div>
+              <p className="font-sora font-semibold text-[15px] text-gray-900 dark:text-white">
+                {config.label}
+              </p>
+              <p className="font-dm text-[12px] text-gray-500 dark:text-gray-400">
+                {expenses.length} transaction{expenses.length !== 1 ? 's' : ''}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-9 h-9 rounded-full bg-gray-100 dark:bg-white/10 flex items-center justify-center"
+          >
+            <X size={18} className="text-gray-600 dark:text-gray-300" />
+          </button>
+        </div>
+
+        {/* Total banner */}
+        <div
+          className="mx-5 mb-5 rounded-card p-5 flex justify-between items-center flex-shrink-0 shadow-sm border dark:border-white/5"
+          style={{ backgroundColor: isDark ? config.darkBg : config.bg }}
+        >
+          <span className="font-dm text-[13px] font-semibold text-gray-700 dark:text-gray-300">Total spent</span>
+          <span className="font-mono font-bold text-[22px]" style={{ color: config.iconColor }}>
+            ₹{total.toLocaleString('en-IN')}
+          </span>
+        </div>
+
+        {/* Transaction list */}
+        <div className="flex-1 overflow-y-auto px-5 pb-10 scrollbar-hide">
+          {expenses.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 gap-2">
+              <span className="text-5xl">{config.emoji}</span>
+              <p className="font-dm text-[13px] text-gray-400 dark:text-gray-500 mt-1">
+                No {config.label.toLowerCase()} expenses yet
+              </p>
+            </div>
+          ) : (
+            Object.entries(grouped).map(([dateLabel, txns]) => (
+              <div key={dateLabel} className="mb-5">
+                <p className="font-dm text-[11px] uppercase tracking-wider text-gray-400 dark:text-gray-500 font-medium mb-2">
+                  {dateLabel}
+                </p>
+                <div className="flex flex-col gap-2">
+                  {txns.map((txn, i) => (
+                    <motion.div
+                      key={txn.id}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.04 }}
+                      className="rounded-[14px] p-3.5 flex items-center gap-3"
+                      style={{
+                        backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.03)',
+                        border: isDark ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.05)',
+                      }}
+                    >
+                      <div
+                        className="w-10 h-10 rounded-full flex items-center justify-center text-xl flex-shrink-0"
+                        style={{ backgroundColor: config.iconBg }}
+                      >
+                        {config.emoji}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-dm font-medium text-[14px] text-gray-900 dark:text-white truncate">
+                          {txn.merchant || 'Unknown'}
+                        </p>
+                        <p className="font-dm text-[12px] text-gray-400 dark:text-gray-500">{dateLabel}</p>
+                      </div>
+                      <span className="font-mono font-semibold text-[15px] text-gray-900 dark:text-white flex-shrink-0">
+                        ₹{Number(txn.amount).toLocaleString('en-IN')}
+                      </span>
+                    </motion.div>
+                  ))}
+                </div>
+                {/* Day subtotal */}
+                <div className="flex justify-end mt-1.5 pr-1">
+                  <span className="font-dm text-[11px] text-gray-400 dark:text-gray-500">
+                    Day total:{' '}
+                    <span className="font-mono font-semibold" style={{ color: config.iconColor }}>
+                      ₹{txns.reduce((s, e) => s + Number(e.amount || 0), 0).toLocaleString('en-IN')}
+                    </span>
+                  </span>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+// ─── Main Expense List Screen ─────────────────────────────────────────────────
+
+export function ExpenseListScreen() {
+  const [allExpenses, setAllExpenses]       = useState<RawExpense[]>([]);
+  const [loading, setLoading]               = useState(true);
+  const [error, setError]                   = useState<string | null>(null);
+  const [openCategory, setOpenCategory]     = useState<CategoryConfig | null>(null);
+  const [manualAmount, setManualAmount]     = useState('');
+  const [manualCategory, setManualCategory] = useState('Food');
+  const [manualMerchant, setManualMerchant] = useState('');
+  const [savingManual, setSavingManual]     = useState(false);
+
+  // Reactive dark mode tracking
+  const [isDark, setIsDark] = useState(
+    document.documentElement.classList.contains('dark')
+  );
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDark(document.documentElement.classList.contains('dark'));
+    });
+    observer.observe(document.documentElement, { attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
+
+  const loadData = async (forceRefresh = false) => {
+    try {
+      if (!forceRefresh) setLoading(true);
+      const data = await getThisMonthExpenses(forceRefresh);
+      setAllExpenses(data);
+    } catch (err) {
+      console.error(err);
+      setError('Could not load expenses. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+
+    const handleUpdate = () => {
+      loadData(true);
+    };
+
+    window.addEventListener("billScanned", handleUpdate);
+    return () => window.removeEventListener("billScanned", handleUpdate);
+  }, []);
+
+  const bucketed = useMemo(() => {
+    const map = new Map<string, RawExpense[]>();
+    CATEGORIES.forEach(c => map.set(c.label, []));
+    for (const e of allExpenses) {
+      const cfg = resolveCategory(e.category || '');
+      map.get(cfg.label)!.push(e);
+    }
+    return map;
+  }, [allExpenses]);
+
+  const grandTotal = allExpenses.reduce((s, e) => s + Number(e.amount || 0), 0);
+  const openCategoryExpenses = openCategory ? (bucketed.get(openCategory.label) ?? []) : [];
+  const openCategoryTotal    = openCategoryExpenses.reduce((s, e) => s + Number(e.amount || 0), 0);
+
+  const handleManualSave = async () => {
+    if (!manualAmount || Number(manualAmount) <= 0) { alert('Please enter a valid amount'); return; }
+    try {
+      setSavingManual(true);
+      await saveExpense({
+        amount: Number(manualAmount), category: manualCategory,
+        merchant: manualMerchant || 'Manual Expense',
+        date: new Date().toISOString(),
+      });
+      alert('Expense added successfully');
+      await loadData(true);
+      setManualAmount(''); setManualMerchant(''); setManualCategory('Food');
+    } catch (err: any) {
+      console.error(err); alert(err.message || 'Failed to save');
+    } finally { setSavingManual(false); }
+  };
+
+  return (
+    <div className="w-full h-full bg-page flex flex-col relative overflow-hidden">
+
+      {/* Top bar */}
+      <div className="pt-14 px-6 pb-4 bg-page flex-shrink-0">
+        <h1 className="font-sora font-bold text-[24px] text-gray-900 dark:text-white tracking-tight">Expenses</h1>
+        <p className="font-dm text-[13px] text-gray-500 dark:text-gray-400 mt-1 font-medium">
+          Tap a category to see all transactions
+        </p>
+      </div>
+
+      <div className="flex-1 overflow-y-auto px-6 pb-32 scrollbar-hide">
+
+        {loading && (
+          <div className="flex flex-col items-center justify-center mt-24 gap-3">
+            <Loader2 size={26} className="text-brand-green animate-spin" />
+            <p className="font-dm text-[13px] text-gray-400">Loading expenses…</p>
+          </div>
+        )}
+
+        {!loading && error && (
+          <div className="mt-10 p-4 bg-red-50 dark:bg-red-900/20 rounded-[12px] text-center">
+            <p className="font-dm text-[13px] text-red-500">{error}</p>
+          </div>
+        )}
+
+        {!loading && !error && allExpenses.length === 0 && (
+          <div className="flex flex-col items-center justify-center mt-24 gap-2">
+            <span className="text-5xl">🧾</span>
+            <p className="font-dm text-[14px] text-gray-600 dark:text-gray-300 mt-2">No expenses yet</p>
+            <p className="font-dm text-[12px] text-gray-400 dark:text-gray-500">Scan a bill to get started</p>
+          </div>
+        )}
+
+        {!loading && !error && (
+          <>
+            {/* ── Category cards ── */}
+            <div className="flex flex-col gap-3 mt-2">
+              {CATEGORIES.map((category) => {
+                const categoryExpenses = bucketed.get(category.label) ?? [];
+                const total = categoryExpenses.reduce((sum, e) => sum + Number(e.amount || 0), 0);
+                const hasData = categoryExpenses.length > 0;
+
+                return (
+                  <motion.button
+                    key={category.label}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setOpenCategory(category)}
+                    className="w-full rounded-card px-4 py-4 flex items-center gap-4 transition-all shadow-sm hover:shadow-md border border-transparent dark:border-white/5"
+                    style={{ backgroundColor: isDark ? category.darkBg : category.bg }}
+                  >
+                    <div
+                      className="w-12 h-12 rounded-[16px] flex items-center justify-center shrink-0 shadow-sm"
+                      style={{ backgroundColor: category.iconBg, color: category.iconColor }}
+                    >
+                      {category.icon}
+                    </div>
+
+                    <div className="flex-1 text-left min-w-0">
+                      <p className="font-sora font-bold text-[16px] text-gray-900 dark:text-white leading-tight">
+                        {category.label}
+                      </p>
+                      <p className="font-dm text-[13px] text-gray-500 dark:text-gray-400 mt-0.5 font-medium">
+                        {hasData
+                          ? `${categoryExpenses.length} transaction${categoryExpenses.length > 1 ? 's' : ''}`
+                          : 'No expenses yet'}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <span
+                        className="font-mono font-bold text-[15px]"
+                        style={{ color: hasData ? category.iconColor : '#9CA3AF' }}
+                      >
+                        {hasData ? `₹${total.toLocaleString('en-IN')}` : '—'}
+                      </span>
+                      {hasData && (
+                        <ChevronRight size={18} style={{ color: category.iconColor }} />
+                      )}
+                    </div>
+                  </motion.button>
+                );
+              })}
+            </div>
+
+            {/* ── Manual Expense Entry ── */}
+            <div className="bg-white dark:bg-dark-card rounded-card p-5 shadow-sm mt-6 mb-4 border border-transparent dark:border-white/5">
+              <h3 className="font-sora font-bold text-[16px] text-gray-900 dark:text-white mb-4">
+                Add Manual Expense
+              </h3>
+              <input
+                type="number"
+                value={manualAmount}
+                onChange={(e) => setManualAmount(e.target.value)}
+                placeholder="Enter amount"
+                className="w-full h-12 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 rounded-xl px-4 mb-3 outline-none font-dm text-[15px] text-gray-900 dark:text-white placeholder:text-gray-400 focus:border-brand-green transition-colors"
+              />
+              <select
+                value={manualCategory}
+                onChange={(e) => setManualCategory(e.target.value)}
+                className="w-full h-12 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 rounded-xl px-4 mb-3 outline-none font-dm text-[15px] text-gray-900 dark:text-white focus:border-brand-green transition-colors"
+              >
+                <option>Food</option><option>Petrol</option><option>Groceries</option>
+                <option>Movies</option><option>Travel</option><option>Hospital</option>
+                <option>Other</option>
+              </select>
+              <input
+                type="text"
+                value={manualMerchant}
+                onChange={(e) => setManualMerchant(e.target.value)}
+                placeholder="Merchant / Note"
+                className="w-full h-12 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 rounded-xl px-4 mb-4 outline-none font-dm text-[15px] text-gray-900 dark:text-white placeholder:text-gray-400 focus:border-brand-green transition-colors"
+              />
+              <button
+                onClick={handleManualSave}
+                disabled={savingManual}
+                className="w-full h-12 bg-gradient-to-r from-brand-green to-brand-green-gradient text-white rounded-xl font-sora font-bold text-[15px] shadow-sm disabled:opacity-60 active:scale-[0.98] transition-all"
+              >
+                {savingManual ? 'Saving…' : 'Add Expense'}
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Sticky bottom total */}
+      {!loading && allExpenses.length > 0 && (
+        <div className="absolute bottom-[90px] left-4 right-4 glass-effect rounded-2xl border border-black/5 dark:border-white/10 px-5 py-3.5 flex justify-between items-center shadow-floating z-20">
+          <span className="font-dm text-[13px] text-gray-500 dark:text-gray-400 font-medium">
+            {allExpenses.length} transaction{allExpenses.length !== 1 ? 's' : ''}
+          </span>
+          <span className="font-mono font-bold text-[16px] text-gray-900 dark:text-white tracking-tight">
+            ₹{grandTotal.toLocaleString('en-IN')} total
+          </span>
+        </div>
+      )}
+
+      {/* ── Bottom sheet (slides bottom → top) ── */}
+      <AnimatePresence>
+        {openCategory && (
+          <CategorySheet
+            config={openCategory}
+            expenses={openCategoryExpenses}
+            total={openCategoryTotal}
+            isDark={isDark}
+            onClose={() => setOpenCategory(null)}
+          />
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
