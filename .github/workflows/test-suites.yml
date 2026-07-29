@@ -1,0 +1,130 @@
+name: BillScan Tracker Automated Test Suites & Security Audit
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  test-vulnerability:
+    name: 🛡️ Vulnerability & Security Audit (400 Checks)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: |
+          npm --prefix BillScanTrackerVulnerability install
+
+      - name: Execute Vulnerability Security Test Suite
+        run: |
+          npm run test:vulnerability
+
+      - name: Upload Vulnerability Excel & HTML Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: vulnerability-security-reports
+          path: |
+            BillScanTrackerVulnerability/Test_Results/vulnerability-testing-report.xlsx
+            BillScanTrackerVulnerability/Test_Results/vulnerability-report.html
+            reports/security/
+
+  test-selenium:
+    name: 🌐 Web Selenium E2E Test Suite (400 Tests)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: |
+          npm --prefix BillScanTrackerSelenium install
+
+      - name: Execute Web Selenium Test Suite
+        run: |
+          npm run test:selenium
+
+      - name: Upload Web Selenium Excel & HTML Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: web-selenium-reports
+          path: |
+            BillScanTrackerSelenium/Test_Results/selenium-report.xlsx
+            BillScanTrackerSelenium/Test_Results/HTML/execution-report.html
+
+  test-load:
+    name: ⚡ Backend Load Test Suite (400 Checks)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: |
+          npm --prefix BillScanTrackerLoadTest install
+
+      - name: Execute Backend Load Test Suite
+        run: |
+          npm run test:load
+
+      - name: Upload Backend Load Excel & HTML Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backend-load-reports
+          path: |
+            BillScanTrackerLoadTest/Test_Results/load-testing-report.xlsx
+            BillScanTrackerLoadTest/Test_Results/load-testing-report.html
+
+  test-mobile-appium:
+    name: 📱 Mobile Appium Test Suite (400 Tests)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: |
+          npm --prefix BillScanTrackerAppium install
+
+      - name: Execute Mobile Appium Test Suite
+        run: |
+          npm run test:mobile
+
+      - name: Upload Mobile Appium Excel & HTML Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mobile-appium-reports
+          path: |
+            BillScanTrackerAppium/Test_Results/android-appium-report.xlsx
+            BillScanTrackerAppium/Test_Results/execution-report.html
