@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Lock, CheckCircle2, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { loginUser, forgotPassword } from "../services/authService";
@@ -19,12 +19,12 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
 }
 
 export function LoginScreen({ onLogin, onSignUp }: LoginScreenProps) {
-  const [email, setEmail]       = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading]   = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
-  const [infoMsg, setInfoMsg]   = useState('');
+  const [email, setEmail]             = useState('');
+  const [password, setPassword]       = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading]         = useState(false);
+  const [errorMsg, setErrorMsg]       = useState('');
+  const [infoMsg, setInfoMsg]         = useState('');
 
   const handleLogin = async () => {
     setErrorMsg('');
@@ -69,24 +69,25 @@ export function LoginScreen({ onLogin, onSignUp }: LoginScreenProps) {
     setErrorMsg('');
     setInfoMsg('');
 
-    if (!email.trim()) {
-      setErrorMsg('Please enter your email address first.');
+    if (!email || !email.trim()) {
+      setErrorMsg('enter mail to reset password');
       return;
     }
 
     try {
       setLoading(true);
       await forgotPassword(email.trim());
-      setInfoMsg('✉️ Password reset email sent! Please check your Inbox or Spam folder.');
+      setErrorMsg('');
+      setInfoMsg('the reset link is sent to mail');
     } catch (error: any) {
       console.error('Forgot password error:', error);
 
       if (error.code === 'auth/user-not-found') {
-        setErrorMsg('No account found with this email address.');
+        setErrorMsg('No account found with this email.');
       } else if (error.code === 'auth/invalid-email') {
-        setErrorMsg('Please enter a valid email address.');
+        setErrorMsg('Invalid email address.');
       } else {
-        setErrorMsg(error.message || 'Failed to send reset email. Please try again.');
+        setErrorMsg(error.message || 'Failed to send reset email.');
       }
     } finally {
       setLoading(false);
@@ -94,36 +95,34 @@ export function LoginScreen({ onLogin, onSignUp }: LoginScreenProps) {
   };
 
   return (
-    <div className="w-full h-full bg-page flex flex-col px-6 py-12 relative overflow-hidden transition-colors duration-300">
+    <div className="w-full h-full bg-page flex flex-col px-6 py-12 relative overflow-hidden">
       {/* Background blobs */}
-      <div className="absolute top-[-10%] right-[-20%] w-64 h-64 bg-brand-green/30 dark:bg-brand-green/20 rounded-full blur-[80px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] left-[-20%] w-64 h-64 bg-amber-500/20 dark:bg-amber-500/10 rounded-full blur-[80px] pointer-events-none" />
+      <div className="absolute top-[-10%] right-[-20%] w-64 h-64 bg-brand-green-light rounded-full blur-3xl opacity-60" />
+      <div className="absolute bottom-[-10%] left-[-20%] w-64 h-64 bg-amber-light rounded-full blur-3xl opacity-60" />
 
       {/* Logo */}
       <div className="flex flex-col items-center mt-12 mb-10 relative z-10">
-        <div className="w-20 h-20 bg-gradient-to-br from-brand-green to-brand-green-gradient rounded-[24px] flex items-center justify-center shadow-lg shadow-brand-green/30 mb-6 border-4 border-white/50 dark:border-gray-800/50">
-          <CheckCircle2 size={40} className="text-white" strokeWidth={2.5} />
+        <div className="w-16 h-16 bg-brand-green rounded-2xl flex items-center justify-center shadow-lg shadow-brand-green/30 mb-4">
+          <CheckCircle2 size={32} className="text-white" />
         </div>
-        <h1 className="font-sora font-bold text-[32px] text-text-primary dark:text-white tracking-tight">
-          BillScan
-        </h1>
-        <p className="font-dm text-[15px] text-text-secondary dark:text-gray-400 mt-2 text-center font-medium">
+        <h1 className="font-sora font-bold text-[28px] text-text-primary">BillScan Tracker</h1>
+        <p className="font-dm text-[14px] text-text-secondary mt-2 text-center">
           Your AI-powered financial assistant
         </p>
       </div>
 
       {/* Form */}
-      <div className="flex flex-col gap-4 relative z-10 flex-1">
+      <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }} className="flex flex-col gap-4 relative z-10 flex-1">
 
         {/* Error banner */}
         {errorMsg !== '' && (
           <motion.div
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex items-start gap-3 bg-red-50 dark:bg-red-950/50 border border-red-100 dark:border-red-900/50 rounded-2xl px-4 py-3.5 shadow-sm"
+            className="flex items-start gap-2.5 bg-red-50 border border-red-200 rounded-[12px] px-4 py-3"
           >
-            <AlertCircle size={18} className="text-red-500 mt-0.5 flex-shrink-0" />
-            <p className="font-dm text-[14px] text-red-700 dark:text-red-400 font-medium leading-snug">{errorMsg}</p>
+            <AlertCircle size={16} className="text-red-500 mt-0.5 flex-shrink-0" />
+            <p className="font-dm text-[13px] text-red-600 leading-snug">{errorMsg}</p>
           </motion.div>
         )}
 
@@ -132,62 +131,62 @@ export function LoginScreen({ onLogin, onSignUp }: LoginScreenProps) {
           <motion.div
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex items-start gap-3 bg-brand-green/10 dark:bg-brand-green/5 border border-brand-green/20 dark:border-brand-green/10 rounded-2xl px-4 py-3.5 shadow-sm"
+            className="flex items-start gap-2.5 bg-green-50 border border-green-200 rounded-[12px] px-4 py-3"
           >
-            <CheckCircle2 size={18} className="text-brand-green mt-0.5 flex-shrink-0" />
-            <p className="font-dm text-[14px] text-brand-green-dark dark:text-brand-green font-medium leading-snug">{infoMsg}</p>
+            <CheckCircle2 size={16} className="text-brand-green mt-0.5 flex-shrink-0" />
+            <p className="font-dm text-[13px] text-green-700 leading-snug">{infoMsg}</p>
           </motion.div>
         )}
 
         {/* Email */}
         <div>
-          <label className="block font-dm text-[13px] font-bold text-text-secondary dark:text-gray-400 mb-2 ml-1 tracking-wide">
-            EMAIL ADDRESS
+          <label className="block font-dm text-[12px] font-medium text-text-secondary mb-1.5 ml-1">
+            Email Address
           </label>
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <Mail size={20} className="text-text-tertiary dark:text-gray-500" />
+            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+              <Mail size={18} className="text-text-tertiary" />
             </div>
             <input
               type="email"
               value={email}
               onChange={e => { setEmail(e.target.value); setErrorMsg(''); }}
               placeholder="Enter your email"
-              className="w-full h-[56px] glass-effect rounded-2xl pl-12 pr-4 font-dm text-[15px] text-text-primary dark:text-white placeholder:text-text-tertiary dark:placeholder:text-gray-500 border border-gray-200 dark:border-white/10 focus:border-brand-green focus:ring-1 focus:ring-brand-green focus:outline-none transition-all shadow-sm"
+              className="w-full h-[52px] bg-white rounded-input pl-11 pr-4 font-dm text-[14px] text-text-primary placeholder:text-text-tertiary border border-black/5 focus:border-brand-green focus:ring-1 focus:ring-brand-green focus:outline-none transition-all shadow-sm"
             />
           </div>
         </div>
 
         {/* Password */}
         <div>
-          <label className="block font-dm text-[13px] font-bold text-text-secondary dark:text-gray-400 mb-2 ml-1 tracking-wide">
-            PASSWORD
+          <label className="block font-dm text-[12px] font-medium text-text-secondary mb-1.5 ml-1">
+            Password
           </label>
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <Lock size={20} className="text-text-tertiary dark:text-gray-500" />
+            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+              <Lock size={18} className="text-text-tertiary" />
             </div>
             <input
               type={showPassword ? "text" : "password"}
               value={password}
               onChange={e => { setPassword(e.target.value); setErrorMsg(''); }}
               placeholder="Enter your password"
-              className="w-full h-[56px] glass-effect rounded-2xl pl-12 pr-12 font-dm text-[15px] text-text-primary dark:text-white placeholder:text-text-tertiary dark:placeholder:text-gray-500 border border-gray-200 dark:border-white/10 focus:border-brand-green focus:ring-1 focus:ring-brand-green focus:outline-none transition-all shadow-sm"
+              className="w-full h-[52px] bg-white rounded-input pl-11 pr-11 font-dm text-[14px] text-text-primary placeholder:text-text-tertiary border border-black/5 focus:border-brand-green focus:ring-1 focus:ring-brand-green focus:outline-none transition-all shadow-sm"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 pr-4 flex items-center text-text-tertiary dark:text-gray-500 hover:text-text-secondary dark:hover:text-gray-300 transition-colors"
+              className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-text-tertiary hover:text-text-primary focus:outline-none"
             >
-              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
 
-          <div className="flex justify-end mt-3">
+          <div className="flex justify-end mt-2">
             <button
               type="button"
               onClick={handleForgotPassword}
-              className="font-dm text-[13px] text-brand-green font-bold tracking-wide hover:opacity-80 transition-opacity"
+              className="font-dm text-[12px] text-brand-green font-medium"
             >
               Forgot password?
             </button>
@@ -195,16 +194,15 @@ export function LoginScreen({ onLogin, onSignUp }: LoginScreenProps) {
         </div>
 
         {/* Buttons */}
-        <div className="mt-auto pb-8 space-y-4">
+        <div className="mt-auto pb-8 space-y-3">
           <motion.button
             whileTap={{ scale: 0.98 }}
-            type="button"
-            onClick={handleLogin}
+            type="submit"
             disabled={loading}
-            className="w-full h-[60px] bg-gradient-to-r from-brand-green to-brand-green-gradient rounded-[20px] flex items-center justify-center text-white font-sora font-bold text-[16px] shadow-lg shadow-brand-green/30 disabled:opacity-80 transition-all"
+            className="w-full h-[56px] bg-brand-green rounded-[14px] flex items-center justify-center text-white font-sora font-semibold text-[16px] shadow-lg shadow-brand-green/30 disabled:opacity-80"
           >
             {loading ? (
-              <span className="flex items-center gap-2.5">
+              <span className="flex items-center gap-2">
                 <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24" fill="none">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
@@ -218,12 +216,12 @@ export function LoginScreen({ onLogin, onSignUp }: LoginScreenProps) {
             whileTap={{ scale: 0.98 }}
             type="button"
             onClick={onSignUp}
-            className="w-full h-[60px] glass-effect rounded-[20px] flex items-center justify-center text-text-primary dark:text-white font-sora font-bold text-[16px] shadow-sm hover:bg-white dark:hover:bg-dark-card transition-colors"
+            className="w-full h-[56px] bg-white border border-black/10 rounded-[14px] flex items-center justify-center text-text-primary font-sora font-semibold text-[16px] shadow-sm"
           >
-            Create an Account
+            Sign Up
           </motion.button>
         </div>
-      </div>
+      </form>
     </div>
   );
 }

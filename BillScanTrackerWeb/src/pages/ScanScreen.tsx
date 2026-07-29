@@ -19,22 +19,30 @@ interface ScanScreenProps {
 }
 
 const CATEGORIES = [
-  { label: "Petrol", emoji: "⛽" },
   { label: "Food", emoji: "🍽️" },
-  { label: "Groceries", emoji: "🛒" },
-  { label: "Transport", emoji: "🚌" },
-  { label: "Movies", emoji: "🎬" },
-  { label: "Hospital", emoji: "🏥" },
+  { label: "Grocery", emoji: "🛒" },
+  { label: "Petrol", emoji: "⛽" },
+  { label: "Travel", emoji: "🚌" },
+  { label: "Hotel", emoji: "🏨" },
+  { label: "Health", emoji: "🏥" },
+  { label: "Shopping", emoji: "🛍️" },
+  { label: "Entertainment", emoji: "🎬" },
+  { label: "Education", emoji: "🎓" },
+  { label: "Bills", emoji: "💡" },
   { label: "Other", emoji: "📄" },
 ];
 
 const CAT_META: Record<string, { icon: string; color: string }> = {
-  Petrol: { icon: "⛽", color: "#EDF4FD" },
   Food: { icon: "🍽️", color: "#FFF8EE" },
-  Groceries: { icon: "🛒", color: "#F0FAF5" },
-  Transport: { icon: "🚌", color: "#F0FDF4" },
-  Movies: { icon: "🎬", color: "#F3F0FD" },
-  Hospital: { icon: "🏥", color: "#FEF2F2" },
+  Grocery: { icon: "🛒", color: "#F0FAF5" },
+  Petrol: { icon: "⛽", color: "#EDF4FD" },
+  Travel: { icon: "🚌", color: "#F0FDF4" },
+  Hotel: { icon: "🏨", color: "#FFF7ED" },
+  Health: { icon: "🏥", color: "#FEF2F2" },
+  Shopping: { icon: "🛍️", color: "#FDF2F8" },
+  Entertainment: { icon: "🎬", color: "#F3F0FD" },
+  Education: { icon: "🎓", color: "#EFF6FF" },
+  Bills: { icon: "💡", color: "#FEFCE8" },
   Other: { icon: "📄", color: "#F5F5F5" },
 };
 
@@ -48,7 +56,6 @@ export function ScanScreen({ onClose, onSave }: ScanScreenProps) {
   >("scanning");
 
   const [flashOn, setFlashOn] = useState(false);
-  const [torchSupported, setTorchSupported] = useState(true);
   const [cameraError, setCameraError] = useState("");
 
   const [amount, setAmount] = useState("");
@@ -89,13 +96,6 @@ export function ScanScreen({ onClose, onSave }: ScanScreenProps) {
 
       streamRef.current = stream;
 
-      // Check if torch is supported on this device
-      const track = stream.getVideoTracks()[0];
-      const capabilities = track?.getCapabilities?.() as any;
-      if (!capabilities?.torch) {
-        setTorchSupported(false);
-      }
-
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         await videoRef.current.play();
@@ -105,36 +105,272 @@ export function ScanScreen({ onClose, onSave }: ScanScreenProps) {
     }
   };
 
-  const toggleFlash = async () => {
-    const track = streamRef.current?.getVideoTracks()[0];
-    if (!track) return;
-
-    const newFlashState = !flashOn;
-    try {
-      await (track as any).applyConstraints({
-        advanced: [{ torch: newFlashState } as any],
-      });
-      setFlashOn(newFlashState);
-    } catch (err) {
-      console.warn("Torch not supported on this device:", err);
-      setTorchSupported(false);
-      // Still toggle visual state as fallback indicator
-      setFlashOn(newFlashState);
-    }
-  };
-
   const stopCamera = () => {
     streamRef.current?.getTracks().forEach((track) => track.stop());
     streamRef.current = null;
   };
 
+  // Upscale + grayscale + contrast-boost the captured frame before OCR.
+  // UPI receipt amounts are often small, low-contrast text (top-right corner,
+  // light grey on white/dark cards) that gets lost when a phone screen is
+  // re-photographed at low resolution. Feeding Tesseract a larger, higher
+  // contrast image measurably improves recovery of that text without
+  // requiring any change to the parsing logic itself.
+  const preprocessForOCR = (
+    imageData: string,
+    forceInvert: boolean = false
+  ): Promise<string> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const scale = img.width < 1500 ? 2 : 1;
+          const canvas = document.createElement("canvas");
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) {
+            resolve(imageData);
+            return;
+          }
+
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = "high";
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+          const frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const pixels = frame.data;
+
+          // Calculate average luminance in central 50% region (where receipt / phone screen is held)
+          const startX = Math.floor(canvas.width * 0.25);
+          const endX = Math.floor(canvas.width * 0.75);
+          const startY = Math.floor(canvas.height * 0.2);
+          const endY = Math.floor(canvas.height * 0.8);
+
+          let centerLuminance = 0;
+          let centerCount = 0;
+          for (let y = startY; y < endY; y += 2) {
+            for (let x = startX; x < endX; x += 2) {
+              const idx = (y * canvas.width + x) * 4;
+              const g =
+                0.299 * pixels[idx] +
+                0.587 * pixels[idx + 1] +
+                0.114 * pixels[idx + 2];
+              centerLuminance += g;
+              centerCount++;
+            }
+          }
+
+          const avgCenterLuminance =
+            centerLuminance / Math.max(1, centerCount);
+          const isDarkMode = forceInvert || avgCenterLuminance < 140;
+
+          const contrast = 1.3;
+          const midpoint = 128;
+
+          for (let i = 0; i < pixels.length; i += 4) {
+            let gray =
+              0.299 * pixels[i] + 0.587 * pixels[i + 1] + 0.114 * pixels[i + 2];
+
+            if (isDarkMode) {
+              gray = 255 - gray;
+            }
+
+            const boosted = Math.min(
+              255,
+              Math.max(0, (gray - midpoint) * contrast + midpoint)
+            );
+            pixels[i] = boosted;
+            pixels[i + 1] = boosted;
+            pixels[i + 2] = boosted;
+          }
+
+          ctx.putImageData(frame, 0, 0);
+          resolve(canvas.toDataURL("image/jpeg", 0.95));
+        } catch {
+          resolve(imageData);
+        }
+      };
+      img.onerror = () => resolve(imageData);
+      img.src = imageData;
+    });
+  };
+
+  // Crop top 50% region of the image where UPI receipts (GPay, PhonePe, Paytm) display recipient & amount (₹30)
+  const cropTopRegion = (imageData: string): Promise<string> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const canvas = document.createElement("canvas");
+          const cropHeight = Math.floor(img.height * 0.5);
+          canvas.width = img.width;
+          canvas.height = cropHeight;
+
+          const ctx = canvas.getContext("2d");
+          if (!ctx) {
+            resolve(imageData);
+            return;
+          }
+
+          ctx.drawImage(
+            img,
+            0,
+            0,
+            img.width,
+            cropHeight,
+            0,
+            0,
+            img.width,
+            cropHeight
+          );
+
+          resolve(canvas.toDataURL("image/jpeg", 0.95));
+        } catch {
+          resolve(imageData);
+        }
+      };
+      img.onerror = () => resolve(imageData);
+      img.src = imageData;
+    });
+  };
+
+  // Otsu Threshold Binarization: Eliminates phone screen webcam glare & overexposure
+  const binarizeForOCR = (
+    imageData: string,
+    invert: boolean = false
+  ): Promise<string> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const scale = img.width < 1500 ? 2 : 1;
+          const canvas = document.createElement("canvas");
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) {
+            resolve(imageData);
+            return;
+          }
+
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = "high";
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+          const frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const pixels = frame.data;
+          const grays = new Uint8Array(pixels.length / 4);
+          const histogram = new Int32Array(256);
+
+          for (let i = 0, j = 0; i < pixels.length; i += 4, j++) {
+            const g = Math.round(
+              0.299 * pixels[i] + 0.587 * pixels[i + 1] + 0.114 * pixels[i + 2]
+            );
+            grays[j] = g;
+            histogram[g]++;
+          }
+
+          const total = grays.length;
+          let sum = 0;
+          for (let t = 0; t < 256; t++) sum += t * histogram[t];
+
+          let sumB = 0;
+          let wB = 0;
+          let wF = 0;
+          let maxVar = 0;
+          let threshold = 128;
+
+          for (let t = 0; t < 256; t++) {
+            wB += histogram[t];
+            if (wB === 0) continue;
+            wF = total - wB;
+            if (wF === 0) break;
+
+            sumB += t * histogram[t];
+            const mB = sumB / wB;
+            const mF = (sum - sumB) / wF;
+            const varBetween = wB * wF * (mB - mF) * (mB - mF);
+
+            if (varBetween > maxVar) {
+              maxVar = varBetween;
+              threshold = t;
+            }
+          }
+
+          for (let i = 0, j = 0; i < pixels.length; i += 4, j++) {
+            let g = grays[j];
+            let val = g > threshold ? 255 : 0;
+            if (invert) val = 255 - val;
+
+            pixels[i] = val;
+            pixels[i + 1] = val;
+            pixels[i + 2] = val;
+          }
+
+          ctx.putImageData(frame, 0, 0);
+          resolve(canvas.toDataURL("image/jpeg", 0.95));
+        } catch {
+          resolve(imageData);
+        }
+      };
+      img.onerror = () => resolve(imageData);
+      img.src = imageData;
+    });
+  };
+
   const runWebOCR = async (imageData: string) => {
     try {
-      const result = await Tesseract.recognize(imageData, "eng", {
-        logger: (m) => console.log("Tesseract:", m),
+      const enhanced1 = await preprocessForOCR(imageData, false);
+
+      // Pass 1: Standard full-frame OCR
+      const result1 = await Tesseract.recognize(enhanced1, "eng", {
+        logger: (m: any) => console.log("Tesseract Pass 1:", m),
       });
 
-      processScannedText(result.data.text);
+      let fullText = result1.data.text;
+      let parsed = parseWithOwnAI(fullText);
+
+      // Pass 2: Otsu Binarized Top-Half Region OCR (with digits whitelist to force 'po' -> '30')
+      if (!parsed.amount || parsed.amount <= 0) {
+        try {
+          const topCropData = await cropTopRegion(imageData);
+          const binarizedTop = await binarizeForOCR(topCropData, true);
+
+          const result2 = await Tesseract.recognize(binarizedTop, "eng", {
+            tessedit_pageseg_mode: 11 as any,
+            tessedit_char_whitelist: "0123456789₹Rs.INR, ",
+            logger: (m: any) => console.log("Tesseract Pass 2 (Otsu Top Crop Digits):", m),
+          } as any);
+
+          if (result2.data?.text) {
+            fullText = fullText + "\n" + result2.data.text;
+          }
+        } catch (pass2Err) {
+          console.warn("Pass 2 Top-region OCR failed:", pass2Err);
+        }
+      }
+
+      // Pass 3: Otsu Binarized Full Frame (Inverted)
+      parsed = parseWithOwnAI(fullText);
+      if (!parsed.amount || parsed.amount <= 0) {
+        try {
+          const binarizedFull = await binarizeForOCR(imageData, true);
+
+          const result3 = await Tesseract.recognize(binarizedFull, "eng", {
+            tessedit_pageseg_mode: 11 as any,
+            logger: (m: any) => console.log("Tesseract Pass 3 (Otsu Full Frame):", m),
+          } as any);
+
+          if (result3.data?.text) {
+            fullText = fullText + "\n" + result3.data.text;
+          }
+        } catch (pass3Err) {
+          console.warn("Pass 3 OCR failed:", pass3Err);
+        }
+      }
+
+      processScannedText(fullText);
     } catch (err) {
       console.error("Web OCR failed:", err);
       alert("OCR failed. Please try a clearer image.");
@@ -227,6 +463,8 @@ export function ScanScreen({ onClose, onSave }: ScanScreenProps) {
         date: new Date().toISOString().split("T")[0],
         icon: meta.icon,
         color: meta.color,
+        rawOCRText,
+        ocrText: rawOCRText,
       });
 
       stopCamera();
@@ -271,27 +509,25 @@ export function ScanScreen({ onClose, onSave }: ScanScreenProps) {
         <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/70 to-transparent z-10" />
         <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black/70 to-transparent z-10" />
 
-        <div className="absolute top-0 w-full flex justify-between items-center px-6 pt-14 pb-4 z-20">
+        <div className="absolute top-0 w-full flex justify-between items-center px-5 pt-12 pb-4 z-20">
           <button
             onClick={onClose}
-            className="w-11 h-11 rounded-full bg-black/40 backdrop-blur-md border border-white/20 flex items-center justify-center transition-transform active:scale-95"
+            className="w-10 h-10 rounded-full bg-black/50 flex items-center justify-center"
           >
-            <X size={22} className="text-white" />
+            <X size={20} className="text-white" />
           </button>
 
-          <span className="font-sora font-semibold text-white text-[17px] tracking-wide shadow-black/50 drop-shadow-md">Scan Bill</span>
+          <span className="font-semibold text-white text-lg">Scan Bill</span>
 
           <button
-            onClick={toggleFlash}
-            className={`w-11 h-11 rounded-full backdrop-blur-md border border-white/20 flex items-center justify-center transition-all active:scale-95 ${
-              flashOn ? "bg-amber-400" : "bg-black/40"
-            } ${!torchSupported ? "opacity-40" : ""}`}
-            title={!torchSupported ? "Torch not supported on this device" : flashOn ? "Turn off flash" : "Turn on flash"}
+            onClick={() => setFlashOn((f) => !f)}
+            className={`w-10 h-10 rounded-full flex items-center justify-center ${flashOn ? "bg-yellow-400" : "bg-black/50"
+              }`}
           >
             {flashOn ? (
-              <Zap size={22} className="text-black" fill="currentColor" />
+              <Zap size={20} className="text-black" />
             ) : (
-              <ZapOff size={22} className="text-white" />
+              <ZapOff size={20} className="text-white" />
             )}
           </button>
         </div>
@@ -304,16 +540,12 @@ export function ScanScreen({ onClose, onSave }: ScanScreenProps) {
 
         {scanState === "scanning" && (
           <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-            <motion.div 
-              animate={{ opacity: [0.5, 1, 0.5] }}
-              transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-              className="w-72 h-48 border border-white/20 rounded-3xl relative"
-            >
-              <span className="absolute top-0 left-0 w-8 h-8 border-t-[3px] border-l-[3px] border-white rounded-tl-[24px]" />
-              <span className="absolute top-0 right-0 w-8 h-8 border-t-[3px] border-r-[3px] border-white rounded-tr-[24px]" />
-              <span className="absolute bottom-0 left-0 w-8 h-8 border-b-[3px] border-l-[3px] border-white rounded-bl-[24px]" />
-              <span className="absolute bottom-0 right-0 w-8 h-8 border-b-[3px] border-r-[3px] border-white rounded-br-[24px]" />
-            </motion.div>
+            <div className="w-80 h-52 border-2 border-white/60 rounded-2xl relative">
+              <span className="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-white rounded-tl-lg" />
+              <span className="absolute top-0 right-0 w-6 h-6 border-t-4 border-r-4 border-white rounded-tr-lg" />
+              <span className="absolute bottom-0 left-0 w-6 h-6 border-b-4 border-l-4 border-white rounded-bl-lg" />
+              <span className="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-white rounded-br-lg" />
+            </div>
           </div>
         )}
 
@@ -331,85 +563,80 @@ export function ScanScreen({ onClose, onSave }: ScanScreenProps) {
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 28, stiffness: 280 }}
-              className="absolute bottom-0 w-full bg-white dark:bg-dark-card rounded-t-[32px] z-30 px-6 pt-5 pb-10 max-h-[88%] overflow-y-auto shadow-floating"
+              className="absolute bottom-0 w-full bg-white dark:bg-gray-900 rounded-t-3xl z-30 px-6 pt-6 pb-10 max-h-[85%] overflow-y-auto"
             >
-              <div className="w-12 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full mx-auto mb-8" />
+              <div className="w-11 h-1 bg-gray-300 rounded-full mx-auto mb-6" />
 
-              <div className="space-y-7">
+              <div className="space-y-6">
                 <div>
-                  <p className="font-dm text-[11px] uppercase tracking-[0.1em] text-text-tertiary font-bold mb-2">
+                  <p className="text-xs uppercase tracking-widest text-gray-500 mb-1">
                     Merchant
                   </p>
 
                   <input
                     value={merchant}
                     onChange={(e) => setMerchant(e.target.value)}
-                    className="w-full font-sora text-[22px] font-semibold border-b-2 border-gray-100 dark:border-white/10 pb-2 focus:outline-none focus:border-brand-green bg-transparent text-text-primary dark:text-white transition-colors"
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleSave(); } }}
+                    className="w-full text-xl font-medium border-b pb-1 focus:outline-none bg-transparent text-gray-900 dark:text-white"
                     placeholder="Enter merchant name"
                   />
                 </div>
 
                 <div>
-                  <p className="font-dm text-[11px] uppercase tracking-[0.1em] text-text-tertiary font-bold mb-2">
+                  <p className="text-xs uppercase tracking-widest text-gray-500 mb-1">
                     Amount
                   </p>
 
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3">
                     {isEditingAmount ? (
                       <input
                         type="number"
                         value={amount}
                         onChange={(e) => setAmount(e.target.value)}
                         onBlur={() => setIsEditingAmount(false)}
+                        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); setIsEditingAmount(false); handleSave(); } }}
                         autoFocus
-                        className="font-mono text-[48px] font-bold w-full focus:outline-none border-b-2 border-brand-green bg-transparent text-text-primary dark:text-white"
+                        className="text-5xl font-bold w-full focus:outline-none border-b-2 border-green-600 bg-transparent text-gray-900 dark:text-white"
                       />
                     ) : (
-                      <h2 className="font-mono text-[48px] font-bold text-text-primary dark:text-white tracking-tight">
+                      <h2 className="text-5xl font-bold text-gray-900 dark:text-white">
                         ₹{amount ? Number(amount).toLocaleString("en-IN") : "0"}
                       </h2>
                     )}
 
                     <button
                       onClick={() => setIsEditingAmount((v) => !v)}
-                      className="w-12 h-12 bg-muted dark:bg-white/5 rounded-full flex items-center justify-center flex-shrink-0 text-text-secondary dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"
+                      className="p-3 bg-gray-100 dark:bg-gray-700 rounded-full flex-shrink-0 text-gray-900 dark:text-white"
                     >
-                      <Edit2 size={20} />
+                      <Edit2 size={18} />
                     </button>
                   </div>
 
                   {confidence > 0 && (
-                    <div className="flex items-center gap-1.5 mt-2">
-                      <div className="w-2 h-2 rounded-full bg-brand-green" />
-                      <p className="font-dm text-[12px] text-brand-green font-medium">
-                        {confidence}% AI Confidence
-                      </p>
-                    </div>
+                    <p className="text-xs text-green-600 mt-1">
+                      Confidence: {confidence}%
+                    </p>
                   )}
                 </div>
 
                 <div>
-                  <p className="font-dm text-[11px] uppercase tracking-[0.1em] text-text-tertiary font-bold mb-3">
+                  <p className="text-xs uppercase tracking-widest text-gray-500 mb-2">
                     Category
                   </p>
 
-                  <div className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-hide">
-                    {CATEGORIES.map((cat) => {
-                      const isSelected = category === cat.label;
-                      return (
-                        <button
-                          key={cat.label}
-                          onClick={() => setCategory(cat.label)}
-                          className={`px-5 py-3 rounded-[16px] whitespace-nowrap font-dm text-[13px] font-semibold transition-all flex items-center gap-2 border ${
-                            isSelected
-                              ? "bg-brand-green/10 border-brand-green text-brand-dark dark:text-brand-green"
-                              : "bg-white dark:bg-white/5 border-gray-100 dark:border-white/5 text-text-secondary dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/10"
+                  <div className="flex gap-2 overflow-x-auto pb-2">
+                    {CATEGORIES.map((cat) => (
+                      <button
+                        key={cat.label}
+                        onClick={() => setCategory(cat.label)}
+                        className={`px-4 py-2.5 rounded-full whitespace-nowrap text-sm font-medium transition-all ${category === cat.label
+                          ? "bg-green-600 text-white"
+                          : "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600"
                           }`}
-                        >
-                          <span className="text-[16px]">{cat.emoji}</span> {cat.label}
-                        </button>
-                      );
-                    })}
+                      >
+                        {cat.emoji} {cat.label}
+                      </button>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -424,19 +651,21 @@ export function ScanScreen({ onClose, onSave }: ScanScreenProps) {
               )}
 
               {saveError && (
-                <p className="text-red-500 text-sm mt-4">{saveError}</p>
+                <div className="mt-4 p-3.5 bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 rounded-xl text-sm font-semibold flex items-center justify-center gap-2">
+                  <span>{saveError}</span>
+                </div>
               )}
 
               <button
                 onClick={handleSave}
                 disabled={saving || !amount || Number(amount) <= 0}
-                className="w-full mt-10 h-[60px] bg-gradient-to-r from-brand-green to-brand-green-gradient text-white rounded-card flex items-center justify-center gap-2 font-sora font-semibold text-[16px] shadow-fab disabled:opacity-70 disabled:shadow-none transition-all active:scale-[0.98]"
+                className="w-full mt-8 h-14 bg-green-600 text-white rounded-2xl flex items-center justify-center gap-2 text-lg font-medium disabled:opacity-70"
               >
                 {saving ? (
-                  <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 ) : (
                   <>
-                    <CheckCircle2 size={22} strokeWidth={2.5} />
+                    <CheckCircle2 size={22} />
                     Save Expense — ₹
                     {amount ? Number(amount).toLocaleString("en-IN") : "0"}
                   </>
@@ -446,7 +675,7 @@ export function ScanScreen({ onClose, onSave }: ScanScreenProps) {
               <button
                 onClick={handleRetake}
                 disabled={saving}
-                className="w-full mt-4 h-[56px] bg-transparent text-text-secondary dark:text-gray-400 rounded-card flex items-center justify-center gap-2 font-dm font-semibold text-[15px] hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+                className="w-full mt-3 h-12 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white rounded-2xl flex items-center justify-center gap-2 font-medium"
               >
                 <Camera size={20} />
                 Retake Photo
@@ -456,21 +685,19 @@ export function ScanScreen({ onClose, onSave }: ScanScreenProps) {
         </AnimatePresence>
 
         {scanState === "scanning" && (
-          <div className="absolute bottom-12 inset-x-0 flex justify-center items-center gap-12 z-20">
+          <div className="absolute bottom-12 inset-x-0 flex justify-center gap-12 z-20">
             <button
               onClick={openGallery}
-              className="w-14 h-14 rounded-full bg-black/40 backdrop-blur-md border border-white/20 flex items-center justify-center transition-transform hover:scale-105 active:scale-95"
+              className="w-14 h-14 rounded-full bg-white/20 backdrop-blur flex items-center justify-center"
             >
-              <ImagePlus size={24} className="text-white" />
+              <ImagePlus size={28} className="text-white" />
             </button>
 
             <button
               onClick={captureImage}
-              className="w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-[0_0_40px_rgba(255,255,255,0.3)] transition-transform hover:scale-105 active:scale-95"
+              className="w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-xl"
             >
-              <div className="w-[68px] h-[68px] rounded-full border-[3px] border-black/10 flex items-center justify-center">
-                <Camera size={32} className="text-black" strokeWidth={2} />
-              </div>
+              <Camera size={36} className="text-black" />
             </button>
 
             <div className="w-14" />

@@ -3,6 +3,7 @@ import { getThisMonthExpenses } from "../services/expenseService";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bell, ArrowRight, Camera, X } from "lucide-react";
 import { ExpenseCard, Expense } from "../components/ExpenseCard";
+import { getUserProfile } from "../services/userService";
 import { UserProfile } from "./SignUpScreen";
 
 interface HomeScreenProps {
@@ -51,7 +52,7 @@ export function HomeScreen({
 }: HomeScreenProps) {
   const [expenses, setExpenses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const [, setRefreshing] = useState(false);
   const [notification, setNotification] = useState<NotificationState>({
     show: false,
     message: "",
@@ -61,6 +62,7 @@ export function HomeScreen({
     const saved = localStorage.getItem("billscan_notifications_enabled");
     return saved === "true";
   });
+  const [categoryBudgets, setCategoryBudgets] = useState<Record<string, number>>({});
   const [pullDistance, setPullDistance] = useState(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const touchStartRef = useRef(0);
@@ -71,6 +73,10 @@ export function HomeScreen({
       setRefreshing(true);
       const data = await getThisMonthExpenses(force);
       setExpenses(data);
+      const prof = await getUserProfile();
+      if (prof?.categoryBudgets) {
+        setCategoryBudgets(prof.categoryBudgets);
+      }
     } catch (e) {
       console.error(e);
     } finally {
@@ -193,7 +199,7 @@ export function HomeScreen({
 
   const initials = (user.name || "U")
     .split(" ")
-    .map(n => n[0])
+    .map((n: string) => n[0])
     .join("")
     .substring(0, 2)
     .toUpperCase();
@@ -333,30 +339,30 @@ export function HomeScreen({
 
       <div className="h-5 w-full" />
 
-      <div className="h-[60px] px-6 flex items-center justify-between">
+      <div className="h-[60px] px-4 flex items-center justify-between">
         <div>
-          <p className="font-dm text-[13px] text-text-tertiary">Good morning 👋</p>
-          <h1 className="font-sora font-bold text-[20px] text-gradient mt-0.5">
+          <p className="font-dm text-[12px] text-text-tertiary">Good morning 👋</p>
+          <h1 className="font-sora font-semibold text-[17px] text-text-primary">
             {user.name}
           </h1>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <button
             onClick={handleBellClick}
-            className="relative w-11 h-11 flex items-center justify-center bg-white dark:bg-gray-800 rounded-full shadow-sm text-text-primary dark:text-white transition-all hover:shadow-md hover:scale-105 active:scale-95"
+            className="relative w-10 h-10 flex items-center justify-center text-text-primary dark:text-white transition-transform hover:scale-110 active:scale-95"
             title={notificationsEnabled ? "View remaining budget" : "Notifications disabled"}
           >
-            <Bell size={22} />
+            <Bell size={24} />
             {amountLeft < 0 && notificationsEnabled && (
               <motion.div
                 animate={{ scale: [1, 1.2, 1] }}
                 transition={{ repeat: Infinity, duration: 2 }}
-                className="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-danger rounded-full border-2 border-white dark:border-gray-800 shadow-sm"
+                className="absolute top-2 right-2 w-2.5 h-2.5 bg-danger rounded-full border-2 border-page shadow-md"
               />
             )}
             {!notificationsEnabled && (
-              <div className="absolute top-2 right-2 w-3.5 h-3.5 bg-yellow-500 rounded-full border-2 border-white dark:border-gray-800 text-[8px] flex items-center justify-center text-white font-bold">
+              <div className="absolute top-1 right-1 w-3 h-3 bg-yellow-500 rounded-full border border-white text-[8px] flex items-center justify-center text-white font-bold">
                 ✕
               </div>
             )}
@@ -365,9 +371,9 @@ export function HomeScreen({
           <button
             type="button"
             onClick={onProfileClick}
-            className="w-11 h-11 rounded-full bg-gradient-to-tr from-brand-green to-brand-green-gradient flex items-center justify-center shadow-sm hover:shadow-md hover:scale-105 transition-all"
+            className="w-[38px] h-[38px] rounded-full bg-brand-green flex items-center justify-center shadow-sm hover:shadow-md transition-shadow"
           >
-            <span className="font-sora font-semibold text-[14px] text-white">
+            <span className="font-sora font-semibold text-[13px] text-white">
               {initials}
             </span>
           </button>
@@ -377,54 +383,48 @@ export function HomeScreen({
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mx-6 mt-4 glass-effect rounded-card p-6 shadow-floating relative overflow-hidden"
+        className="mx-4 mt-2 bg-white rounded-card p-5 shadow-card"
       >
-        <div className="absolute top-0 right-0 w-32 h-32 bg-brand-green/10 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none" />
-        
-        <div className="flex justify-between items-center relative z-10">
-          <span className="font-dm text-[12px] uppercase tracking-wider text-text-tertiary font-bold">
+        <div className="flex justify-between items-center">
+          <span className="font-dm text-[11px] uppercase tracking-[0.06em] text-text-tertiary font-medium">
             {monthLabel}
           </span>
 
           <button
             onClick={onViewDetails}
-            className="font-dm text-[13px] text-brand-green flex items-center gap-1.5 font-semibold hover:gap-2.5 transition-all bg-brand-green/10 px-3 py-1.5 rounded-pill"
+            className="font-dm text-[12px] text-brand-green flex items-center gap-1 font-medium hover:gap-2 transition-all"
           >
-            Details <ArrowRight size={14} />
+            View details <ArrowRight size={12} />
           </button>
         </div>
 
-        <div className="mt-3 relative z-10">
-          <h2 className="font-mono font-bold text-[44px] text-gradient tracking-tight leading-none">
+        <div className="mt-1.5">
+          <h2 className="font-mono font-bold text-[40px] text-text-primary leading-none">
             ₹{totalSpent.toLocaleString("en-IN")}
           </h2>
-          <p className="font-dm text-[14px] text-text-secondary mt-1.5 font-medium">
+          <p className="font-dm text-[13px] text-text-tertiary mt-1">
             spent this month
           </p>
         </div>
 
-        <div className="mt-6 relative z-10">
-          <div className="w-full h-3 bg-muted dark:bg-gray-700/50 rounded-full overflow-hidden shadow-inner">
+        <div className="mt-4 relative">
+          <div className="w-full h-[10px] bg-muted rounded-full overflow-hidden">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${progressPct}%` }}
-              transition={{ duration: 1.2, delay: 0.2, ease: "easeOut" }}
-              className={`h-full rounded-full ${
-                amountLeft < 0 
-                  ? 'bg-gradient-to-r from-red-400 to-red-500' 
-                  : 'bg-gradient-to-r from-brand-green to-brand-green-gradient'
-              }`}
+              transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
+              className="h-full bg-gradient-to-r from-brand-green to-brand-green-gradient rounded-full"
             />
           </div>
         </div>
 
-        <div className="flex justify-between mt-3 relative z-10">
-          <span className="font-mono text-[13px] text-text-secondary font-medium">
-            ₹{monthlyBudget.toLocaleString("en-IN")} budget
+        <div className="flex justify-between mt-2">
+          <span className="font-mono text-[12px] text-text-secondary">
+            ₹{totalSpent.toLocaleString("en-IN")} spent
           </span>
 
           <span
-            className={`font-mono text-[13px] font-bold transition-colors ${
+            className={`font-mono text-[12px] font-medium transition-colors ${
               amountLeft >= 0 ? "text-brand-green" : "text-danger"
             }`}
           >
@@ -435,7 +435,56 @@ export function HomeScreen({
         </div>
       </motion.div>
 
-      <div className="mx-6 mt-4 flex gap-3">
+      {/* Smart Category Budget Warnings */}
+      {(() => {
+        const categorySpentMap: Record<string, number> = {};
+        for (const e of expenses) {
+          const cat = e.category || "Other";
+          categorySpentMap[cat] = (categorySpentMap[cat] || 0) + Number(e.amount || 0);
+        }
+
+        const categoryBudgetWarnings = Object.entries(categoryBudgets)
+          .map(([catName, limit]) => {
+            const spent = categorySpentMap[catName] || 0;
+            const pct = limit > 0 ? Math.round((spent / limit) * 100) : 0;
+            const remaining = limit - spent;
+            return { catName, limit, spent, pct, remaining };
+          })
+          .filter((w) => w.limit > 0 && w.pct >= 75);
+
+        if (categoryBudgetWarnings.length === 0) return null;
+
+        return (
+          <div className="mx-4 mt-3 flex flex-col gap-2">
+            {categoryBudgetWarnings.map((w) => (
+              <div
+                key={w.catName}
+                className={`p-3.5 rounded-[16px] border flex items-center justify-between font-dm text-[13px] ${
+                  w.pct >= 90
+                    ? "bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300"
+                    : "bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300"
+                }`}
+              >
+                <div>
+                  <p className="font-sora font-semibold">
+                    ⚠️ {w.catName} budget {w.pct}% used.
+                  </p>
+                  <p className="text-[12px] opacity-90 mt-0.5">
+                    {w.remaining >= 0
+                      ? `Only ₹${w.remaining.toLocaleString("en-IN")} remaining.`
+                      : `₹${Math.abs(w.remaining).toLocaleString("en-IN")} over budget.`}
+                  </p>
+                </div>
+                <span className="font-mono font-bold text-[14px]">
+                  ₹{w.spent.toLocaleString("en-IN")} / ₹{w.limit.toLocaleString("en-IN")}
+                </span>
+              </div>
+            ))}
+          </div>
+        );
+      })()}
+
+      <div className="mx-4 mt-3 flex gap-2.5">
         {[
           { label: "DAILY AVG", value: `₹${dailyAvg.toLocaleString("en-IN")}` },
           { label: "BILLS SCANNED", value: String(expenses.length) },
@@ -445,60 +494,60 @@ export function HomeScreen({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 + i * 0.1 }}
-            className="flex-1 bg-white dark:bg-dark-card rounded-card p-4 shadow-sm border border-transparent dark:border-white/5 hover:shadow-md transition-shadow"
+            className="flex-1 bg-muted rounded-[14px] p-3.5"
           >
-            <p className="font-dm text-[11px] uppercase tracking-wider text-text-tertiary font-bold mb-1">
+            <p className="font-dm text-[10px] uppercase text-text-tertiary font-medium mb-1">
               {stat.label}
             </p>
-            <p className="font-mono font-bold text-[24px] text-text-primary leading-tight">
+            <p className="font-mono font-semibold text-[22px] text-text-primary leading-tight">
               {stat.value}
             </p>
-            <p className="font-dm text-[12px] text-text-tertiary mt-1 font-medium">
+            <p className="font-dm text-[11px] text-text-tertiary mt-1">
               This month
             </p>
           </motion.div>
         ))}
       </div>
 
-      <div className="mt-8 px-6">
-        <div className="flex justify-between items-center mb-5">
-          <h3 className="font-sora font-bold text-[18px] text-text-primary">
-            Categories
+      <div className="mt-5 px-4">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="font-sora font-semibold text-[15px] text-text-primary">
+            Spending by category
           </h3>
           <button
             onClick={onSeeAllCategories}
-            className="font-dm text-[14px] text-brand-green font-semibold hover:text-brand-dark transition-colors"
+            className="font-dm text-[13px] text-brand-green font-medium hover:text-brand-green/80 transition-colors"
           >
-            See all
+            See all →
           </button>
         </div>
 
         <div className="flex justify-between gap-4 pb-2">
           {[
-            { icon: "🛒", label: "Groceries", bg: "#E1F5EE", darkBg: "#064E3B" },
-            { icon: "🍕", label: "Food", bg: "#FAEEDA", darkBg: "#78350F" },
-            { icon: "⛽", label: "Transport", bg: "#E6F1FB", darkBg: "#1E3A8A" },
-            { icon: "🎬", label: "Entertain", bg: "#EAE8F9", darkBg: "#4C1D95" },
+            { icon: "🛒", label: "Groceries", bg: "#E1F5EE" },
+            { icon: "🍕", label: "Food", bg: "#FAEEDA" },
+            { icon: "⛽", label: "Transport", bg: "#E6F1FB" },
+            { icon: "🎬", label: "Entertain", bg: "#EAE8F9" },
           ].map((cat, i) => (
             <motion.div
               key={cat.label}
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3 + i * 0.1 }}
-              className="flex flex-col items-center flex-1 hover:scale-105 transition-transform cursor-pointer group"
+              className="flex flex-col items-center flex-shrink-0 hover:scale-105 transition-transform cursor-pointer"
             >
               <div
-                className="w-[60px] h-[60px] rounded-[20px] flex items-center justify-center text-[28px] mb-2 shadow-sm group-hover:shadow-md transition-shadow bg-opacity-100 dark:bg-opacity-20"
-                style={{ backgroundColor: document.documentElement.classList.contains('dark') ? cat.darkBg : cat.bg }}
+                className="w-14 h-14 rounded-full flex items-center justify-center text-2xl mb-2 shadow-sm hover:shadow-md transition-shadow"
+                style={{ backgroundColor: cat.bg }}
               >
                 {cat.icon}
               </div>
 
-              <span className="font-dm text-[12px] text-text-secondary font-medium">
+              <span className="font-dm text-[11px] text-text-secondary">
                 {cat.label}
               </span>
 
-              <span className="font-mono text-[12px] text-text-primary font-bold mt-0.5">
+              <span className="font-mono text-[11px] text-text-primary font-medium mt-0.5">
                 ₹{(catTotals[cat.label] || 0).toLocaleString("en-IN")}
               </span>
             </motion.div>
@@ -506,71 +555,61 @@ export function HomeScreen({
         </div>
       </div>
 
-      <div className="mt-8 px-6 pb-8">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="font-sora font-bold text-[18px] text-text-primary">
-            Recent Expenses
+      <div className="mt-6 px-4">
+        <div className="flex justify-between items-center mb-3">
+          <h3 className="font-sora font-semibold text-[15px] text-text-primary">
+            Recent expenses
           </h3>
           <button
             onClick={onSeeAllCategories}
-            className="font-dm text-[14px] text-brand-green font-semibold hover:text-brand-dark transition-colors"
+            className="font-dm text-[13px] text-brand-green font-medium hover:text-brand-green/80 transition-colors"
           >
-            See all
+            See all →
           </button>
         </div>
 
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2">
           {!loading && expenses.length === 0 && (
-            <div className="bg-white dark:bg-dark-card rounded-card p-8 text-center shadow-sm border border-transparent dark:border-white/5">
-              <div className="text-4xl mb-3 opacity-50">🧾</div>
-              <p className="font-dm text-[14px] text-text-secondary font-medium">
-                No expenses yet
-              </p>
-              <p className="font-dm text-[12px] text-text-tertiary mt-1">
-                Scan your first bill to get started!
-              </p>
-            </div>
+            <p className="font-dm text-[13px] text-text-tertiary text-center py-6">
+              No expenses yet — scan your first bill!
+            </p>
           )}
 
-          {expenses.slice(0, 5).map((expense, i) => {
+          {expenses.slice(0, 5).map(expense => {
             const meta = CAT_DISPLAY[expense.category] ?? CAT_DISPLAY.Other;
 
             return (
-              <motion.div
+              <ExpenseCard
                 key={expense.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 + i * 0.1 }}
-              >
-                <ExpenseCard
-                  expense={{
-                    id: expense.id,
-                    merchant: expense.merchant || "Unknown",
-                    category: expense.category || "Other",
-                    amount: Number(expense.amount || 0),
-                    date: expense.date || "",
-                    icon: expense.icon || meta.icon,
-                    color: expense.color || meta.color,
-                  }}
-                  onClick={() => onExpenseClick(expense)}
-                />
-              </motion.div>
+                expense={{
+                  id: expense.id,
+                  merchant: expense.merchant || "Unknown",
+                  category: expense.category || "Other",
+                  amount: Number(expense.amount || 0),
+                  date: expense.date || "",
+                  icon: expense.icon || meta.icon,
+                  color: expense.color || meta.color,
+                }}
+                onClick={() => onExpenseClick(expense)}
+              />
             );
           })}
         </div>
       </div>
 
-      <div className="fixed bottom-[110px] left-0 right-0 flex justify-center pointer-events-none z-30">
+      <div className="fixed bottom-[100px] left-0 right-0 flex justify-center pointer-events-none z-30">
         <div className="flex flex-col items-center pointer-events-auto">
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileTap={{ scale: 0.9 }}
             onClick={onScanClick}
-            className="w-[72px] h-[72px] bg-gradient-to-r from-brand-green to-brand-green-gradient rounded-full shadow-fab flex items-center justify-center text-white mb-2 relative group"
+            className="w-16 h-16 bg-brand-green rounded-full shadow-fab flex items-center justify-center text-white mb-1.5 hover:shadow-lg transition-shadow"
           >
-            <div className="absolute inset-0 rounded-full bg-white opacity-0 group-hover:opacity-20 transition-opacity" />
-            <Camera size={32} strokeWidth={2.5} />
+            <Camera size={28} />
           </motion.button>
+
+          <span className="font-dm text-[11px] text-brand-green font-medium bg-page/80 px-2 py-0.5 rounded-full backdrop-blur-sm">
+            Scan bill
+          </span>
         </div>
       </div>
     </div>

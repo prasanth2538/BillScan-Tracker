@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, X, Loader2, ShoppingCart, UtensilsCrossed, Fuel, Heart, Clapperboard, Bus } from 'lucide-react';
-import { getThisMonthExpenses, RawExpense } from '../services/expenseService';
+import { getExpenses, RawExpense } from '../services/expenseService';
 import { saveExpense } from "../services/saveExpense";
+
+import { getUserProfile } from '../services/userService';
 
 // ─── Category config ──────────────────────────────────────────────────────────
 
@@ -19,13 +21,6 @@ interface CategoryConfig {
 
 const CATEGORIES: CategoryConfig[] = [
   {
-    label: 'Groceries', emoji: '🛒',
-    icon: <ShoppingCart size={18} />,
-    bg: '#F0FAF5', darkBg: '#0D2E1E',
-    iconBg: '#C8EFE0', iconColor: '#2E7D58',
-    keywords: ['groceries', 'grocery', 'supermarket'],
-  },
-  {
     label: 'Food', emoji: '🍽️',
     icon: <UtensilsCrossed size={18} />,
     bg: '#FFF8EE', darkBg: '#2B1E00',
@@ -33,36 +28,71 @@ const CATEGORIES: CategoryConfig[] = [
     keywords: ['food', 'restaurant', 'dining', 'café', 'cafe', 'pizza', 'zomato', 'swiggy'],
   },
   {
+    label: 'Grocery', emoji: '🛒',
+    icon: <ShoppingCart size={18} />,
+    bg: '#F0FAF5', darkBg: '#0D2E1E',
+    iconBg: '#C8EFE0', iconColor: '#2E7D58',
+    keywords: ['groceries', 'grocery', 'supermarket', 'mart'],
+  },
+  {
     label: 'Petrol', emoji: '⛽',
     icon: <Fuel size={18} />,
     bg: '#EDF4FD', darkBg: '#0A1A2E',
     iconBg: '#BFDBFE', iconColor: '#1D4ED8',
-    keywords: ['petrol', 'fuel', 'transport', 'gas'],
-  },
-  {
-    label: 'Hospital', emoji: '🏥',
-    icon: <Heart size={18} />,
-    bg: '#FEF2F2', darkBg: '#2E0A0A',
-    iconBg: '#FECACA', iconColor: '#DC2626',
-    keywords: ['health', 'hospital', 'medical', 'pharmacy', 'medicine', 'doctor', 'clinic'],
-  },
-  {
-    label: 'Movies', emoji: '🎬',
-    icon: <Clapperboard size={18} />,
-    bg: '#F3F0FD', darkBg: '#1A0E2E',
-    iconBg: '#DDD6FE', iconColor: '#7C3AED',
-    keywords: ['entertainment', 'movies', 'cinema', 'pvr', 'inox'],
+    keywords: ['petrol', 'fuel', 'gas', 'diesel'],
   },
   {
     label: 'Travel', emoji: '🚌',
     icon: <Bus size={18} />,
     bg: '#F0FDF4', darkBg: '#062010',
     iconBg: '#BBF7D0', iconColor: '#15803D',
-    keywords: ['travel', 'bus', 'train', 'metro', 'ticket', 'cab', 'uber', 'ola', 'auto'],
+    keywords: ['travel', 'bus', 'train', 'metro', 'ticket', 'cab', 'uber', 'ola', 'auto', 'flight'],
+  },
+  {
+    label: 'Hotel', emoji: '🏨',
+    icon: <span className="text-base">🏨</span>,
+    bg: '#FFF7ED', darkBg: '#2A1800',
+    iconBg: '#FFEDD5', iconColor: '#EA580C',
+    keywords: ['hotel', 'resort', 'stay', 'lodge', 'booking'],
+  },
+  {
+    label: 'Health', emoji: '🏥',
+    icon: <Heart size={18} />,
+    bg: '#FEF2F2', darkBg: '#2E0A0A',
+    iconBg: '#FECACA', iconColor: '#DC2626',
+    keywords: ['health', 'hospital', 'medical', 'pharmacy', 'medicine', 'doctor', 'clinic'],
+  },
+  {
+    label: 'Shopping', emoji: '🛍️',
+    icon: <span className="text-base">🛍️</span>,
+    bg: '#FDF2F8', darkBg: '#2E0A20',
+    iconBg: '#FBCFE8', iconColor: '#DB2777',
+    keywords: ['shopping', 'clothes', 'fashion', 'amazon', 'flipkart', 'myntra', 'apparel'],
+  },
+  {
+    label: 'Entertainment', emoji: '🎬',
+    icon: <Clapperboard size={18} />,
+    bg: '#F3F0FD', darkBg: '#1A0E2E',
+    iconBg: '#DDD6FE', iconColor: '#7C3AED',
+    keywords: ['entertainment', 'movies', 'cinema', 'pvr', 'inox', 'netflix', 'show'],
+  },
+  {
+    label: 'Education', emoji: '🎓',
+    icon: <span className="text-base">🎓</span>,
+    bg: '#EFF6FF', darkBg: '#0A1E3F',
+    iconBg: '#DBEAFE', iconColor: '#2563EB',
+    keywords: ['education', 'school', 'college', 'tuition', 'books', 'course', 'fees'],
+  },
+  {
+    label: 'Bills', emoji: '💡',
+    icon: <span className="text-base">💡</span>,
+    bg: '#FEFCE8', darkBg: '#2A2800',
+    iconBg: '#FEF08A', iconColor: '#CA8A04',
+    keywords: ['bills', 'electricity', 'water', 'recharge', 'wifi', 'internet', 'utility'],
   },
   {
     label: 'Other', emoji: '📄',
-    icon: <span className="text-sm">📄</span>,
+    icon: <span className="text-base">📄</span>,
     bg: '#F5F5F5', darkBg: '#1C1C1E',
     iconBg: '#E5E7EB', iconColor: '#6B7280',
     keywords: ['other', 'misc', 'miscellaneous', 'unknown'],
@@ -71,7 +101,7 @@ const CATEGORIES: CategoryConfig[] = [
 
 function resolveCategory(raw: string): CategoryConfig {
   const lower = (raw || '').toLowerCase();
-  return CATEGORIES.find(c => c.keywords.some(k => lower.includes(k))) ?? CATEGORIES[1];
+  return CATEGORIES.find(c => c.keywords.some(k => lower.includes(k))) ?? CATEGORIES[0];
 }
 
 function formatDateLabel(dateStr: string): string {
@@ -96,10 +126,13 @@ interface CategorySheetProps {
   expenses: RawExpense[];
   total: number;
   isDark: boolean;
+  categoryBudget?: number;
   onClose: () => void;
 }
 
-function CategorySheet({ config, expenses, total, isDark, onClose }: CategorySheetProps) {
+function CategorySheet({ config, expenses, total, isDark, categoryBudget = 0, onClose }: CategorySheetProps) {
+  const [viewingImage, setViewingImage] = useState<string | null>(null);
+
   const grouped = useMemo(() => {
     const map: Record<string, RawExpense[]> = {};
     for (const e of expenses) {
@@ -109,6 +142,9 @@ function CategorySheet({ config, expenses, total, isDark, onClose }: CategoryShe
     }
     return map;
   }, [expenses]);
+
+  const percentUsed = categoryBudget > 0 ? Math.round((total / categoryBudget) * 100) : 0;
+  const remaining = categoryBudget - total;
 
   return (
     <motion.div
@@ -125,7 +161,8 @@ function CategorySheet({ config, expenses, total, isDark, onClose }: CategoryShe
 
       {/* Sheet slides up from bottom */}
       <motion.div
-        className="relative w-full rounded-t-[32px] max-h-[88vh] flex flex-col overflow-hidden glass-effect dark:bg-dark-card shadow-floating border-t border-white/20 dark:border-white/5"
+        className="relative w-full rounded-t-[28px] max-h-[88vh] flex flex-col overflow-hidden"
+        style={{ backgroundColor: isDark ? '#1C1C1E' : '#ffffff' }}
         initial={{ y: '100%' }}
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
@@ -160,12 +197,38 @@ function CategorySheet({ config, expenses, total, isDark, onClose }: CategoryShe
           </button>
         </div>
 
+        {/* Smart Category Budget Assistant Banner */}
+        {categoryBudget > 0 && (
+          <div
+            className={`mx-5 mb-3 p-3.5 rounded-[14px] flex items-center justify-between font-dm text-[13px] border ${percentUsed >= 90
+                ? "bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300"
+                : percentUsed >= 75
+                  ? "bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300"
+                  : "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300"
+              }`}
+          >
+            <div>
+              <p className="font-semibold">
+                ⚠️ {config.label} budget {percentUsed}% used.
+              </p>
+              <p className="text-[12px] opacity-90 mt-0.5">
+                {remaining >= 0
+                  ? `Only ₹${remaining.toLocaleString("en-IN")} remaining.`
+                  : `₹${Math.abs(remaining).toLocaleString("en-IN")} over budget.`}
+              </p>
+            </div>
+            <span className="font-mono font-bold text-[14px]">
+              ₹{categoryBudget.toLocaleString("en-IN")}
+            </span>
+          </div>
+        )}
+
         {/* Total banner */}
         <div
-          className="mx-5 mb-5 rounded-card p-5 flex justify-between items-center flex-shrink-0 shadow-sm border dark:border-white/5"
+          className="mx-5 mb-4 rounded-[14px] p-4 flex justify-between items-center flex-shrink-0"
           style={{ backgroundColor: isDark ? config.darkBg : config.bg }}
         >
-          <span className="font-dm text-[13px] font-semibold text-gray-700 dark:text-gray-300">Total spent</span>
+          <span className="font-dm text-[13px] text-gray-600 dark:text-gray-300">Total spent</span>
           <span className="font-mono font-bold text-[22px]" style={{ color: config.iconColor }}>
             ₹{total.toLocaleString('en-IN')}
           </span>
@@ -193,27 +256,40 @@ function CategorySheet({ config, expenses, total, isDark, onClose }: CategoryShe
                       initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.04 }}
-                      className="rounded-[14px] p-3.5 flex items-center gap-3"
+                      className="rounded-[14px] p-3.5 flex flex-col gap-2"
                       style={{
                         backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.03)',
                         border: isDark ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.05)',
                       }}
                     >
-                      <div
-                        className="w-10 h-10 rounded-full flex items-center justify-center text-xl flex-shrink-0"
-                        style={{ backgroundColor: config.iconBg }}
-                      >
-                        {config.emoji}
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="w-10 h-10 rounded-full flex items-center justify-center text-xl flex-shrink-0"
+                          style={{ backgroundColor: config.iconBg }}
+                        >
+                          {config.emoji}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-dm font-medium text-[14px] text-gray-900 dark:text-white truncate">
+                            {txn.merchant || 'Unknown'}
+                          </p>
+                          <p className="font-dm text-[12px] text-gray-400 dark:text-gray-500">{dateLabel}</p>
+                        </div>
+                        <span className="font-mono font-semibold text-[15px] text-gray-900 dark:text-white flex-shrink-0">
+                          ₹{Number(txn.amount).toLocaleString('en-IN')}
+                        </span>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-dm font-medium text-[14px] text-gray-900 dark:text-white truncate">
-                          {txn.merchant || 'Unknown'}
-                        </p>
-                        <p className="font-dm text-[12px] text-gray-400 dark:text-gray-500">{dateLabel}</p>
-                      </div>
-                      <span className="font-mono font-semibold text-[15px] text-gray-900 dark:text-white flex-shrink-0">
-                        ₹{Number(txn.amount).toLocaleString('en-IN')}
-                      </span>
+
+                      {txn.imageUrl && (
+                        <div className="pt-1 border-t border-black/5 dark:border-white/5 flex justify-end">
+                          <button
+                            onClick={() => setViewingImage(txn.imageUrl!)}
+                            className="text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1"
+                          >
+                            📷 View Bill Image
+                          </button>
+                        </div>
+                      )}
                     </motion.div>
                   ))}
                 </div>
@@ -230,6 +306,33 @@ function CategorySheet({ config, expenses, total, isDark, onClose }: CategoryShe
             ))
           )}
         </div>
+
+        {/* Modal lightbox for bill image preview */}
+        <AnimatePresence>
+          {viewingImage && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+              onClick={() => setViewingImage(null)}
+            >
+              <div className="relative max-w-full max-h-full">
+                <button
+                  onClick={() => setViewingImage(null)}
+                  className="absolute -top-10 right-0 text-white font-bold bg-black/50 p-2 rounded-full"
+                >
+                  <X size={20} />
+                </button>
+                <img
+                  src={viewingImage}
+                  alt="Bill receipt"
+                  className="max-h-[80vh] max-w-[90vw] object-contain rounded-xl shadow-2xl border border-white/20"
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
     </motion.div>
   );
@@ -238,14 +341,15 @@ function CategorySheet({ config, expenses, total, isDark, onClose }: CategoryShe
 // ─── Main Expense List Screen ─────────────────────────────────────────────────
 
 export function ExpenseListScreen() {
-  const [allExpenses, setAllExpenses]       = useState<RawExpense[]>([]);
-  const [loading, setLoading]               = useState(true);
-  const [error, setError]                   = useState<string | null>(null);
-  const [openCategory, setOpenCategory]     = useState<CategoryConfig | null>(null);
-  const [manualAmount, setManualAmount]     = useState('');
+  const [allExpenses, setAllExpenses] = useState<RawExpense[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [openCategory, setOpenCategory] = useState<CategoryConfig | null>(null);
+  const [manualAmount, setManualAmount] = useState('');
   const [manualCategory, setManualCategory] = useState('Food');
   const [manualMerchant, setManualMerchant] = useState('');
-  const [savingManual, setSavingManual]     = useState(false);
+  const [savingManual, setSavingManual] = useState(false);
+  const [categoryBudgets, setCategoryBudgets] = useState<Record<string, number>>({});
 
   // Reactive dark mode tracking
   const [isDark, setIsDark] = useState(
@@ -259,28 +363,23 @@ export function ExpenseListScreen() {
     return () => observer.disconnect();
   }, []);
 
-  const loadData = async (forceRefresh = false) => {
-    try {
-      if (!forceRefresh) setLoading(true);
-      const data = await getThisMonthExpenses(forceRefresh);
-      setAllExpenses(data);
-    } catch (err) {
-      console.error(err);
-      setError('Could not load expenses. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    loadData();
-
-    const handleUpdate = () => {
-      loadData(true);
-    };
-
-    window.addEventListener("billScanned", handleUpdate);
-    return () => window.removeEventListener("billScanned", handleUpdate);
+    (async () => {
+      try {
+        setLoading(true);
+        const data = await getExpenses();
+        setAllExpenses(data);
+        const prof = await getUserProfile();
+        if (prof?.categoryBudgets) {
+          setCategoryBudgets(prof.categoryBudgets);
+        }
+      } catch (err) {
+        console.error(err);
+        setError('Could not load expenses. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, []);
 
   const bucketed = useMemo(() => {
@@ -295,7 +394,7 @@ export function ExpenseListScreen() {
 
   const grandTotal = allExpenses.reduce((s, e) => s + Number(e.amount || 0), 0);
   const openCategoryExpenses = openCategory ? (bucketed.get(openCategory.label) ?? []) : [];
-  const openCategoryTotal    = openCategoryExpenses.reduce((s, e) => s + Number(e.amount || 0), 0);
+  const openCategoryTotal = openCategoryExpenses.reduce((s, e) => s + Number(e.amount || 0), 0);
 
   const handleManualSave = async () => {
     if (!manualAmount || Number(manualAmount) <= 0) { alert('Please enter a valid amount'); return; }
@@ -304,10 +403,10 @@ export function ExpenseListScreen() {
       await saveExpense({
         amount: Number(manualAmount), category: manualCategory,
         merchant: manualMerchant || 'Manual Expense',
-        date: new Date().toISOString(),
+        date: new Date().toISOString(), source: 'manual',
       });
       alert('Expense added successfully');
-      await loadData(true);
+      setAllExpenses(await getExpenses());
       setManualAmount(''); setManualMerchant(''); setManualCategory('Food');
     } catch (err: any) {
       console.error(err); alert(err.message || 'Failed to save');
@@ -318,14 +417,14 @@ export function ExpenseListScreen() {
     <div className="w-full h-full bg-page flex flex-col relative overflow-hidden">
 
       {/* Top bar */}
-      <div className="pt-14 px-6 pb-4 bg-page flex-shrink-0">
-        <h1 className="font-sora font-bold text-[24px] text-gray-900 dark:text-white tracking-tight">Expenses</h1>
-        <p className="font-dm text-[13px] text-gray-500 dark:text-gray-400 mt-1 font-medium">
+      <div className="pt-12 px-4 pb-3 bg-page flex-shrink-0">
+        <h1 className="font-sora font-semibold text-[20px] text-gray-900 dark:text-white">Expenses</h1>
+        <p className="font-dm text-[12px] text-gray-500 dark:text-gray-400 mt-0.5">
           Tap a category to see all transactions
         </p>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-6 pb-32 scrollbar-hide">
+      <div className="flex-1 overflow-y-auto px-4 pb-32 scrollbar-hide">
 
         {loading && (
           <div className="flex flex-col items-center justify-center mt-24 gap-3">
@@ -350,8 +449,8 @@ export function ExpenseListScreen() {
 
         {!loading && !error && (
           <>
-            {/* ── Category cards ── */}
-            <div className="flex flex-col gap-3 mt-2">
+            {/* ── Category cards (compact size unchanged) ── */}
+            <div className="flex flex-col gap-2 mt-1">
               {CATEGORIES.map((category) => {
                 const categoryExpenses = bucketed.get(category.label) ?? [];
                 const total = categoryExpenses.reduce((sum, e) => sum + Number(e.amount || 0), 0);
@@ -360,38 +459,38 @@ export function ExpenseListScreen() {
                 return (
                   <motion.button
                     key={category.label}
-                    whileTap={{ scale: 0.98 }}
+                    whileTap={{ scale: 0.97 }}
                     onClick={() => setOpenCategory(category)}
-                    className="w-full rounded-card px-4 py-4 flex items-center gap-4 transition-all shadow-sm hover:shadow-md border border-transparent dark:border-white/5"
+                    className="w-full rounded-[16px] px-3 py-3 flex items-center gap-3 transition-all"
                     style={{ backgroundColor: isDark ? category.darkBg : category.bg }}
                   >
                     <div
-                      className="w-12 h-12 rounded-[16px] flex items-center justify-center shrink-0 shadow-sm"
+                      className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
                       style={{ backgroundColor: category.iconBg, color: category.iconColor }}
                     >
                       {category.icon}
                     </div>
 
                     <div className="flex-1 text-left min-w-0">
-                      <p className="font-sora font-bold text-[16px] text-gray-900 dark:text-white leading-tight">
+                      <p className="font-sora font-semibold text-[15px] text-gray-900 dark:text-white leading-tight">
                         {category.label}
                       </p>
-                      <p className="font-dm text-[13px] text-gray-500 dark:text-gray-400 mt-0.5 font-medium">
+                      <p className="font-dm text-[12px] text-gray-500 dark:text-gray-400 mt-0.5">
                         {hasData
                           ? `${categoryExpenses.length} transaction${categoryExpenses.length > 1 ? 's' : ''}`
                           : 'No expenses yet'}
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <div className="flex items-center gap-1 flex-shrink-0">
                       <span
-                        className="font-mono font-bold text-[15px]"
+                        className="font-mono font-bold text-[14px]"
                         style={{ color: hasData ? category.iconColor : '#9CA3AF' }}
                       >
                         {hasData ? `₹${total.toLocaleString('en-IN')}` : '—'}
                       </span>
                       {hasData && (
-                        <ChevronRight size={18} style={{ color: category.iconColor }} />
+                        <ChevronRight size={16} style={{ color: category.iconColor }} />
                       )}
                     </div>
                   </motion.button>
@@ -400,8 +499,8 @@ export function ExpenseListScreen() {
             </div>
 
             {/* ── Manual Expense Entry ── */}
-            <div className="bg-white dark:bg-dark-card rounded-card p-5 shadow-sm mt-6 mb-4 border border-transparent dark:border-white/5">
-              <h3 className="font-sora font-bold text-[16px] text-gray-900 dark:text-white mb-4">
+            <div className="bg-white dark:bg-[#1C1C1E] rounded-[16px] p-4 shadow-sm mt-3 mb-2">
+              <h3 className="font-sora font-semibold text-[15px] text-gray-900 dark:text-white mb-3">
                 Add Manual Expense
               </h3>
               <input
@@ -409,28 +508,30 @@ export function ExpenseListScreen() {
                 value={manualAmount}
                 onChange={(e) => setManualAmount(e.target.value)}
                 placeholder="Enter amount"
-                className="w-full h-12 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 rounded-xl px-4 mb-3 outline-none font-dm text-[15px] text-gray-900 dark:text-white placeholder:text-gray-400 focus:border-brand-green transition-colors"
+                className="w-full h-11 bg-gray-50 dark:bg-white/10 border border-black/5 dark:border-white/10 rounded-xl px-4 mb-2.5 outline-none font-dm text-[14px] text-gray-900 dark:text-white placeholder:text-gray-400"
               />
               <select
                 value={manualCategory}
                 onChange={(e) => setManualCategory(e.target.value)}
-                className="w-full h-12 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 rounded-xl px-4 mb-3 outline-none font-dm text-[15px] text-gray-900 dark:text-white focus:border-brand-green transition-colors"
+                className="w-full h-11 bg-gray-50 dark:bg-white/10 border border-black/5 dark:border-white/10 rounded-xl px-4 mb-2.5 outline-none font-dm text-[14px] text-gray-900 dark:text-white"
               >
-                <option>Food</option><option>Petrol</option><option>Groceries</option>
-                <option>Movies</option><option>Travel</option><option>Hospital</option>
-                <option>Other</option>
+                {CATEGORIES.map((c) => (
+                  <option key={c.label} value={c.label}>
+                    {c.label}
+                  </option>
+                ))}
               </select>
               <input
                 type="text"
                 value={manualMerchant}
                 onChange={(e) => setManualMerchant(e.target.value)}
                 placeholder="Merchant / Note"
-                className="w-full h-12 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 rounded-xl px-4 mb-4 outline-none font-dm text-[15px] text-gray-900 dark:text-white placeholder:text-gray-400 focus:border-brand-green transition-colors"
+                className="w-full h-11 bg-gray-50 dark:bg-white/10 border border-black/5 dark:border-white/10 rounded-xl px-4 mb-3 outline-none font-dm text-[14px] text-gray-900 dark:text-white placeholder:text-gray-400"
               />
               <button
                 onClick={handleManualSave}
                 disabled={savingManual}
-                className="w-full h-12 bg-gradient-to-r from-brand-green to-brand-green-gradient text-white rounded-xl font-sora font-bold text-[15px] shadow-sm disabled:opacity-60 active:scale-[0.98] transition-all"
+                className="w-full h-11 bg-brand-green text-white rounded-xl font-sora font-semibold text-[14px] disabled:opacity-60 active:scale-[0.98] transition-all"
               >
                 {savingManual ? 'Saving…' : 'Add Expense'}
               </button>
@@ -441,11 +542,11 @@ export function ExpenseListScreen() {
 
       {/* Sticky bottom total */}
       {!loading && allExpenses.length > 0 && (
-        <div className="absolute bottom-[90px] left-4 right-4 glass-effect rounded-2xl border border-black/5 dark:border-white/10 px-5 py-3.5 flex justify-between items-center shadow-floating z-20">
-          <span className="font-dm text-[13px] text-gray-500 dark:text-gray-400 font-medium">
+        <div className="absolute bottom-[80px] left-0 right-0 bg-white dark:bg-[#1C1C1E] border-t border-black/5 dark:border-white/5 px-4 py-3 flex justify-between items-center shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-20">
+          <span className="font-dm text-[12px] text-gray-500 dark:text-gray-400">
             {allExpenses.length} transaction{allExpenses.length !== 1 ? 's' : ''}
           </span>
-          <span className="font-mono font-bold text-[16px] text-gray-900 dark:text-white tracking-tight">
+          <span className="font-mono font-medium text-[14px] text-gray-900 dark:text-white">
             ₹{grandTotal.toLocaleString('en-IN')} total
           </span>
         </div>
@@ -459,6 +560,7 @@ export function ExpenseListScreen() {
             expenses={openCategoryExpenses}
             total={openCategoryTotal}
             isDark={isDark}
+            categoryBudget={categoryBudgets[openCategory.label] || 0}
             onClose={() => setOpenCategory(null)}
           />
         )}

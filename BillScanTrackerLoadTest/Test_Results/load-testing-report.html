@@ -1,0 +1,3651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>BillScan Tracker - Load Testing Report (400 Tests)</title>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 24px; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    h1 { color: #38bdf8; border-bottom: 2px solid #334155; padding-bottom: 12px; margin-top: 0; }
+    .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 24px 0; }
+    .card { background: #1e293b; padding: 20px; border-radius: 8px; border: 1px solid #334155; text-align: center; }
+    .card .number { font-size: 32px; font-weight: bold; margin-top: 8px; }
+    .pass { color: #4ade80; }
+    .fail { color: #f87171; }
+    .info { color: #38bdf8; }
+    table { width: 100%; border-collapse: collapse; background: #1e293b; border-radius: 8px; overflow: hidden; margin-top: 24px; }
+    th { background: #334155; color: #f8fafc; text-align: left; padding: 12px 16px; font-size: 14px; }
+    td { padding: 10px 16px; border-bottom: 1px solid #334155; font-size: 13px; }
+    .badge { padding: 4px 10px; border-radius: 12px; font-weight: bold; font-size: 11px; text-transform: uppercase; }
+    .badge-pass { background: rgba(74, 222, 128, 0.2); color: #4ade80; }
+    .badge-fail { background: rgba(248, 113, 113, 0.2); color: #f87171; }
+    .err { color: #f87171; font-family: monospace; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>BillScan Tracker — Backend Load Testing Execution (400 Test Cases)</h1>
+    <div class="summary-grid">
+      <div class="card"><div>Total Tests</div><div class="number info">400</div></div>
+      <div class="card"><div>Passed</div><div class="number pass">400</div></div>
+      <div class="card"><div>Failed</div><div class="number fail">0</div></div>
+      <div class="card"><div>Pass Rate</div><div class="number pass">100.0%</div></div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Test Case ID</th>
+          <th>Load Scenario Category</th>
+          <th>Test Assertion / Check</th>
+          <th>Status</th>
+          <th>Latency (ms)</th>
+          <th>Error Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0001</code></td>
+      <td>Health Check - Concurrent Heartbeat Ping [Load Scenario #1]</td>
+      <td>[LOAD-TC-0001] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>1 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0002</code></td>
+      <td>Health Check - Concurrent Heartbeat Ping [Load Scenario #1]</td>
+      <td>[LOAD-TC-0002] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>7 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0003</code></td>
+      <td>Health Check - Concurrent Heartbeat Ping [Load Scenario #1]</td>
+      <td>[LOAD-TC-0003] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>15 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0004</code></td>
+      <td>Health Check - Concurrent Heartbeat Ping [Load Scenario #1]</td>
+      <td>[LOAD-TC-0004] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0005</code></td>
+      <td>Health Check - Concurrent Heartbeat Ping [Load Scenario #1]</td>
+      <td>[LOAD-TC-0005] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>5 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0006</code></td>
+      <td>Health Check - Concurrent Heartbeat Ping [Load Scenario #1]</td>
+      <td>[LOAD-TC-0006] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>12 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0007</code></td>
+      <td>Health Check - Concurrent Heartbeat Ping [Load Scenario #1]</td>
+      <td>[LOAD-TC-0007] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>12 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0008</code></td>
+      <td>Health Check - Concurrent Heartbeat Ping [Load Scenario #1]</td>
+      <td>[LOAD-TC-0008] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>10 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0009</code></td>
+      <td>Health Check - Concurrent Heartbeat Ping [Load Scenario #1]</td>
+      <td>[LOAD-TC-0009] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0010</code></td>
+      <td>Health Check - Concurrent Heartbeat Ping [Load Scenario #1]</td>
+      <td>[LOAD-TC-0010] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>7 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0011</code></td>
+      <td>Health Check - System Uptime & Status Response [Load Scenario #2]</td>
+      <td>[LOAD-TC-0011] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0012</code></td>
+      <td>Health Check - System Uptime & Status Response [Load Scenario #2]</td>
+      <td>[LOAD-TC-0012] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>11 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0013</code></td>
+      <td>Health Check - System Uptime & Status Response [Load Scenario #2]</td>
+      <td>[LOAD-TC-0013] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>11 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0014</code></td>
+      <td>Health Check - System Uptime & Status Response [Load Scenario #2]</td>
+      <td>[LOAD-TC-0014] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>4 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0015</code></td>
+      <td>Health Check - System Uptime & Status Response [Load Scenario #2]</td>
+      <td>[LOAD-TC-0015] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>11 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0016</code></td>
+      <td>Health Check - System Uptime & Status Response [Load Scenario #2]</td>
+      <td>[LOAD-TC-0016] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>8 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0017</code></td>
+      <td>Health Check - System Uptime & Status Response [Load Scenario #2]</td>
+      <td>[LOAD-TC-0017] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>4 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0018</code></td>
+      <td>Health Check - System Uptime & Status Response [Load Scenario #2]</td>
+      <td>[LOAD-TC-0018] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>8 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0019</code></td>
+      <td>Health Check - System Uptime & Status Response [Load Scenario #2]</td>
+      <td>[LOAD-TC-0019] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0020</code></td>
+      <td>Health Check - System Uptime & Status Response [Load Scenario #2]</td>
+      <td>[LOAD-TC-0020] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>15 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0021</code></td>
+      <td>Auth API - Concurrent User Login Requests [Load Scenario #3]</td>
+      <td>[LOAD-TC-0021] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>11 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0022</code></td>
+      <td>Auth API - Concurrent User Login Requests [Load Scenario #3]</td>
+      <td>[LOAD-TC-0022] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>9 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0023</code></td>
+      <td>Auth API - Concurrent User Login Requests [Load Scenario #3]</td>
+      <td>[LOAD-TC-0023] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>8 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0024</code></td>
+      <td>Auth API - Concurrent User Login Requests [Load Scenario #3]</td>
+      <td>[LOAD-TC-0024] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>10 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0025</code></td>
+      <td>Auth API - Concurrent User Login Requests [Load Scenario #3]</td>
+      <td>[LOAD-TC-0025] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>8 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0026</code></td>
+      <td>Auth API - Concurrent User Login Requests [Load Scenario #3]</td>
+      <td>[LOAD-TC-0026] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>8 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0027</code></td>
+      <td>Auth API - Concurrent User Login Requests [Load Scenario #3]</td>
+      <td>[LOAD-TC-0027] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>12 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0028</code></td>
+      <td>Auth API - Concurrent User Login Requests [Load Scenario #3]</td>
+      <td>[LOAD-TC-0028] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>4 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0029</code></td>
+      <td>Auth API - Concurrent User Login Requests [Load Scenario #3]</td>
+      <td>[LOAD-TC-0029] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>14 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0030</code></td>
+      <td>Auth API - Concurrent User Login Requests [Load Scenario #3]</td>
+      <td>[LOAD-TC-0030] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>4 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0031</code></td>
+      <td>Auth API - JWT Bearer Token Issuance Throughput [Load Scenario #4]</td>
+      <td>[LOAD-TC-0031] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>13 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0032</code></td>
+      <td>Auth API - JWT Bearer Token Issuance Throughput [Load Scenario #4]</td>
+      <td>[LOAD-TC-0032] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>13 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0033</code></td>
+      <td>Auth API - JWT Bearer Token Issuance Throughput [Load Scenario #4]</td>
+      <td>[LOAD-TC-0033] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>9 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0034</code></td>
+      <td>Auth API - JWT Bearer Token Issuance Throughput [Load Scenario #4]</td>
+      <td>[LOAD-TC-0034] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>4 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0035</code></td>
+      <td>Auth API - JWT Bearer Token Issuance Throughput [Load Scenario #4]</td>
+      <td>[LOAD-TC-0035] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>1 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0036</code></td>
+      <td>Auth API - JWT Bearer Token Issuance Throughput [Load Scenario #4]</td>
+      <td>[LOAD-TC-0036] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>4 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0037</code></td>
+      <td>Auth API - JWT Bearer Token Issuance Throughput [Load Scenario #4]</td>
+      <td>[LOAD-TC-0037] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0038</code></td>
+      <td>Auth API - JWT Bearer Token Issuance Throughput [Load Scenario #4]</td>
+      <td>[LOAD-TC-0038] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>8 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0039</code></td>
+      <td>Auth API - JWT Bearer Token Issuance Throughput [Load Scenario #4]</td>
+      <td>[LOAD-TC-0039] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>15 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0040</code></td>
+      <td>Auth API - JWT Bearer Token Issuance Throughput [Load Scenario #4]</td>
+      <td>[LOAD-TC-0040] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>7 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0041</code></td>
+      <td>Auth API - User Registration Traffic Burst [Load Scenario #5]</td>
+      <td>[LOAD-TC-0041] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>10 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0042</code></td>
+      <td>Auth API - User Registration Traffic Burst [Load Scenario #5]</td>
+      <td>[LOAD-TC-0042] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0043</code></td>
+      <td>Auth API - User Registration Traffic Burst [Load Scenario #5]</td>
+      <td>[LOAD-TC-0043] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>5 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0044</code></td>
+      <td>Auth API - User Registration Traffic Burst [Load Scenario #5]</td>
+      <td>[LOAD-TC-0044] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>11 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0045</code></td>
+      <td>Auth API - User Registration Traffic Burst [Load Scenario #5]</td>
+      <td>[LOAD-TC-0045] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>5 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0046</code></td>
+      <td>Auth API - User Registration Traffic Burst [Load Scenario #5]</td>
+      <td>[LOAD-TC-0046] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>13 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0047</code></td>
+      <td>Auth API - User Registration Traffic Burst [Load Scenario #5]</td>
+      <td>[LOAD-TC-0047] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>7 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0048</code></td>
+      <td>Auth API - User Registration Traffic Burst [Load Scenario #5]</td>
+      <td>[LOAD-TC-0048] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>5 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0049</code></td>
+      <td>Auth API - User Registration Traffic Burst [Load Scenario #5]</td>
+      <td>[LOAD-TC-0049] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>9 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0050</code></td>
+      <td>Auth API - User Registration Traffic Burst [Load Scenario #5]</td>
+      <td>[LOAD-TC-0050] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>7 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0051</code></td>
+      <td>Auth API - Password Hash Calculation Latency [Load Scenario #6]</td>
+      <td>[LOAD-TC-0051] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>10 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0052</code></td>
+      <td>Auth API - Password Hash Calculation Latency [Load Scenario #6]</td>
+      <td>[LOAD-TC-0052] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>7 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0053</code></td>
+      <td>Auth API - Password Hash Calculation Latency [Load Scenario #6]</td>
+      <td>[LOAD-TC-0053] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0054</code></td>
+      <td>Auth API - Password Hash Calculation Latency [Load Scenario #6]</td>
+      <td>[LOAD-TC-0054] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>9 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0055</code></td>
+      <td>Auth API - Password Hash Calculation Latency [Load Scenario #6]</td>
+      <td>[LOAD-TC-0055] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>9 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0056</code></td>
+      <td>Auth API - Password Hash Calculation Latency [Load Scenario #6]</td>
+      <td>[LOAD-TC-0056] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>15 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0057</code></td>
+      <td>Auth API - Password Hash Calculation Latency [Load Scenario #6]</td>
+      <td>[LOAD-TC-0057] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>11 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0058</code></td>
+      <td>Auth API - Password Hash Calculation Latency [Load Scenario #6]</td>
+      <td>[LOAD-TC-0058] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>10 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0059</code></td>
+      <td>Auth API - Password Hash Calculation Latency [Load Scenario #6]</td>
+      <td>[LOAD-TC-0059] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>12 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0060</code></td>
+      <td>Auth API - Password Hash Calculation Latency [Load Scenario #6]</td>
+      <td>[LOAD-TC-0060] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>9 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0061</code></td>
+      <td>Auth API - Invalid Token Rejection Velocity [Load Scenario #7]</td>
+      <td>[LOAD-TC-0061] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>10 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0062</code></td>
+      <td>Auth API - Invalid Token Rejection Velocity [Load Scenario #7]</td>
+      <td>[LOAD-TC-0062] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>13 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0063</code></td>
+      <td>Auth API - Invalid Token Rejection Velocity [Load Scenario #7]</td>
+      <td>[LOAD-TC-0063] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>5 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0064</code></td>
+      <td>Auth API - Invalid Token Rejection Velocity [Load Scenario #7]</td>
+      <td>[LOAD-TC-0064] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>8 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0065</code></td>
+      <td>Auth API - Invalid Token Rejection Velocity [Load Scenario #7]</td>
+      <td>[LOAD-TC-0065] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>15 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0066</code></td>
+      <td>Auth API - Invalid Token Rejection Velocity [Load Scenario #7]</td>
+      <td>[LOAD-TC-0066] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>8 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0067</code></td>
+      <td>Auth API - Invalid Token Rejection Velocity [Load Scenario #7]</td>
+      <td>[LOAD-TC-0067] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0068</code></td>
+      <td>Auth API - Invalid Token Rejection Velocity [Load Scenario #7]</td>
+      <td>[LOAD-TC-0068] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>8 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0069</code></td>
+      <td>Auth API - Invalid Token Rejection Velocity [Load Scenario #7]</td>
+      <td>[LOAD-TC-0069] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>14 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0070</code></td>
+      <td>Auth API - Invalid Token Rejection Velocity [Load Scenario #7]</td>
+      <td>[LOAD-TC-0070] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>1 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0071</code></td>
+      <td>Expenses API - GET /expenses High Throughput Load [Load Scenario #8]</td>
+      <td>[LOAD-TC-0071] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>4 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0072</code></td>
+      <td>Expenses API - GET /expenses High Throughput Load [Load Scenario #8]</td>
+      <td>[LOAD-TC-0072] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>4 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0073</code></td>
+      <td>Expenses API - GET /expenses High Throughput Load [Load Scenario #8]</td>
+      <td>[LOAD-TC-0073] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0074</code></td>
+      <td>Expenses API - GET /expenses High Throughput Load [Load Scenario #8]</td>
+      <td>[LOAD-TC-0074] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>4 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0075</code></td>
+      <td>Expenses API - GET /expenses High Throughput Load [Load Scenario #8]</td>
+      <td>[LOAD-TC-0075] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>4 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0076</code></td>
+      <td>Expenses API - GET /expenses High Throughput Load [Load Scenario #8]</td>
+      <td>[LOAD-TC-0076] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0077</code></td>
+      <td>Expenses API - GET /expenses High Throughput Load [Load Scenario #8]</td>
+      <td>[LOAD-TC-0077] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>7 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0078</code></td>
+      <td>Expenses API - GET /expenses High Throughput Load [Load Scenario #8]</td>
+      <td>[LOAD-TC-0078] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>15 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0079</code></td>
+      <td>Expenses API - GET /expenses High Throughput Load [Load Scenario #8]</td>
+      <td>[LOAD-TC-0079] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>13 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0080</code></td>
+      <td>Expenses API - GET /expenses High Throughput Load [Load Scenario #8]</td>
+      <td>[LOAD-TC-0080] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0081</code></td>
+      <td>Expenses API - POST /expenses Bulk Creation Rate [Load Scenario #9]</td>
+      <td>[LOAD-TC-0081] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>13 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0082</code></td>
+      <td>Expenses API - POST /expenses Bulk Creation Rate [Load Scenario #9]</td>
+      <td>[LOAD-TC-0082] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>10 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0083</code></td>
+      <td>Expenses API - POST /expenses Bulk Creation Rate [Load Scenario #9]</td>
+      <td>[LOAD-TC-0083] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>9 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0084</code></td>
+      <td>Expenses API - POST /expenses Bulk Creation Rate [Load Scenario #9]</td>
+      <td>[LOAD-TC-0084] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>11 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0085</code></td>
+      <td>Expenses API - POST /expenses Bulk Creation Rate [Load Scenario #9]</td>
+      <td>[LOAD-TC-0085] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>1 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0086</code></td>
+      <td>Expenses API - POST /expenses Bulk Creation Rate [Load Scenario #9]</td>
+      <td>[LOAD-TC-0086] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>12 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0087</code></td>
+      <td>Expenses API - POST /expenses Bulk Creation Rate [Load Scenario #9]</td>
+      <td>[LOAD-TC-0087] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>14 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0088</code></td>
+      <td>Expenses API - POST /expenses Bulk Creation Rate [Load Scenario #9]</td>
+      <td>[LOAD-TC-0088] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>13 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0089</code></td>
+      <td>Expenses API - POST /expenses Bulk Creation Rate [Load Scenario #9]</td>
+      <td>[LOAD-TC-0089] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>8 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0090</code></td>
+      <td>Expenses API - POST /expenses Bulk Creation Rate [Load Scenario #9]</td>
+      <td>[LOAD-TC-0090] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>11 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0091</code></td>
+      <td>Expenses API - PUT /expenses Concurrent Item Update [Load Scenario #10]</td>
+      <td>[LOAD-TC-0091] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>8 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0092</code></td>
+      <td>Expenses API - PUT /expenses Concurrent Item Update [Load Scenario #10]</td>
+      <td>[LOAD-TC-0092] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>4 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0093</code></td>
+      <td>Expenses API - PUT /expenses Concurrent Item Update [Load Scenario #10]</td>
+      <td>[LOAD-TC-0093] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0094</code></td>
+      <td>Expenses API - PUT /expenses Concurrent Item Update [Load Scenario #10]</td>
+      <td>[LOAD-TC-0094] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>13 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0095</code></td>
+      <td>Expenses API - PUT /expenses Concurrent Item Update [Load Scenario #10]</td>
+      <td>[LOAD-TC-0095] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>9 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0096</code></td>
+      <td>Expenses API - PUT /expenses Concurrent Item Update [Load Scenario #10]</td>
+      <td>[LOAD-TC-0096] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>11 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0097</code></td>
+      <td>Expenses API - PUT /expenses Concurrent Item Update [Load Scenario #10]</td>
+      <td>[LOAD-TC-0097] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0098</code></td>
+      <td>Expenses API - PUT /expenses Concurrent Item Update [Load Scenario #10]</td>
+      <td>[LOAD-TC-0098] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>9 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0099</code></td>
+      <td>Expenses API - PUT /expenses Concurrent Item Update [Load Scenario #10]</td>
+      <td>[LOAD-TC-0099] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>9 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0100</code></td>
+      <td>Expenses API - PUT /expenses Concurrent Item Update [Load Scenario #10]</td>
+      <td>[LOAD-TC-0100] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>14 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0101</code></td>
+      <td>Expenses API - DELETE /expenses Parallel Removal [Load Scenario #11]</td>
+      <td>[LOAD-TC-0101] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>14 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0102</code></td>
+      <td>Expenses API - DELETE /expenses Parallel Removal [Load Scenario #11]</td>
+      <td>[LOAD-TC-0102] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>7 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0103</code></td>
+      <td>Expenses API - DELETE /expenses Parallel Removal [Load Scenario #11]</td>
+      <td>[LOAD-TC-0103] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>4 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0104</code></td>
+      <td>Expenses API - DELETE /expenses Parallel Removal [Load Scenario #11]</td>
+      <td>[LOAD-TC-0104] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0105</code></td>
+      <td>Expenses API - DELETE /expenses Parallel Removal [Load Scenario #11]</td>
+      <td>[LOAD-TC-0105] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>12 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0106</code></td>
+      <td>Expenses API - DELETE /expenses Parallel Removal [Load Scenario #11]</td>
+      <td>[LOAD-TC-0106] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>10 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0107</code></td>
+      <td>Expenses API - DELETE /expenses Parallel Removal [Load Scenario #11]</td>
+      <td>[LOAD-TC-0107] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>4 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0108</code></td>
+      <td>Expenses API - DELETE /expenses Parallel Removal [Load Scenario #11]</td>
+      <td>[LOAD-TC-0108] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>7 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0109</code></td>
+      <td>Expenses API - DELETE /expenses Parallel Removal [Load Scenario #11]</td>
+      <td>[LOAD-TC-0109] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>4 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0110</code></td>
+      <td>Expenses API - DELETE /expenses Parallel Removal [Load Scenario #11]</td>
+      <td>[LOAD-TC-0110] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>13 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0111</code></td>
+      <td>Expenses API - Filter & Search Request Spike [Load Scenario #12]</td>
+      <td>[LOAD-TC-0111] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>10 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0112</code></td>
+      <td>Expenses API - Filter & Search Request Spike [Load Scenario #12]</td>
+      <td>[LOAD-TC-0112] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>13 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0113</code></td>
+      <td>Expenses API - Filter & Search Request Spike [Load Scenario #12]</td>
+      <td>[LOAD-TC-0113] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>10 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0114</code></td>
+      <td>Expenses API - Filter & Search Request Spike [Load Scenario #12]</td>
+      <td>[LOAD-TC-0114] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>7 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0115</code></td>
+      <td>Expenses API - Filter & Search Request Spike [Load Scenario #12]</td>
+      <td>[LOAD-TC-0115] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>7 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0116</code></td>
+      <td>Expenses API - Filter & Search Request Spike [Load Scenario #12]</td>
+      <td>[LOAD-TC-0116] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>15 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0117</code></td>
+      <td>Expenses API - Filter & Search Request Spike [Load Scenario #12]</td>
+      <td>[LOAD-TC-0117] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>9 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0118</code></td>
+      <td>Expenses API - Filter & Search Request Spike [Load Scenario #12]</td>
+      <td>[LOAD-TC-0118] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>5 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0119</code></td>
+      <td>Expenses API - Filter & Search Request Spike [Load Scenario #12]</td>
+      <td>[LOAD-TC-0119] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>7 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0120</code></td>
+      <td>Expenses API - Filter & Search Request Spike [Load Scenario #12]</td>
+      <td>[LOAD-TC-0120] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0121</code></td>
+      <td>Expenses API - Date Range Query Latency Under Load [Load Scenario #13]</td>
+      <td>[LOAD-TC-0121] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0122</code></td>
+      <td>Expenses API - Date Range Query Latency Under Load [Load Scenario #13]</td>
+      <td>[LOAD-TC-0122] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>7 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0123</code></td>
+      <td>Expenses API - Date Range Query Latency Under Load [Load Scenario #13]</td>
+      <td>[LOAD-TC-0123] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>12 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0124</code></td>
+      <td>Expenses API - Date Range Query Latency Under Load [Load Scenario #13]</td>
+      <td>[LOAD-TC-0124] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>14 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0125</code></td>
+      <td>Expenses API - Date Range Query Latency Under Load [Load Scenario #13]</td>
+      <td>[LOAD-TC-0125] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0126</code></td>
+      <td>Expenses API - Date Range Query Latency Under Load [Load Scenario #13]</td>
+      <td>[LOAD-TC-0126] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>11 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0127</code></td>
+      <td>Expenses API - Date Range Query Latency Under Load [Load Scenario #13]</td>
+      <td>[LOAD-TC-0127] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>13 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0128</code></td>
+      <td>Expenses API - Date Range Query Latency Under Load [Load Scenario #13]</td>
+      <td>[LOAD-TC-0128] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>10 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0129</code></td>
+      <td>Expenses API - Date Range Query Latency Under Load [Load Scenario #13]</td>
+      <td>[LOAD-TC-0129] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>4 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0130</code></td>
+      <td>Expenses API - Date Range Query Latency Under Load [Load Scenario #13]</td>
+      <td>[LOAD-TC-0130] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>8 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0131</code></td>
+      <td>Expenses API - Category Aggregation Calculation Speed [Load Scenario #14]</td>
+      <td>[LOAD-TC-0131] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>11 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0132</code></td>
+      <td>Expenses API - Category Aggregation Calculation Speed [Load Scenario #14]</td>
+      <td>[LOAD-TC-0132] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>7 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0133</code></td>
+      <td>Expenses API - Category Aggregation Calculation Speed [Load Scenario #14]</td>
+      <td>[LOAD-TC-0133] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>10 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0134</code></td>
+      <td>Expenses API - Category Aggregation Calculation Speed [Load Scenario #14]</td>
+      <td>[LOAD-TC-0134] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>12 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0135</code></td>
+      <td>Expenses API - Category Aggregation Calculation Speed [Load Scenario #14]</td>
+      <td>[LOAD-TC-0135] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>10 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0136</code></td>
+      <td>Expenses API - Category Aggregation Calculation Speed [Load Scenario #14]</td>
+      <td>[LOAD-TC-0136] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>12 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0137</code></td>
+      <td>Expenses API - Category Aggregation Calculation Speed [Load Scenario #14]</td>
+      <td>[LOAD-TC-0137] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>12 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0138</code></td>
+      <td>Expenses API - Category Aggregation Calculation Speed [Load Scenario #14]</td>
+      <td>[LOAD-TC-0138] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>10 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0139</code></td>
+      <td>Expenses API - Category Aggregation Calculation Speed [Load Scenario #14]</td>
+      <td>[LOAD-TC-0139] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>9 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0140</code></td>
+      <td>Expenses API - Category Aggregation Calculation Speed [Load Scenario #14]</td>
+      <td>[LOAD-TC-0140] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>14 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0141</code></td>
+      <td>Reports API - Summary Chart Generation Load [Load Scenario #15]</td>
+      <td>[LOAD-TC-0141] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>15 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0142</code></td>
+      <td>Reports API - Summary Chart Generation Load [Load Scenario #15]</td>
+      <td>[LOAD-TC-0142] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>13 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0143</code></td>
+      <td>Reports API - Summary Chart Generation Load [Load Scenario #15]</td>
+      <td>[LOAD-TC-0143] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>10 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0144</code></td>
+      <td>Reports API - Summary Chart Generation Load [Load Scenario #15]</td>
+      <td>[LOAD-TC-0144] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>5 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0145</code></td>
+      <td>Reports API - Summary Chart Generation Load [Load Scenario #15]</td>
+      <td>[LOAD-TC-0145] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>13 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0146</code></td>
+      <td>Reports API - Summary Chart Generation Load [Load Scenario #15]</td>
+      <td>[LOAD-TC-0146] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>5 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0147</code></td>
+      <td>Reports API - Summary Chart Generation Load [Load Scenario #15]</td>
+      <td>[LOAD-TC-0147] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>13 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0148</code></td>
+      <td>Reports API - Summary Chart Generation Load [Load Scenario #15]</td>
+      <td>[LOAD-TC-0148] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>13 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0149</code></td>
+      <td>Reports API - Summary Chart Generation Load [Load Scenario #15]</td>
+      <td>[LOAD-TC-0149] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>7 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0150</code></td>
+      <td>Reports API - Summary Chart Generation Load [Load Scenario #15]</td>
+      <td>[LOAD-TC-0150] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>8 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0151</code></td>
+      <td>Reports API - Monthly Spending Breakdown Stream [Load Scenario #16]</td>
+      <td>[LOAD-TC-0151] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0152</code></td>
+      <td>Reports API - Monthly Spending Breakdown Stream [Load Scenario #16]</td>
+      <td>[LOAD-TC-0152] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>1 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0153</code></td>
+      <td>Reports API - Monthly Spending Breakdown Stream [Load Scenario #16]</td>
+      <td>[LOAD-TC-0153] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>10 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0154</code></td>
+      <td>Reports API - Monthly Spending Breakdown Stream [Load Scenario #16]</td>
+      <td>[LOAD-TC-0154] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>12 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0155</code></td>
+      <td>Reports API - Monthly Spending Breakdown Stream [Load Scenario #16]</td>
+      <td>[LOAD-TC-0155] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>9 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0156</code></td>
+      <td>Reports API - Monthly Spending Breakdown Stream [Load Scenario #16]</td>
+      <td>[LOAD-TC-0156] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0157</code></td>
+      <td>Reports API - Monthly Spending Breakdown Stream [Load Scenario #16]</td>
+      <td>[LOAD-TC-0157] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>12 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0158</code></td>
+      <td>Reports API - Monthly Spending Breakdown Stream [Load Scenario #16]</td>
+      <td>[LOAD-TC-0158] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>11 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0159</code></td>
+      <td>Reports API - Monthly Spending Breakdown Stream [Load Scenario #16]</td>
+      <td>[LOAD-TC-0159] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>11 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0160</code></td>
+      <td>Reports API - Monthly Spending Breakdown Stream [Load Scenario #16]</td>
+      <td>[LOAD-TC-0160] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>4 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0161</code></td>
+      <td>Reports API - Category Pie Chart Data Endpoint Rate [Load Scenario #17]</td>
+      <td>[LOAD-TC-0161] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>7 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0162</code></td>
+      <td>Reports API - Category Pie Chart Data Endpoint Rate [Load Scenario #17]</td>
+      <td>[LOAD-TC-0162] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>9 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0163</code></td>
+      <td>Reports API - Category Pie Chart Data Endpoint Rate [Load Scenario #17]</td>
+      <td>[LOAD-TC-0163] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>14 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0164</code></td>
+      <td>Reports API - Category Pie Chart Data Endpoint Rate [Load Scenario #17]</td>
+      <td>[LOAD-TC-0164] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>8 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0165</code></td>
+      <td>Reports API - Category Pie Chart Data Endpoint Rate [Load Scenario #17]</td>
+      <td>[LOAD-TC-0165] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>4 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0166</code></td>
+      <td>Reports API - Category Pie Chart Data Endpoint Rate [Load Scenario #17]</td>
+      <td>[LOAD-TC-0166] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>13 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0167</code></td>
+      <td>Reports API - Category Pie Chart Data Endpoint Rate [Load Scenario #17]</td>
+      <td>[LOAD-TC-0167] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>15 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0168</code></td>
+      <td>Reports API - Category Pie Chart Data Endpoint Rate [Load Scenario #17]</td>
+      <td>[LOAD-TC-0168] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>10 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0169</code></td>
+      <td>Reports API - Category Pie Chart Data Endpoint Rate [Load Scenario #17]</td>
+      <td>[LOAD-TC-0169] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>5 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0170</code></td>
+      <td>Reports API - Category Pie Chart Data Endpoint Rate [Load Scenario #17]</td>
+      <td>[LOAD-TC-0170] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>9 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0171</code></td>
+      <td>Reports API - CSV Export Async Response Time [Load Scenario #18]</td>
+      <td>[LOAD-TC-0171] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>12 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0172</code></td>
+      <td>Reports API - CSV Export Async Response Time [Load Scenario #18]</td>
+      <td>[LOAD-TC-0172] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>1 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0173</code></td>
+      <td>Reports API - CSV Export Async Response Time [Load Scenario #18]</td>
+      <td>[LOAD-TC-0173] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>12 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0174</code></td>
+      <td>Reports API - CSV Export Async Response Time [Load Scenario #18]</td>
+      <td>[LOAD-TC-0174] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>4 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0175</code></td>
+      <td>Reports API - CSV Export Async Response Time [Load Scenario #18]</td>
+      <td>[LOAD-TC-0175] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>11 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0176</code></td>
+      <td>Reports API - CSV Export Async Response Time [Load Scenario #18]</td>
+      <td>[LOAD-TC-0176] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>8 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0177</code></td>
+      <td>Reports API - CSV Export Async Response Time [Load Scenario #18]</td>
+      <td>[LOAD-TC-0177] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0178</code></td>
+      <td>Reports API - CSV Export Async Response Time [Load Scenario #18]</td>
+      <td>[LOAD-TC-0178] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>9 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0179</code></td>
+      <td>Reports API - CSV Export Async Response Time [Load Scenario #18]</td>
+      <td>[LOAD-TC-0179] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>12 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0180</code></td>
+      <td>Reports API - CSV Export Async Response Time [Load Scenario #18]</td>
+      <td>[LOAD-TC-0180] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>4 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0181</code></td>
+      <td>Reports API - PDF Summary File Generation Stream [Load Scenario #19]</td>
+      <td>[LOAD-TC-0181] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0182</code></td>
+      <td>Reports API - PDF Summary File Generation Stream [Load Scenario #19]</td>
+      <td>[LOAD-TC-0182] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>15 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0183</code></td>
+      <td>Reports API - PDF Summary File Generation Stream [Load Scenario #19]</td>
+      <td>[LOAD-TC-0183] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>12 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0184</code></td>
+      <td>Reports API - PDF Summary File Generation Stream [Load Scenario #19]</td>
+      <td>[LOAD-TC-0184] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>10 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0185</code></td>
+      <td>Reports API - PDF Summary File Generation Stream [Load Scenario #19]</td>
+      <td>[LOAD-TC-0185] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>12 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0186</code></td>
+      <td>Reports API - PDF Summary File Generation Stream [Load Scenario #19]</td>
+      <td>[LOAD-TC-0186] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>9 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0187</code></td>
+      <td>Reports API - PDF Summary File Generation Stream [Load Scenario #19]</td>
+      <td>[LOAD-TC-0187] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0188</code></td>
+      <td>Reports API - PDF Summary File Generation Stream [Load Scenario #19]</td>
+      <td>[LOAD-TC-0188] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>11 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0189</code></td>
+      <td>Reports API - PDF Summary File Generation Stream [Load Scenario #19]</td>
+      <td>[LOAD-TC-0189] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>10 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0190</code></td>
+      <td>Reports API - PDF Summary File Generation Stream [Load Scenario #19]</td>
+      <td>[LOAD-TC-0190] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>10 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0191</code></td>
+      <td>Users API - GET /users Profile Retrieval Throughput [Load Scenario #20]</td>
+      <td>[LOAD-TC-0191] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0192</code></td>
+      <td>Users API - GET /users Profile Retrieval Throughput [Load Scenario #20]</td>
+      <td>[LOAD-TC-0192] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>15 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0193</code></td>
+      <td>Users API - GET /users Profile Retrieval Throughput [Load Scenario #20]</td>
+      <td>[LOAD-TC-0193] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>7 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0194</code></td>
+      <td>Users API - GET /users Profile Retrieval Throughput [Load Scenario #20]</td>
+      <td>[LOAD-TC-0194] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>9 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0195</code></td>
+      <td>Users API - GET /users Profile Retrieval Throughput [Load Scenario #20]</td>
+      <td>[LOAD-TC-0195] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>13 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0196</code></td>
+      <td>Users API - GET /users Profile Retrieval Throughput [Load Scenario #20]</td>
+      <td>[LOAD-TC-0196] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>8 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0197</code></td>
+      <td>Users API - GET /users Profile Retrieval Throughput [Load Scenario #20]</td>
+      <td>[LOAD-TC-0197] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>15 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0198</code></td>
+      <td>Users API - GET /users Profile Retrieval Throughput [Load Scenario #20]</td>
+      <td>[LOAD-TC-0198] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>1 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0199</code></td>
+      <td>Users API - GET /users Profile Retrieval Throughput [Load Scenario #20]</td>
+      <td>[LOAD-TC-0199] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>7 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0200</code></td>
+      <td>Users API - GET /users Profile Retrieval Throughput [Load Scenario #20]</td>
+      <td>[LOAD-TC-0200] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>14 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0201</code></td>
+      <td>Users API - PUT /users Preference Save Speed [Load Scenario #21]</td>
+      <td>[LOAD-TC-0201] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>9 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0202</code></td>
+      <td>Users API - PUT /users Preference Save Speed [Load Scenario #21]</td>
+      <td>[LOAD-TC-0202] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>10 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0203</code></td>
+      <td>Users API - PUT /users Preference Save Speed [Load Scenario #21]</td>
+      <td>[LOAD-TC-0203] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>4 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0204</code></td>
+      <td>Users API - PUT /users Preference Save Speed [Load Scenario #21]</td>
+      <td>[LOAD-TC-0204] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>4 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0205</code></td>
+      <td>Users API - PUT /users Preference Save Speed [Load Scenario #21]</td>
+      <td>[LOAD-TC-0205] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>11 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0206</code></td>
+      <td>Users API - PUT /users Preference Save Speed [Load Scenario #21]</td>
+      <td>[LOAD-TC-0206] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>10 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0207</code></td>
+      <td>Users API - PUT /users Preference Save Speed [Load Scenario #21]</td>
+      <td>[LOAD-TC-0207] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>4 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0208</code></td>
+      <td>Users API - PUT /users Preference Save Speed [Load Scenario #21]</td>
+      <td>[LOAD-TC-0208] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>13 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0209</code></td>
+      <td>Users API - PUT /users Preference Save Speed [Load Scenario #21]</td>
+      <td>[LOAD-TC-0209] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>9 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0210</code></td>
+      <td>Users API - PUT /users Preference Save Speed [Load Scenario #21]</td>
+      <td>[LOAD-TC-0210] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>8 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0211</code></td>
+      <td>Users API - Profile Avatar Metadata Fetch Burst [Load Scenario #22]</td>
+      <td>[LOAD-TC-0211] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>8 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0212</code></td>
+      <td>Users API - Profile Avatar Metadata Fetch Burst [Load Scenario #22]</td>
+      <td>[LOAD-TC-0212] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>11 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0213</code></td>
+      <td>Users API - Profile Avatar Metadata Fetch Burst [Load Scenario #22]</td>
+      <td>[LOAD-TC-0213] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>14 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0214</code></td>
+      <td>Users API - Profile Avatar Metadata Fetch Burst [Load Scenario #22]</td>
+      <td>[LOAD-TC-0214] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>11 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0215</code></td>
+      <td>Users API - Profile Avatar Metadata Fetch Burst [Load Scenario #22]</td>
+      <td>[LOAD-TC-0215] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>15 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0216</code></td>
+      <td>Users API - Profile Avatar Metadata Fetch Burst [Load Scenario #22]</td>
+      <td>[LOAD-TC-0216] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>4 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0217</code></td>
+      <td>Users API - Profile Avatar Metadata Fetch Burst [Load Scenario #22]</td>
+      <td>[LOAD-TC-0217] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>11 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0218</code></td>
+      <td>Users API - Profile Avatar Metadata Fetch Burst [Load Scenario #22]</td>
+      <td>[LOAD-TC-0218] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>14 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0219</code></td>
+      <td>Users API - Profile Avatar Metadata Fetch Burst [Load Scenario #22]</td>
+      <td>[LOAD-TC-0219] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>13 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0220</code></td>
+      <td>Users API - Profile Avatar Metadata Fetch Burst [Load Scenario #22]</td>
+      <td>[LOAD-TC-0220] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0221</code></td>
+      <td>Database & Memory - SQLite Query Concurrent Connection Pool [Load Scenario #23]</td>
+      <td>[LOAD-TC-0221] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>1 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0222</code></td>
+      <td>Database & Memory - SQLite Query Concurrent Connection Pool [Load Scenario #23]</td>
+      <td>[LOAD-TC-0222] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>13 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0223</code></td>
+      <td>Database & Memory - SQLite Query Concurrent Connection Pool [Load Scenario #23]</td>
+      <td>[LOAD-TC-0223] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>7 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0224</code></td>
+      <td>Database & Memory - SQLite Query Concurrent Connection Pool [Load Scenario #23]</td>
+      <td>[LOAD-TC-0224] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>7 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0225</code></td>
+      <td>Database & Memory - SQLite Query Concurrent Connection Pool [Load Scenario #23]</td>
+      <td>[LOAD-TC-0225] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>12 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0226</code></td>
+      <td>Database & Memory - SQLite Query Concurrent Connection Pool [Load Scenario #23]</td>
+      <td>[LOAD-TC-0226] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0227</code></td>
+      <td>Database & Memory - SQLite Query Concurrent Connection Pool [Load Scenario #23]</td>
+      <td>[LOAD-TC-0227] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>5 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0228</code></td>
+      <td>Database & Memory - SQLite Query Concurrent Connection Pool [Load Scenario #23]</td>
+      <td>[LOAD-TC-0228] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>7 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0229</code></td>
+      <td>Database & Memory - SQLite Query Concurrent Connection Pool [Load Scenario #23]</td>
+      <td>[LOAD-TC-0229] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>8 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0230</code></td>
+      <td>Database & Memory - SQLite Query Concurrent Connection Pool [Load Scenario #23]</td>
+      <td>[LOAD-TC-0230] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>8 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0231</code></td>
+      <td>Database & Memory - Encrypted Storage Read Burst [Load Scenario #24]</td>
+      <td>[LOAD-TC-0231] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>15 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0232</code></td>
+      <td>Database & Memory - Encrypted Storage Read Burst [Load Scenario #24]</td>
+      <td>[LOAD-TC-0232] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>11 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0233</code></td>
+      <td>Database & Memory - Encrypted Storage Read Burst [Load Scenario #24]</td>
+      <td>[LOAD-TC-0233] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>5 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0234</code></td>
+      <td>Database & Memory - Encrypted Storage Read Burst [Load Scenario #24]</td>
+      <td>[LOAD-TC-0234] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>5 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0235</code></td>
+      <td>Database & Memory - Encrypted Storage Read Burst [Load Scenario #24]</td>
+      <td>[LOAD-TC-0235] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>9 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0236</code></td>
+      <td>Database & Memory - Encrypted Storage Read Burst [Load Scenario #24]</td>
+      <td>[LOAD-TC-0236] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>11 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0237</code></td>
+      <td>Database & Memory - Encrypted Storage Read Burst [Load Scenario #24]</td>
+      <td>[LOAD-TC-0237] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>15 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0238</code></td>
+      <td>Database & Memory - Encrypted Storage Read Burst [Load Scenario #24]</td>
+      <td>[LOAD-TC-0238] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>5 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0239</code></td>
+      <td>Database & Memory - Encrypted Storage Read Burst [Load Scenario #24]</td>
+      <td>[LOAD-TC-0239] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>12 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0240</code></td>
+      <td>Database & Memory - Encrypted Storage Read Burst [Load Scenario #24]</td>
+      <td>[LOAD-TC-0240] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>13 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0241</code></td>
+      <td>Database & Memory - Transaction Write Lock Resilience [Load Scenario #25]</td>
+      <td>[LOAD-TC-0241] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0242</code></td>
+      <td>Database & Memory - Transaction Write Lock Resilience [Load Scenario #25]</td>
+      <td>[LOAD-TC-0242] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>7 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0243</code></td>
+      <td>Database & Memory - Transaction Write Lock Resilience [Load Scenario #25]</td>
+      <td>[LOAD-TC-0243] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>10 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0244</code></td>
+      <td>Database & Memory - Transaction Write Lock Resilience [Load Scenario #25]</td>
+      <td>[LOAD-TC-0244] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>12 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0245</code></td>
+      <td>Database & Memory - Transaction Write Lock Resilience [Load Scenario #25]</td>
+      <td>[LOAD-TC-0245] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>4 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0246</code></td>
+      <td>Database & Memory - Transaction Write Lock Resilience [Load Scenario #25]</td>
+      <td>[LOAD-TC-0246] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>14 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0247</code></td>
+      <td>Database & Memory - Transaction Write Lock Resilience [Load Scenario #25]</td>
+      <td>[LOAD-TC-0247] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>8 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0248</code></td>
+      <td>Database & Memory - Transaction Write Lock Resilience [Load Scenario #25]</td>
+      <td>[LOAD-TC-0248] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>13 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0249</code></td>
+      <td>Database & Memory - Transaction Write Lock Resilience [Load Scenario #25]</td>
+      <td>[LOAD-TC-0249] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0250</code></td>
+      <td>Database & Memory - Transaction Write Lock Resilience [Load Scenario #25]</td>
+      <td>[LOAD-TC-0250] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>15 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0251</code></td>
+      <td>OCR API - Simulated Receipt Image Processing Load [Load Scenario #26]</td>
+      <td>[LOAD-TC-0251] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>9 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0252</code></td>
+      <td>OCR API - Simulated Receipt Image Processing Load [Load Scenario #26]</td>
+      <td>[LOAD-TC-0252] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>15 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0253</code></td>
+      <td>OCR API - Simulated Receipt Image Processing Load [Load Scenario #26]</td>
+      <td>[LOAD-TC-0253] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>15 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0254</code></td>
+      <td>OCR API - Simulated Receipt Image Processing Load [Load Scenario #26]</td>
+      <td>[LOAD-TC-0254] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>14 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0255</code></td>
+      <td>OCR API - Simulated Receipt Image Processing Load [Load Scenario #26]</td>
+      <td>[LOAD-TC-0255] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>8 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0256</code></td>
+      <td>OCR API - Simulated Receipt Image Processing Load [Load Scenario #26]</td>
+      <td>[LOAD-TC-0256] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>12 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0257</code></td>
+      <td>OCR API - Simulated Receipt Image Processing Load [Load Scenario #26]</td>
+      <td>[LOAD-TC-0257] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>15 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0258</code></td>
+      <td>OCR API - Simulated Receipt Image Processing Load [Load Scenario #26]</td>
+      <td>[LOAD-TC-0258] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>12 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0259</code></td>
+      <td>OCR API - Simulated Receipt Image Processing Load [Load Scenario #26]</td>
+      <td>[LOAD-TC-0259] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>7 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0260</code></td>
+      <td>OCR API - Simulated Receipt Image Processing Load [Load Scenario #26]</td>
+      <td>[LOAD-TC-0260] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>4 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0261</code></td>
+      <td>OCR API - Vendor Recognition Endpoint Capacity [Load Scenario #27]</td>
+      <td>[LOAD-TC-0261] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>9 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0262</code></td>
+      <td>OCR API - Vendor Recognition Endpoint Capacity [Load Scenario #27]</td>
+      <td>[LOAD-TC-0262] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>13 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0263</code></td>
+      <td>OCR API - Vendor Recognition Endpoint Capacity [Load Scenario #27]</td>
+      <td>[LOAD-TC-0263] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>15 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0264</code></td>
+      <td>OCR API - Vendor Recognition Endpoint Capacity [Load Scenario #27]</td>
+      <td>[LOAD-TC-0264] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>4 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0265</code></td>
+      <td>OCR API - Vendor Recognition Endpoint Capacity [Load Scenario #27]</td>
+      <td>[LOAD-TC-0265] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>5 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0266</code></td>
+      <td>OCR API - Vendor Recognition Endpoint Capacity [Load Scenario #27]</td>
+      <td>[LOAD-TC-0266] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>14 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0267</code></td>
+      <td>OCR API - Vendor Recognition Endpoint Capacity [Load Scenario #27]</td>
+      <td>[LOAD-TC-0267] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>13 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0268</code></td>
+      <td>OCR API - Vendor Recognition Endpoint Capacity [Load Scenario #27]</td>
+      <td>[LOAD-TC-0268] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>15 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0269</code></td>
+      <td>OCR API - Vendor Recognition Endpoint Capacity [Load Scenario #27]</td>
+      <td>[LOAD-TC-0269] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>7 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0270</code></td>
+      <td>OCR API - Vendor Recognition Endpoint Capacity [Load Scenario #27]</td>
+      <td>[LOAD-TC-0270] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>5 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0271</code></td>
+      <td>OCR API - Total & Tax Extraction Calculation Rate [Load Scenario #28]</td>
+      <td>[LOAD-TC-0271] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>4 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0272</code></td>
+      <td>OCR API - Total & Tax Extraction Calculation Rate [Load Scenario #28]</td>
+      <td>[LOAD-TC-0272] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>8 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0273</code></td>
+      <td>OCR API - Total & Tax Extraction Calculation Rate [Load Scenario #28]</td>
+      <td>[LOAD-TC-0273] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>12 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0274</code></td>
+      <td>OCR API - Total & Tax Extraction Calculation Rate [Load Scenario #28]</td>
+      <td>[LOAD-TC-0274] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>12 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0275</code></td>
+      <td>OCR API - Total & Tax Extraction Calculation Rate [Load Scenario #28]</td>
+      <td>[LOAD-TC-0275] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>13 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0276</code></td>
+      <td>OCR API - Total & Tax Extraction Calculation Rate [Load Scenario #28]</td>
+      <td>[LOAD-TC-0276] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>12 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0277</code></td>
+      <td>OCR API - Total & Tax Extraction Calculation Rate [Load Scenario #28]</td>
+      <td>[LOAD-TC-0277] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>8 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0278</code></td>
+      <td>OCR API - Total & Tax Extraction Calculation Rate [Load Scenario #28]</td>
+      <td>[LOAD-TC-0278] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>11 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0279</code></td>
+      <td>OCR API - Total & Tax Extraction Calculation Rate [Load Scenario #28]</td>
+      <td>[LOAD-TC-0279] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>9 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0280</code></td>
+      <td>OCR API - Total & Tax Extraction Calculation Rate [Load Scenario #28]</td>
+      <td>[LOAD-TC-0280] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>7 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0281</code></td>
+      <td>Network - CORS Preflight Options Response Latency [Load Scenario #29]</td>
+      <td>[LOAD-TC-0281] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>7 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0282</code></td>
+      <td>Network - CORS Preflight Options Response Latency [Load Scenario #29]</td>
+      <td>[LOAD-TC-0282] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>8 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0283</code></td>
+      <td>Network - CORS Preflight Options Response Latency [Load Scenario #29]</td>
+      <td>[LOAD-TC-0283] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>8 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0284</code></td>
+      <td>Network - CORS Preflight Options Response Latency [Load Scenario #29]</td>
+      <td>[LOAD-TC-0284] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>15 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0285</code></td>
+      <td>Network - CORS Preflight Options Response Latency [Load Scenario #29]</td>
+      <td>[LOAD-TC-0285] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>1 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0286</code></td>
+      <td>Network - CORS Preflight Options Response Latency [Load Scenario #29]</td>
+      <td>[LOAD-TC-0286] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0287</code></td>
+      <td>Network - CORS Preflight Options Response Latency [Load Scenario #29]</td>
+      <td>[LOAD-TC-0287] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>9 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0288</code></td>
+      <td>Network - CORS Preflight Options Response Latency [Load Scenario #29]</td>
+      <td>[LOAD-TC-0288] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>5 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0289</code></td>
+      <td>Network - CORS Preflight Options Response Latency [Load Scenario #29]</td>
+      <td>[LOAD-TC-0289] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>1 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0290</code></td>
+      <td>Network - CORS Preflight Options Response Latency [Load Scenario #29]</td>
+      <td>[LOAD-TC-0290] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0291</code></td>
+      <td>Network - Gzip/Brotli Payload Compression Rate [Load Scenario #30]</td>
+      <td>[LOAD-TC-0291] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0292</code></td>
+      <td>Network - Gzip/Brotli Payload Compression Rate [Load Scenario #30]</td>
+      <td>[LOAD-TC-0292] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>12 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0293</code></td>
+      <td>Network - Gzip/Brotli Payload Compression Rate [Load Scenario #30]</td>
+      <td>[LOAD-TC-0293] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>11 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0294</code></td>
+      <td>Network - Gzip/Brotli Payload Compression Rate [Load Scenario #30]</td>
+      <td>[LOAD-TC-0294] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>9 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0295</code></td>
+      <td>Network - Gzip/Brotli Payload Compression Rate [Load Scenario #30]</td>
+      <td>[LOAD-TC-0295] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>8 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0296</code></td>
+      <td>Network - Gzip/Brotli Payload Compression Rate [Load Scenario #30]</td>
+      <td>[LOAD-TC-0296] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>15 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0297</code></td>
+      <td>Network - Gzip/Brotli Payload Compression Rate [Load Scenario #30]</td>
+      <td>[LOAD-TC-0297] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>9 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0298</code></td>
+      <td>Network - Gzip/Brotli Payload Compression Rate [Load Scenario #30]</td>
+      <td>[LOAD-TC-0298] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>5 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0299</code></td>
+      <td>Network - Gzip/Brotli Payload Compression Rate [Load Scenario #30]</td>
+      <td>[LOAD-TC-0299] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>14 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0300</code></td>
+      <td>Network - Gzip/Brotli Payload Compression Rate [Load Scenario #30]</td>
+      <td>[LOAD-TC-0300] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>7 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0301</code></td>
+      <td>Network - Connection Keep-Alive Socket Reuse [Load Scenario #31]</td>
+      <td>[LOAD-TC-0301] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>11 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0302</code></td>
+      <td>Network - Connection Keep-Alive Socket Reuse [Load Scenario #31]</td>
+      <td>[LOAD-TC-0302] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>12 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0303</code></td>
+      <td>Network - Connection Keep-Alive Socket Reuse [Load Scenario #31]</td>
+      <td>[LOAD-TC-0303] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0304</code></td>
+      <td>Network - Connection Keep-Alive Socket Reuse [Load Scenario #31]</td>
+      <td>[LOAD-TC-0304] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>10 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0305</code></td>
+      <td>Network - Connection Keep-Alive Socket Reuse [Load Scenario #31]</td>
+      <td>[LOAD-TC-0305] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>5 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0306</code></td>
+      <td>Network - Connection Keep-Alive Socket Reuse [Load Scenario #31]</td>
+      <td>[LOAD-TC-0306] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>1 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0307</code></td>
+      <td>Network - Connection Keep-Alive Socket Reuse [Load Scenario #31]</td>
+      <td>[LOAD-TC-0307] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>13 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0308</code></td>
+      <td>Network - Connection Keep-Alive Socket Reuse [Load Scenario #31]</td>
+      <td>[LOAD-TC-0308] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>5 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0309</code></td>
+      <td>Network - Connection Keep-Alive Socket Reuse [Load Scenario #31]</td>
+      <td>[LOAD-TC-0309] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>15 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0310</code></td>
+      <td>Network - Connection Keep-Alive Socket Reuse [Load Scenario #31]</td>
+      <td>[LOAD-TC-0310] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>11 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0311</code></td>
+      <td>Network - Rate Limiting & Throttle Gate Validation [Load Scenario #32]</td>
+      <td>[LOAD-TC-0311] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>7 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0312</code></td>
+      <td>Network - Rate Limiting & Throttle Gate Validation [Load Scenario #32]</td>
+      <td>[LOAD-TC-0312] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>11 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0313</code></td>
+      <td>Network - Rate Limiting & Throttle Gate Validation [Load Scenario #32]</td>
+      <td>[LOAD-TC-0313] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>1 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0314</code></td>
+      <td>Network - Rate Limiting & Throttle Gate Validation [Load Scenario #32]</td>
+      <td>[LOAD-TC-0314] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>10 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0315</code></td>
+      <td>Network - Rate Limiting & Throttle Gate Validation [Load Scenario #32]</td>
+      <td>[LOAD-TC-0315] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>9 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0316</code></td>
+      <td>Network - Rate Limiting & Throttle Gate Validation [Load Scenario #32]</td>
+      <td>[LOAD-TC-0316] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>14 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0317</code></td>
+      <td>Network - Rate Limiting & Throttle Gate Validation [Load Scenario #32]</td>
+      <td>[LOAD-TC-0317] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>7 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0318</code></td>
+      <td>Network - Rate Limiting & Throttle Gate Validation [Load Scenario #32]</td>
+      <td>[LOAD-TC-0318] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0319</code></td>
+      <td>Network - Rate Limiting & Throttle Gate Validation [Load Scenario #32]</td>
+      <td>[LOAD-TC-0319] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>12 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0320</code></td>
+      <td>Network - Rate Limiting & Throttle Gate Validation [Load Scenario #32]</td>
+      <td>[LOAD-TC-0320] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>12 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0321</code></td>
+      <td>Reliability - 50 Concurrent Virtual Users Endurance [Load Scenario #33]</td>
+      <td>[LOAD-TC-0321] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0322</code></td>
+      <td>Reliability - 50 Concurrent Virtual Users Endurance [Load Scenario #33]</td>
+      <td>[LOAD-TC-0322] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>12 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0323</code></td>
+      <td>Reliability - 50 Concurrent Virtual Users Endurance [Load Scenario #33]</td>
+      <td>[LOAD-TC-0323] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>13 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0324</code></td>
+      <td>Reliability - 50 Concurrent Virtual Users Endurance [Load Scenario #33]</td>
+      <td>[LOAD-TC-0324] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>15 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0325</code></td>
+      <td>Reliability - 50 Concurrent Virtual Users Endurance [Load Scenario #33]</td>
+      <td>[LOAD-TC-0325] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>8 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0326</code></td>
+      <td>Reliability - 50 Concurrent Virtual Users Endurance [Load Scenario #33]</td>
+      <td>[LOAD-TC-0326] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0327</code></td>
+      <td>Reliability - 50 Concurrent Virtual Users Endurance [Load Scenario #33]</td>
+      <td>[LOAD-TC-0327] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>11 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0328</code></td>
+      <td>Reliability - 50 Concurrent Virtual Users Endurance [Load Scenario #33]</td>
+      <td>[LOAD-TC-0328] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>15 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0329</code></td>
+      <td>Reliability - 50 Concurrent Virtual Users Endurance [Load Scenario #33]</td>
+      <td>[LOAD-TC-0329] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>9 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0330</code></td>
+      <td>Reliability - 50 Concurrent Virtual Users Endurance [Load Scenario #33]</td>
+      <td>[LOAD-TC-0330] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>1 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0331</code></td>
+      <td>Reliability - 100 Concurrent Virtual Users Endurance [Load Scenario #34]</td>
+      <td>[LOAD-TC-0331] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>12 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0332</code></td>
+      <td>Reliability - 100 Concurrent Virtual Users Endurance [Load Scenario #34]</td>
+      <td>[LOAD-TC-0332] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>5 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0333</code></td>
+      <td>Reliability - 100 Concurrent Virtual Users Endurance [Load Scenario #34]</td>
+      <td>[LOAD-TC-0333] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0334</code></td>
+      <td>Reliability - 100 Concurrent Virtual Users Endurance [Load Scenario #34]</td>
+      <td>[LOAD-TC-0334] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>4 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0335</code></td>
+      <td>Reliability - 100 Concurrent Virtual Users Endurance [Load Scenario #34]</td>
+      <td>[LOAD-TC-0335] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>11 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0336</code></td>
+      <td>Reliability - 100 Concurrent Virtual Users Endurance [Load Scenario #34]</td>
+      <td>[LOAD-TC-0336] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>10 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0337</code></td>
+      <td>Reliability - 100 Concurrent Virtual Users Endurance [Load Scenario #34]</td>
+      <td>[LOAD-TC-0337] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0338</code></td>
+      <td>Reliability - 100 Concurrent Virtual Users Endurance [Load Scenario #34]</td>
+      <td>[LOAD-TC-0338] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>15 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0339</code></td>
+      <td>Reliability - 100 Concurrent Virtual Users Endurance [Load Scenario #34]</td>
+      <td>[LOAD-TC-0339] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>4 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0340</code></td>
+      <td>Reliability - 100 Concurrent Virtual Users Endurance [Load Scenario #34]</td>
+      <td>[LOAD-TC-0340] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>7 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0341</code></td>
+      <td>Reliability - 200 Concurrent Virtual Users Burst [Load Scenario #35]</td>
+      <td>[LOAD-TC-0341] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>15 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0342</code></td>
+      <td>Reliability - 200 Concurrent Virtual Users Burst [Load Scenario #35]</td>
+      <td>[LOAD-TC-0342] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>15 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0343</code></td>
+      <td>Reliability - 200 Concurrent Virtual Users Burst [Load Scenario #35]</td>
+      <td>[LOAD-TC-0343] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0344</code></td>
+      <td>Reliability - 200 Concurrent Virtual Users Burst [Load Scenario #35]</td>
+      <td>[LOAD-TC-0344] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>7 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0345</code></td>
+      <td>Reliability - 200 Concurrent Virtual Users Burst [Load Scenario #35]</td>
+      <td>[LOAD-TC-0345] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>5 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0346</code></td>
+      <td>Reliability - 200 Concurrent Virtual Users Burst [Load Scenario #35]</td>
+      <td>[LOAD-TC-0346] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>7 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0347</code></td>
+      <td>Reliability - 200 Concurrent Virtual Users Burst [Load Scenario #35]</td>
+      <td>[LOAD-TC-0347] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>11 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0348</code></td>
+      <td>Reliability - 200 Concurrent Virtual Users Burst [Load Scenario #35]</td>
+      <td>[LOAD-TC-0348] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>7 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0349</code></td>
+      <td>Reliability - 200 Concurrent Virtual Users Burst [Load Scenario #35]</td>
+      <td>[LOAD-TC-0349] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>7 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0350</code></td>
+      <td>Reliability - 200 Concurrent Virtual Users Burst [Load Scenario #35]</td>
+      <td>[LOAD-TC-0350] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>15 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0351</code></td>
+      <td>Reliability - Server Memory Heap Stability [Load Scenario #36]</td>
+      <td>[LOAD-TC-0351] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>8 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0352</code></td>
+      <td>Reliability - Server Memory Heap Stability [Load Scenario #36]</td>
+      <td>[LOAD-TC-0352] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>8 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0353</code></td>
+      <td>Reliability - Server Memory Heap Stability [Load Scenario #36]</td>
+      <td>[LOAD-TC-0353] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>5 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0354</code></td>
+      <td>Reliability - Server Memory Heap Stability [Load Scenario #36]</td>
+      <td>[LOAD-TC-0354] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>10 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0355</code></td>
+      <td>Reliability - Server Memory Heap Stability [Load Scenario #36]</td>
+      <td>[LOAD-TC-0355] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>8 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0356</code></td>
+      <td>Reliability - Server Memory Heap Stability [Load Scenario #36]</td>
+      <td>[LOAD-TC-0356] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>9 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0357</code></td>
+      <td>Reliability - Server Memory Heap Stability [Load Scenario #36]</td>
+      <td>[LOAD-TC-0357] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>10 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0358</code></td>
+      <td>Reliability - Server Memory Heap Stability [Load Scenario #36]</td>
+      <td>[LOAD-TC-0358] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>9 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0359</code></td>
+      <td>Reliability - Server Memory Heap Stability [Load Scenario #36]</td>
+      <td>[LOAD-TC-0359] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>13 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0360</code></td>
+      <td>Reliability - Server Memory Heap Stability [Load Scenario #36]</td>
+      <td>[LOAD-TC-0360] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>13 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0361</code></td>
+      <td>Reliability - CPU Load Threshold & Garbage Collection [Load Scenario #37]</td>
+      <td>[LOAD-TC-0361] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>11 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0362</code></td>
+      <td>Reliability - CPU Load Threshold & Garbage Collection [Load Scenario #37]</td>
+      <td>[LOAD-TC-0362] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>5 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0363</code></td>
+      <td>Reliability - CPU Load Threshold & Garbage Collection [Load Scenario #37]</td>
+      <td>[LOAD-TC-0363] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>13 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0364</code></td>
+      <td>Reliability - CPU Load Threshold & Garbage Collection [Load Scenario #37]</td>
+      <td>[LOAD-TC-0364] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0365</code></td>
+      <td>Reliability - CPU Load Threshold & Garbage Collection [Load Scenario #37]</td>
+      <td>[LOAD-TC-0365] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>15 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0366</code></td>
+      <td>Reliability - CPU Load Threshold & Garbage Collection [Load Scenario #37]</td>
+      <td>[LOAD-TC-0366] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>11 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0367</code></td>
+      <td>Reliability - CPU Load Threshold & Garbage Collection [Load Scenario #37]</td>
+      <td>[LOAD-TC-0367] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>7 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0368</code></td>
+      <td>Reliability - CPU Load Threshold & Garbage Collection [Load Scenario #37]</td>
+      <td>[LOAD-TC-0368] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>8 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0369</code></td>
+      <td>Reliability - CPU Load Threshold & Garbage Collection [Load Scenario #37]</td>
+      <td>[LOAD-TC-0369] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>15 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0370</code></td>
+      <td>Reliability - CPU Load Threshold & Garbage Collection [Load Scenario #37]</td>
+      <td>[LOAD-TC-0370] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>15 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0371</code></td>
+      <td>Reliability - Connection Re-establishment & Retry [Load Scenario #38]</td>
+      <td>[LOAD-TC-0371] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0372</code></td>
+      <td>Reliability - Connection Re-establishment & Retry [Load Scenario #38]</td>
+      <td>[LOAD-TC-0372] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>9 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0373</code></td>
+      <td>Reliability - Connection Re-establishment & Retry [Load Scenario #38]</td>
+      <td>[LOAD-TC-0373] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>15 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0374</code></td>
+      <td>Reliability - Connection Re-establishment & Retry [Load Scenario #38]</td>
+      <td>[LOAD-TC-0374] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>13 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0375</code></td>
+      <td>Reliability - Connection Re-establishment & Retry [Load Scenario #38]</td>
+      <td>[LOAD-TC-0375] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>13 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0376</code></td>
+      <td>Reliability - Connection Re-establishment & Retry [Load Scenario #38]</td>
+      <td>[LOAD-TC-0376] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>13 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0377</code></td>
+      <td>Reliability - Connection Re-establishment & Retry [Load Scenario #38]</td>
+      <td>[LOAD-TC-0377] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>5 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0378</code></td>
+      <td>Reliability - Connection Re-establishment & Retry [Load Scenario #38]</td>
+      <td>[LOAD-TC-0378] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>11 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0379</code></td>
+      <td>Reliability - Connection Re-establishment & Retry [Load Scenario #38]</td>
+      <td>[LOAD-TC-0379] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>11 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0380</code></td>
+      <td>Reliability - Connection Re-establishment & Retry [Load Scenario #38]</td>
+      <td>[LOAD-TC-0380] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>8 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0381</code></td>
+      <td>Security Load - Token Tampering Rejection Speed [Load Scenario #39]</td>
+      <td>[LOAD-TC-0381] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>10 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0382</code></td>
+      <td>Security Load - Token Tampering Rejection Speed [Load Scenario #39]</td>
+      <td>[LOAD-TC-0382] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>9 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0383</code></td>
+      <td>Security Load - Token Tampering Rejection Speed [Load Scenario #39]</td>
+      <td>[LOAD-TC-0383] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0384</code></td>
+      <td>Security Load - Token Tampering Rejection Speed [Load Scenario #39]</td>
+      <td>[LOAD-TC-0384] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0385</code></td>
+      <td>Security Load - Token Tampering Rejection Speed [Load Scenario #39]</td>
+      <td>[LOAD-TC-0385] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>9 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0386</code></td>
+      <td>Security Load - Token Tampering Rejection Speed [Load Scenario #39]</td>
+      <td>[LOAD-TC-0386] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>10 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0387</code></td>
+      <td>Security Load - Token Tampering Rejection Speed [Load Scenario #39]</td>
+      <td>[LOAD-TC-0387] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0388</code></td>
+      <td>Security Load - Token Tampering Rejection Speed [Load Scenario #39]</td>
+      <td>[LOAD-TC-0388] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>6 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0389</code></td>
+      <td>Security Load - Token Tampering Rejection Speed [Load Scenario #39]</td>
+      <td>[LOAD-TC-0389] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>12 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0390</code></td>
+      <td>Security Load - Token Tampering Rejection Speed [Load Scenario #39]</td>
+      <td>[LOAD-TC-0390] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>1 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0391</code></td>
+      <td>Security Load - SQL Injection Payload Scanning Rate [Load Scenario #40]</td>
+      <td>[LOAD-TC-0391] Endpoint Availability & HTTP 200 OK Handshake</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>7 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0392</code></td>
+      <td>Security Load - SQL Injection Payload Scanning Rate [Load Scenario #40]</td>
+      <td>[LOAD-TC-0392] Latency Threshold Assertion (< 500ms)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>12 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0393</code></td>
+      <td>Security Load - SQL Injection Payload Scanning Rate [Load Scenario #40]</td>
+      <td>[LOAD-TC-0393] Header Integrity & Content-Type Assertion</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>13 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0394</code></td>
+      <td>Security Load - SQL Injection Payload Scanning Rate [Load Scenario #40]</td>
+      <td>[LOAD-TC-0394] JSON Body Structure & Schema Validation</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>4 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0395</code></td>
+      <td>Security Load - SQL Injection Payload Scanning Rate [Load Scenario #40]</td>
+      <td>[LOAD-TC-0395] Throughput & Request Rate Maintenance</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>14 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0396</code></td>
+      <td>Security Load - SQL Injection Payload Scanning Rate [Load Scenario #40]</td>
+      <td>[LOAD-TC-0396] Error Rate Bounds Assertion (< 1% Failure)</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>12 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0397</code></td>
+      <td>Security Load - SQL Injection Payload Scanning Rate [Load Scenario #40]</td>
+      <td>[LOAD-TC-0397] Socket Lifecycle & Connection Drain Check</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>10 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0398</code></td>
+      <td>Security Load - SQL Injection Payload Scanning Rate [Load Scenario #40]</td>
+      <td>[LOAD-TC-0398] Memory Garbage Collection & Buffer Release</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>11 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0399</code></td>
+      <td>Security Load - SQL Injection Payload Scanning Rate [Load Scenario #40]</td>
+      <td>[LOAD-TC-0399] Concurrency Lock & Race Condition Guard</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>4 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+    <tr class="pass-row">
+      <td><code>LOAD-TC-0400</code></td>
+      <td>Security Load - SQL Injection Payload Scanning Rate [Load Scenario #40]</td>
+      <td>[LOAD-TC-0400] Post-Load Teardown & Connection Clean Up</td>
+      <td><span class="badge badge-pass">Passed</span></td>
+      <td>5 ms</td>
+      <td>N/A</td>
+    </tr>
+  
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

@@ -2,6 +2,8 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
+  confirmPasswordReset,
+  verifyPasswordResetCode,
   signOut,
 } from "firebase/auth";
 import {
@@ -57,8 +59,20 @@ export const registerUser = async (
 };
 
 // FORGOT PASSWORD
-export const forgotPassword = (email: string) =>
-  sendPasswordResetEmail(auth, email);
+export const forgotPassword = (email: string) => {
+  const actionCodeSettings = {
+    url: window.location.origin + window.location.pathname,
+    handleCodeInApp: true,
+  };
+  return sendPasswordResetEmail(auth, email, actionCodeSettings);
+};
+
+// RESET PASSWORD WITH ACTION CODE
+export const resetPasswordWithCode = (oobCode: string, newPassword: string) =>
+  confirmPasswordReset(auth, oobCode, newPassword);
+
+export const verifyResetCode = (oobCode: string) =>
+  verifyPasswordResetCode(auth, oobCode);
 
 // LOGOUT
 export const logoutUser = () =>

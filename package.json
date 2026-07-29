@@ -7,10 +7,10 @@
     "dev": "npm --prefix BillScanTrackerWeb run dev",
     "build": "npm --prefix BillScanTrackerWeb run build",
     "preview": "npm --prefix BillScanTrackerWeb run preview",
-    "test:e2e": "npm --prefix BillScanTrackerE2E test",
     "test:mobile": "npm --prefix BillScanTrackerAppium test",
-    "test:backend": "npm --prefix BillScanTrackerBackend test",
-    "test:functional": "npm --prefix BillScanTrackerE2E run test:functional",
-    "test:load": "npm --prefix BillScanTrackerBackend run test:load"
+    "test:selenium": "npm --prefix BillScanTrackerSelenium test",
+    "test:e2e": "npm --prefix BillScanTrackerSelenium test",
+    "test:load": "npm --prefix BillScanTrackerLoadTest test",
+    "test:backend": "npm --prefix BillScanTrackerBackend test"
   }
 }

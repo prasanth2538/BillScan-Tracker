@@ -1,44 +1,48 @@
-import { auth, db } from "../firebase";
-import {
-  addDoc,
-  collection,
-  serverTimestamp,
-} from "firebase/firestore";
+import { db, auth } from "../firebase";
+import { collection, addDoc, Timestamp } from "firebase/firestore";
 import { invalidateExpenseCache } from "./expenseService";
+import { checkDuplicateBill } from "./billImageService";
 
-export interface SaveExpenseInput {
-  merchant?: string;
-  category?: string;
-  amount: number;
-  date?: string;
-  icon?: string;
-  color?: string;
-  paymentMethod?: string;
-}
+export const saveExpense = async (data: any) => {
+  try {
+    const user = auth.currentUser;
 
-export const saveExpense = async (expense: SaveExpenseInput) => {
-  const uid = auth.currentUser?.uid;
+    if (!user) {
+      throw new Error("User not logged in");
+    }
 
-  if (!uid) {
-    throw new Error("Not logged in");
+    const merchant = data.merchant || "Unknown Merchant";
+    const amount = Number(data.amount || 0);
+    const date = data.date || new Date().toISOString().split("T")[0];
+    const ocrText = data.ocrText || data.rawOCRText || "";
+    const category = data.category || "Other";
+
+    // 1. Check duplicate before saving
+    const dupCheck = await checkDuplicateBill(merchant, amount, date, ocrText);
+    if (dupCheck.isDuplicate) {
+      throw new Error("⚠ This receipt already exists.");
+    }
+
+    // 2. Save details in Firestore (bill image saving feature removed per user request)
+    const ref = await addDoc(collection(db, "users", user.uid, "expenses"), {
+      merchant,
+      amount,
+      category,
+      date,
+      ocrText,
+      imageUrl: "",
+      icon: data.icon || "📄",
+      color: data.color || "#F5F5F5",
+      source: data.source || "scan",
+      createdAt: Timestamp.now(),
+    });
+
+    invalidateExpenseCache();
+
+    return ref.id;
+
+  } catch (error: any) {
+    console.error("Save error:", error);
+    throw error; // send error to UI
   }
-
-  const amount = Number(expense.amount);
-
-  if (!amount || amount <= 0) {
-    throw new Error("Invalid amount");
-  }
-
-  await addDoc(collection(db, "users", uid, "expenses"), {
-    merchant: expense.merchant || "Unknown Merchant",
-    category: expense.category || "Other",
-    amount,
-    date: expense.date || new Date().toISOString().split("T")[0],
-    icon: expense.icon || "📄",
-    color: expense.color || "#F5F5F5",
-    paymentMethod: expense.paymentMethod || "Cash",
-    createdAt: serverTimestamp(),
-  });
-
-  invalidateExpenseCache();
-};
+};

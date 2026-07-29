@@ -1,0 +1,17 @@
+{
+  "name": "billscan-tracker-loadtest",
+  "version": "1.0.0",
+  "description": "Backend Load & Performance Testing Suite for BillScan Tracker (400 Test Cases)",
+  "main": "tests/load_400.test.js",
+  "type": "commonjs",
+  "scripts": {
+    "test": "mocha tests/load_400.test.js --reporter utils/excelReporter.js --timeout 120000"
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0"
+  },
+  "devDependencies": {
+    "chai": "^4.5.0",
+    "mocha": "^10.8.2"
+  }
+}

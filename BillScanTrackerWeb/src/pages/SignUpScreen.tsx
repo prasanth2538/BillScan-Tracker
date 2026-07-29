@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, User, Mail, Lock, Calendar, IndianRupee } from "lucide-react";
+import { ArrowLeft, User, Mail, Lock, Calendar, IndianRupee, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { registerUser } from "../services/authService";
 
 export interface UserProfile {
@@ -16,9 +16,21 @@ interface SignUpScreenProps {
   onBack: () => void;
 }
 
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error('Request timed out. Check your internet connection.')), ms)
+    ),
+  ]);
+}
+
 export function SignUpScreen({ onComplete, onBack }: SignUpScreenProps) {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -44,24 +56,54 @@ export function SignUpScreen({ onComplete, onBack }: SignUpScreenProps) {
     setFormData({ ...formData, monthlyBudget: formatCurrency(e.target.value) });
   };
 
-  const isStepValid = () => {
+  const canClickNext = () => {
     if (step === 1) return formData.name.trim().length > 0;
-    if (step === 2) return formData.email.includes("@") && formData.password.length >= 6 && formData.password === formData.confirmPassword;
-
-    const income = Number(formData.monthlyIncome.replace(/,/g, ""));
-    const budget = Number(formData.monthlyBudget.replace(/,/g, ""));
-
-    return Number(formData.age) > 0 && income > 0 && budget > 0 && budget <= income;
+    if (step === 2) return formData.email.trim().length > 0 && formData.password.length > 0 && formData.confirmPassword.length > 0;
+    return formData.age.length > 0 && formData.monthlyIncome.length > 0 && formData.monthlyBudget.length > 0;
   };
 
   const handleNext = async () => {
-    if (!isStepValid()) {
-      if (step === 3) {
-        const income = Number(formData.monthlyIncome.replace(/,/g, ""));
-        const budget = Number(formData.monthlyBudget.replace(/,/g, ""));
-        if (budget > income) alert("Monthly budget cannot be greater than monthly income.");
+    setErrorMsg("");
+
+    if (step === 1) {
+      if (!formData.name.trim()) {
+        setErrorMsg("Please enter your name.");
+        return;
       }
-      return;
+    } else if (step === 2) {
+      if (!formData.email.includes("@")) {
+        setErrorMsg("Please enter a valid email address.");
+        return;
+      }
+      if (formData.password.length < 6) {
+        setErrorMsg("Password must be at least 6 characters.");
+        return;
+      }
+      if (formData.password !== formData.confirmPassword) {
+        setErrorMsg("Passwords do not match.");
+        return;
+      }
+    } else if (step === 3) {
+      const ageNum = Number(formData.age);
+      const income = Number(formData.monthlyIncome.replace(/,/g, ""));
+      const budget = Number(formData.monthlyBudget.replace(/,/g, ""));
+
+      if (!formData.age || ageNum < 18 || ageNum > 100) {
+        setErrorMsg("Please enter a valid age between 18 and 100.");
+        return;
+      }
+      if (income <= 0) {
+        setErrorMsg("Please enter a valid monthly income.");
+        return;
+      }
+      if (budget <= 0) {
+        setErrorMsg("Please enter a valid monthly budget.");
+        return;
+      }
+      if (budget > income) {
+        setErrorMsg("Monthly budget cannot be greater than monthly income.");
+        return;
+      }
     }
 
     if (step < 3) {
@@ -78,22 +120,34 @@ export function SignUpScreen({ onComplete, onBack }: SignUpScreenProps) {
       const userData: UserProfile = {
         name: formData.name.trim(),
         email: formData.email.trim(),
-        age: Number(formData.age) || 25,
+        age: Number(formData.age),
         monthlyIncome: cleanIncome,
         monthlyBudget: cleanBudget,
       };
 
-      await registerUser(formData.email.trim(), formData.password, userData);
+      await withTimeout(registerUser(formData.email.trim(), formData.password, userData), 15000);
       onComplete(userData);
     } catch (error: any) {
       console.error("Signup error:", error);
-      alert(error.message || "Account creation failed.");
+      const code = error?.code || "";
+      if (code === "auth/email-already-in-use") {
+        setErrorMsg("This email is already registered. Please log in.");
+      } else if (code === "auth/invalid-email") {
+        setErrorMsg("Please enter a valid email address.");
+      } else if (code === "auth/weak-password") {
+        setErrorMsg("Password should be at least 6 characters.");
+      } else if (code === "auth/network-request-failed" || error.message?.includes("timed out")) {
+        setErrorMsg("Network error. Please check your internet connection.");
+      } else {
+        setErrorMsg(error.message || "Account creation failed. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
   };
 
   const handleBack = () => {
+    setErrorMsg("");
     if (step > 1) setStep(step - 1);
     else onBack();
   };
@@ -104,198 +158,204 @@ export function SignUpScreen({ onComplete, onBack }: SignUpScreenProps) {
     exit: { x: -80, opacity: 0 },
   };
 
-  return (
-    <div className="w-full min-h-screen bg-page flex flex-col px-6 pt-10 pb-6 overflow-hidden transition-colors duration-300 relative">
-      {/* Background blobs */}
-      <div className="absolute top-[-10%] right-[-20%] w-64 h-64 bg-brand-green/30 dark:bg-brand-green/20 rounded-full blur-[80px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] left-[-20%] w-64 h-64 bg-amber-500/20 dark:bg-amber-500/10 rounded-full blur-[80px] pointer-events-none" />
+  const incomeVal = Number(formData.monthlyIncome.replace(/,/g, "")) || 0;
+  const budgetVal = Number(formData.monthlyBudget.replace(/,/g, "")) || 0;
 
-      <div className="flex items-center justify-between mb-8 relative z-10">
-        <button onClick={handleBack} className="w-12 h-12 glass-effect rounded-full flex items-center justify-center shadow-sm border border-gray-200 dark:border-white/10 text-text-primary dark:text-white hover:bg-white dark:hover:bg-dark-card transition-colors">
+  return (
+    <form onSubmit={(e) => { e.preventDefault(); handleNext(); }} className="w-full min-h-screen bg-page flex flex-col px-6 pt-10 pb-6 overflow-hidden">
+      <div className="flex items-center justify-between mb-6">
+        <button type="button" onClick={handleBack} className="w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-sm border border-black/5 text-text-primary">
           <ArrowLeft size={22} />
         </button>
 
-        <div className="flex gap-2.5">
+        <div className="flex gap-2">
           {[1, 2, 3].map((i) => (
-            <div key={i} className={`h-2.5 rounded-full transition-all duration-500 ${i === step ? "w-10 bg-brand-green shadow-sm shadow-brand-green/30" : "w-3 bg-gray-200 dark:bg-gray-800"}`} />
+            <div key={i} className={`h-2 rounded-full transition-all ${i === step ? "w-8 bg-brand-green" : "w-2 bg-black/10"}`} />
           ))}
         </div>
 
-        <div className="w-12" />
+        <div className="w-11" />
       </div>
 
-      <div className="flex-1 relative z-10">
+      <div className="flex-1 relative">
         <AnimatePresence mode="wait">
           {step === 1 && (
-            <motion.div key="step1" variants={variants} initial="enter" animate="center" exit="exit" className="absolute inset-0 pt-4">
-              <h2 className="font-sora font-bold text-[32px] text-text-primary dark:text-white mb-3 tracking-tight">What's your name?</h2>
-              <p className="font-dm text-[16px] font-medium text-text-secondary dark:text-gray-400 mb-10">Let's get to know you better.</p>
+            <motion.div key="step1" variants={variants} initial="enter" animate="center" exit="exit" className="absolute inset-0">
+              <h2 className="font-sora font-semibold text-[26px] text-text-primary mb-2">What's your name?</h2>
+              <p className="font-dm text-[15px] text-text-secondary mb-6">Let's get to know you better.</p>
 
-              <label className="block font-dm text-[13px] font-bold text-text-secondary dark:text-gray-400 mb-2 ml-1 tracking-wide">
-                FULL NAME
-              </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <User size={20} className="text-text-tertiary dark:text-gray-500" />
-                </div>
+                <User size={22} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-tertiary" />
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="Enter your full name"
-                  className="w-full h-[60px] glass-effect rounded-2xl pl-12 pr-4 font-dm text-[15px] text-text-primary dark:text-white placeholder:text-text-tertiary dark:placeholder:text-gray-500 border border-gray-200 dark:border-white/10 focus:border-brand-green focus:ring-1 focus:ring-brand-green focus:outline-none transition-all shadow-sm"
+                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleNext(); } }}
+                  placeholder="Full Name"
+                  className="w-full h-[60px] bg-white rounded-[16px] pl-12 pr-4 text-[18px] text-text-primary border border-black/10 focus:border-brand-green focus:outline-none"
                 />
               </div>
             </motion.div>
           )}
 
           {step === 2 && (
-            <motion.div key="step2" variants={variants} initial="enter" animate="center" exit="exit" className="absolute inset-0 pt-4">
-              <h2 className="font-sora font-bold text-[32px] text-text-primary dark:text-white mb-3 tracking-tight">Create account</h2>
-              <p className="font-dm text-[16px] font-medium text-text-secondary dark:text-gray-400 mb-10">Enter email and password.</p>
+            <motion.div key="step2" variants={variants} initial="enter" animate="center" exit="exit" className="absolute inset-0">
+              <h2 className="font-sora font-semibold text-[26px] text-text-primary mb-2">Create account</h2>
+              <p className="font-dm text-[15px] text-text-secondary mb-6">Enter email and password.</p>
 
-              <div className="mb-5">
-                <label className="block font-dm text-[13px] font-bold text-text-secondary dark:text-gray-400 mb-2 ml-1 tracking-wide">
-                  EMAIL ADDRESS
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <Mail size={20} className="text-text-tertiary dark:text-gray-500" />
-                  </div>
-                  <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="Enter your email"
-                    className="w-full h-[60px] glass-effect rounded-2xl pl-12 pr-4 font-dm text-[15px] text-text-primary dark:text-white placeholder:text-text-tertiary dark:placeholder:text-gray-500 border border-gray-200 dark:border-white/10 focus:border-brand-green focus:ring-1 focus:ring-brand-green focus:outline-none transition-all shadow-sm"
-                  />
+              {errorMsg && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-[12px] flex items-center gap-2 text-red-600 font-dm text-[13px]">
+                  <AlertCircle size={16} className="shrink-0" />
+                  <span>{errorMsg}</span>
                 </div>
+              )}
+
+              <div className="relative mb-4">
+                <Mail size={22} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-tertiary" />
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => {
+                    setFormData({ ...formData, email: e.target.value });
+                    setErrorMsg("");
+                  }}
+                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleNext(); } }}
+                  placeholder="Email address"
+                  className="w-full h-[60px] bg-white rounded-[16px] pl-12 pr-4 text-[18px] text-text-primary border border-black/10 focus:border-brand-green focus:outline-none"
+                />
               </div>
 
-              <div className="mb-5">
-                <label className="block font-dm text-[13px] font-bold text-text-secondary dark:text-gray-400 mb-2 ml-1 tracking-wide">
-                  PASSWORD
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <Lock size={20} className="text-text-tertiary dark:text-gray-500" />
-                  </div>
-                  <input
-                    type="password"
-                    value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    placeholder="Password min 6 characters"
-                    className="w-full h-[60px] glass-effect rounded-2xl pl-12 pr-4 font-dm text-[15px] text-text-primary dark:text-white placeholder:text-text-tertiary dark:placeholder:text-gray-500 border border-gray-200 dark:border-white/10 focus:border-brand-green focus:ring-1 focus:ring-brand-green focus:outline-none transition-all shadow-sm"
-                  />
-                </div>
+              <div className="relative mb-4">
+                <Lock size={22} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-tertiary" />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={formData.password}
+                  onChange={(e) => {
+                    setFormData({ ...formData, password: e.target.value });
+                    setErrorMsg("");
+                  }}
+                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleNext(); } }}
+                  placeholder="Password (min 6 chars)"
+                  className="w-full h-[60px] bg-white rounded-[16px] pl-12 pr-12 text-[18px] text-text-primary border border-black/10 focus:border-brand-green focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-text-tertiary hover:text-text-primary focus:outline-none"
+                >
+                  {showPassword ? <EyeOff size={22} /> : <Eye size={22} />}
+                </button>
               </div>
 
-              <div>
-                <label className="block font-dm text-[13px] font-bold text-text-secondary dark:text-gray-400 mb-2 ml-1 tracking-wide">
-                  CONFIRM PASSWORD
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <Lock size={20} className="text-text-tertiary dark:text-gray-500" />
-                  </div>
-                  <input
-                    type="password"
-                    value={formData.confirmPassword}
-                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                    placeholder="Re-enter your password"
-                    className="w-full h-[60px] glass-effect rounded-2xl pl-12 pr-4 font-dm text-[15px] text-text-primary dark:text-white placeholder:text-text-tertiary dark:placeholder:text-gray-500 border border-gray-200 dark:border-white/10 focus:border-brand-green focus:ring-1 focus:ring-brand-green focus:outline-none transition-all shadow-sm"
-                  />
-                </div>
-                {formData.password && formData.confirmPassword && formData.password !== formData.confirmPassword && (
-                  <p className="text-red-500 text-xs mt-2 ml-1 font-dm">Passwords do not match</p>
-                )}
+              <div className="relative">
+                <Lock size={22} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-tertiary" />
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={formData.confirmPassword}
+                  onChange={(e) => {
+                    setFormData({ ...formData, confirmPassword: e.target.value });
+                    setErrorMsg("");
+                  }}
+                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleNext(); } }}
+                  placeholder="Re-enter password"
+                  className="w-full h-[60px] bg-white rounded-[16px] pl-12 pr-12 text-[18px] text-text-primary border border-black/10 focus:border-brand-green focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-text-tertiary hover:text-text-primary focus:outline-none"
+                >
+                  {showConfirmPassword ? <EyeOff size={22} /> : <Eye size={22} />}
+                </button>
               </div>
+
+              {formData.confirmPassword && formData.password !== formData.confirmPassword && (
+                <p className="text-xs text-red-500 mt-2 ml-1">Passwords do not match.</p>
+              )}
             </motion.div>
           )}
 
           {step === 3 && (
-            <motion.div key="step3" variants={variants} initial="enter" animate="center" exit="exit" className="absolute inset-0 pt-4">
-              <h2 className="font-sora font-bold text-[32px] text-text-primary dark:text-white mb-3 tracking-tight">Your details</h2>
-              <p className="font-dm text-[16px] font-medium text-text-secondary dark:text-gray-400 mb-10">Help us personalize your budget.</p>
+            <motion.div key="step3" variants={variants} initial="enter" animate="center" exit="exit" className="absolute inset-0">
+              <h2 className="font-sora font-semibold text-[26px] text-text-primary mb-2">Your details</h2>
+              <p className="font-dm text-[15px] text-text-secondary mb-6">Help us personalize your budget.</p>
 
-              <div className="mb-5">
-                <label className="block font-dm text-[13px] font-bold text-text-secondary dark:text-gray-400 mb-2 ml-1 tracking-wide">
-                  AGE
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <Calendar size={20} className="text-text-tertiary dark:text-gray-500" />
-                  </div>
-                  <input
-                    type="number"
-                    value={formData.age}
-                    onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-                    placeholder="Your age"
-                    className="w-full h-[60px] glass-effect rounded-2xl pl-12 pr-4 font-dm text-[15px] text-text-primary dark:text-white placeholder:text-text-tertiary dark:placeholder:text-gray-500 border border-gray-200 dark:border-white/10 focus:border-brand-green focus:ring-1 focus:ring-brand-green focus:outline-none transition-all shadow-sm"
-                  />
+              {errorMsg && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-[12px] flex items-center gap-2 text-red-600 font-dm text-[13px]">
+                  <AlertCircle size={16} className="shrink-0" />
+                  <span>{errorMsg}</span>
                 </div>
+              )}
+
+              <div className="relative mb-4">
+                <Calendar size={22} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-tertiary" />
+                <input
+                  type="number"
+                  min={18}
+                  max={100}
+                  value={formData.age}
+                  onChange={(e) => {
+                    setFormData({ ...formData, age: e.target.value });
+                    setErrorMsg("");
+                  }}
+                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleNext(); } }}
+                  placeholder="Age (18 - 100)"
+                  className="w-full h-[60px] bg-white rounded-[16px] pl-12 pr-4 text-[18px] text-text-primary border border-black/10 focus:border-brand-green focus:outline-none"
+                />
+              </div>
+              {formData.age && (Number(formData.age) < 18 || Number(formData.age) > 100) && (
+                <p className="text-xs text-red-500 mt-[-8px] mb-3 ml-1">Age must be between 18 and 100.</p>
+              )}
+
+              <div className="relative mb-4">
+                <IndianRupee size={22} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-tertiary" />
+                <input
+                  type="text"
+                  value={formData.monthlyIncome}
+                  onChange={(e) => {
+                    handleIncomeChange(e);
+                    setErrorMsg("");
+                  }}
+                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleNext(); } }}
+                  placeholder="Monthly Income"
+                  className="w-full h-[60px] bg-white rounded-[16px] pl-12 pr-4 text-[18px] text-text-primary border border-black/10 focus:border-brand-green focus:outline-none"
+                />
               </div>
 
-              <div className="mb-5">
-                <label className="block font-dm text-[13px] font-bold text-text-secondary dark:text-gray-400 mb-2 ml-1 tracking-wide">
-                  MONTHLY INCOME
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <IndianRupee size={20} className="text-text-tertiary dark:text-gray-500" />
-                  </div>
-                  <input
-                    type="text"
-                    value={formData.monthlyIncome}
-                    onChange={handleIncomeChange}
-                    placeholder="0"
-                    className="w-full h-[60px] glass-effect rounded-2xl pl-12 pr-4 font-dm text-[15px] text-text-primary dark:text-white placeholder:text-text-tertiary dark:placeholder:text-gray-500 border border-gray-200 dark:border-white/10 focus:border-brand-green focus:ring-1 focus:ring-brand-green focus:outline-none transition-all shadow-sm"
-                  />
-                </div>
+              <div className="relative">
+                <IndianRupee size={22} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-tertiary" />
+                <input
+                  type="text"
+                  value={formData.monthlyBudget}
+                  onChange={(e) => {
+                    handleBudgetChange(e);
+                    setErrorMsg("");
+                  }}
+                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleNext(); } }}
+                  placeholder="Monthly Budget"
+                  className="w-full h-[60px] bg-white rounded-[16px] pl-12 pr-4 text-[18px] text-text-primary border border-black/10 focus:border-brand-green focus:outline-none"
+                />
               </div>
-
-              <div>
-                <label className="block font-dm text-[13px] font-bold text-text-secondary dark:text-gray-400 mb-2 ml-1 tracking-wide">
-                  MONTHLY BUDGET
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <IndianRupee size={20} className="text-text-tertiary dark:text-gray-500" />
-                  </div>
-                  <input
-                    type="text"
-                    value={formData.monthlyBudget}
-                    onChange={handleBudgetChange}
-                    placeholder="0"
-                    className="w-full h-[60px] glass-effect rounded-2xl pl-12 pr-4 font-dm text-[15px] text-text-primary dark:text-white placeholder:text-text-tertiary dark:placeholder:text-gray-500 border border-gray-200 dark:border-white/10 focus:border-brand-green focus:ring-1 focus:ring-brand-green focus:outline-none transition-all shadow-sm"
-                  />
-                </div>
-              </div>
+              {budgetVal > 0 && incomeVal > 0 && budgetVal > incomeVal && (
+                <p className="text-xs text-red-500 mt-2 ml-1">Monthly budget cannot be greater than monthly income.</p>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      <div className="shrink-0 pt-6 relative z-10">
+      <div className="shrink-0 pt-4">
         <motion.button
           whileTap={{ scale: 0.98 }}
-          onClick={handleNext}
-          disabled={!isStepValid() || loading}
-          className={`w-full h-[60px] rounded-[20px] flex items-center justify-center font-sora font-bold text-[17px] transition-all duration-300 ${
-            isStepValid() && !loading ? "bg-gradient-to-r from-brand-green to-brand-green-gradient text-white shadow-lg shadow-brand-green/30" : "bg-gray-200 dark:bg-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed"
+          type="submit"
+          disabled={!canClickNext() || loading}
+          className={`w-full h-[58px] rounded-[16px] flex items-center justify-center font-sora font-semibold text-[17px] ${
+            canClickNext() && !loading ? "bg-brand-green text-white shadow-lg shadow-brand-green/30" : "bg-muted text-text-tertiary cursor-not-allowed opacity-60"
           }`}
         >
-          {loading ? (
-            <span className="flex items-center gap-2.5">
-              <svg className="animate-spin h-5 w-5 text-current" viewBox="0 0 24 24" fill="none">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-              </svg>
-              Creating...
-            </span>
-          ) : step === 3 ? "Create Account" : "Continue"}
+          {loading ? "Creating..." : step === 3 ? "Create Account" : "Next"}
         </motion.button>
       </div>
-    </div>
+    </form>
   );
 }

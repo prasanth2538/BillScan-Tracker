@@ -14,6 +14,7 @@ export interface FirebaseUserProfile {
   age?: number;
   monthlyIncome?: number;
   monthlyBudget?: number;
+  categoryBudgets?: Record<string, number>;
 }
 
 export const saveUserProfile = async (userData: any) => {

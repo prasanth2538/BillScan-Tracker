@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Bell,
@@ -82,93 +82,91 @@ function ChangePasswordModal({ onClose }: { onClose: () => void }) {
       }}
     >
       <motion.div
-        className="w-full max-w-sm glass-effect dark:bg-gray-900/95 rounded-[24px] p-6 shadow-floating border border-white/20 dark:border-gray-800"
+        className="w-full bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-2xl"
         initial={{ scale: 0.9, opacity: 0, y: 30 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.9, opacity: 0, y: 30 }}
         transition={{ type: "spring", stiffness: 300, damping: 25 }}
       >
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-full bg-brand-green/10 flex items-center justify-center">
-              <KeyRound size={20} className="text-brand-green" strokeWidth={2.5} />
-            </div>
-            <h2 className="font-sora font-bold text-[18px] text-text-primary dark:text-white tracking-tight">
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-2">
+            <KeyRound size={20} className="text-brand-green" />
+            <h2 className="font-sora font-semibold text-[17px] text-text-primary dark:text-white">
               Change Password
             </h2>
           </div>
 
           <button
             onClick={onClose}
-            className="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+            className="w-8 h-8 rounded-full bg-muted dark:bg-gray-800 flex items-center justify-center"
           >
-            <X size={18} className="text-text-secondary dark:text-gray-300" />
+            <X size={16} className="text-text-secondary dark:text-gray-300" />
           </button>
         </div>
 
         {error && (
-          <div className="mb-5 bg-red-50 dark:bg-red-950/50 border border-red-100 dark:border-red-900 rounded-[14px] px-4 py-3.5">
-            <p className="font-dm text-[13px] text-red-600 dark:text-red-400 font-medium">
+          <div className="mb-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-xl px-4 py-3">
+            <p className="font-dm text-[13px] text-red-600 dark:text-red-300">
               {error}
             </p>
           </div>
         )}
 
-        <label className="font-dm text-[13px] font-medium text-text-secondary dark:text-gray-400">
+        <label className="font-dm text-[12px] text-text-secondary dark:text-gray-300">
           Old Password
         </label>
-        <div className="relative mt-1.5 mb-4">
+        <div className="relative mt-1 mb-3">
           <input
             type={showOld ? "text" : "password"}
             value={oldPassword}
             onChange={(e) => setOldPassword(e.target.value)}
             placeholder="Enter old password"
-            className="w-full h-12 bg-gray-50 dark:bg-gray-800/80 dark:text-white dark:placeholder-gray-500 rounded-xl px-4 pr-11 border border-gray-100 dark:border-gray-700 outline-none font-dm text-[15px] focus:border-brand-green transition-colors"
+            className="w-full h-12 bg-muted dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 rounded-xl px-4 pr-11 outline-none font-dm text-[14px]"
           />
           <button
             type="button"
             onClick={() => setShowOld(!showOld)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-text-tertiary dark:text-gray-500 hover:text-text-secondary dark:hover:text-gray-300 transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-text-tertiary dark:text-gray-400"
           >
             {showOld ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
         </div>
 
-        <label className="font-dm text-[13px] font-medium text-text-secondary dark:text-gray-400">
+        <label className="font-dm text-[12px] text-text-secondary dark:text-gray-300">
           New Password
         </label>
-        <div className="relative mt-1.5 mb-4">
+        <div className="relative mt-1 mb-3">
           <input
             type={showNew ? "text" : "password"}
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             placeholder="Enter new password"
-            className="w-full h-12 bg-gray-50 dark:bg-gray-800/80 dark:text-white dark:placeholder-gray-500 rounded-xl px-4 pr-11 border border-gray-100 dark:border-gray-700 outline-none font-dm text-[15px] focus:border-brand-green transition-colors"
+            className="w-full h-12 bg-muted dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 rounded-xl px-4 pr-11 outline-none font-dm text-[14px]"
           />
           <button
             type="button"
             onClick={() => setShowNew(!showNew)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-text-tertiary dark:text-gray-500 hover:text-text-secondary dark:hover:text-gray-300 transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-text-tertiary dark:text-gray-400"
           >
             {showNew ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
         </div>
 
-        <label className="font-dm text-[13px] font-medium text-text-secondary dark:text-gray-400">
+        <label className="font-dm text-[12px] text-text-secondary dark:text-gray-300">
           Confirm New Password
         </label>
-        <div className="relative mt-1.5 mb-6">
+        <div className="relative mt-1 mb-5">
           <input
             type={showConfirm ? "text" : "password"}
             value={confirmPass}
             onChange={(e) => setConfirmPass(e.target.value)}
             placeholder="Re-enter new password"
-            className="w-full h-12 bg-gray-50 dark:bg-gray-800/80 dark:text-white dark:placeholder-gray-500 rounded-xl px-4 pr-11 border border-gray-100 dark:border-gray-700 outline-none font-dm text-[15px] focus:border-brand-green transition-colors"
+            className="w-full h-12 bg-muted dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 rounded-xl px-4 pr-11 outline-none font-dm text-[14px]"
           />
           <button
             type="button"
             onClick={() => setShowConfirm(!showConfirm)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-text-tertiary dark:text-gray-500 hover:text-text-secondary dark:hover:text-gray-300 transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-text-tertiary dark:text-gray-400"
           >
             {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
@@ -177,7 +175,7 @@ function ChangePasswordModal({ onClose }: { onClose: () => void }) {
         <button
           onClick={handleSubmit}
           disabled={loading}
-          className="w-full h-[52px] bg-gradient-to-r from-brand-green to-brand-green-gradient text-white rounded-xl font-sora font-bold text-[16px] shadow-sm disabled:opacity-70 active:scale-[0.98] transition-all"
+          className="w-full h-12 bg-brand-green text-white rounded-xl font-sora font-semibold disabled:opacity-70"
         >
           {loading ? "Updating..." : "Change Password"}
         </button>
@@ -212,33 +210,31 @@ function PrivacySecurityModal({ onClose }: { onClose: () => void }) {
       }}
     >
       <motion.div
-        className="w-full max-w-sm glass-effect dark:bg-gray-900/95 rounded-[24px] p-6 shadow-floating border border-white/20 dark:border-gray-800"
+        className="w-full bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-2xl max-w-sm"
         initial={{ scale: 0.9, opacity: 0, y: 30 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.9, opacity: 0, y: 30 }}
         transition={{ type: "spring", stiffness: 300, damping: 25 }}
       >
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-full bg-brand-green/10 flex items-center justify-center">
-              <Shield size={20} className="text-brand-green" strokeWidth={2.5} />
-            </div>
-            <h2 className="font-sora font-bold text-[18px] text-text-primary dark:text-white tracking-tight">
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-2">
+            <Shield size={20} className="text-brand-green" />
+            <h2 className="font-sora font-semibold text-[17px] text-text-primary dark:text-white">
               Privacy & Security
             </h2>
           </div>
 
           <button
             onClick={onClose}
-            className="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+            className="w-8 h-8 rounded-full bg-muted dark:bg-gray-800 flex items-center justify-center"
           >
-            <X size={18} className="text-text-secondary dark:text-gray-300" />
+            <X size={16} className="text-text-secondary dark:text-gray-300" />
           </button>
         </div>
 
-        <div className="space-y-5 mb-7">
+        <div className="space-y-4 mb-6">
           <div>
-            <label className="font-dm text-[13px] font-medium text-text-secondary dark:text-gray-400 block mb-2">
+            <label className="font-dm text-[12px] text-text-secondary dark:text-gray-300 block mb-2">
               Auto-Logout After (minutes)
             </label>
             <input
@@ -247,15 +243,15 @@ function PrivacySecurityModal({ onClose }: { onClose: () => void }) {
               max="120"
               value={autoLogoutMinutes}
               onChange={(e) => setAutoLogoutMinutes(Math.max(5, Number(e.target.value)))}
-              className="w-full h-12 bg-gray-50 dark:bg-gray-800/80 dark:text-white border border-gray-100 dark:border-gray-700 rounded-xl px-4 outline-none font-dm text-[15px] focus:border-brand-green transition-colors"
+              className="w-full h-12 bg-muted dark:bg-gray-800 dark:text-white rounded-xl px-4 outline-none font-dm text-[14px]"
             />
-            <p className="font-dm text-[12px] text-text-tertiary dark:text-gray-500 mt-2 leading-relaxed">
+            <p className="font-dm text-[11px] text-text-tertiary dark:text-gray-400 mt-2">
               You'll be automatically logged out after {autoLogoutMinutes} minutes of inactivity
             </p>
           </div>
 
-          <div className="bg-blue-50/80 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/30 rounded-[16px] p-4">
-            <p className="font-dm text-[13px] text-blue-800 dark:text-blue-300 leading-relaxed">
+          <div className="bg-blue-50 dark:bg-blue-950 rounded-xl p-4">
+            <p className="font-dm text-[12px] text-blue-700 dark:text-blue-300">
               🔒 <strong>Security Info:</strong> Your data is encrypted end-to-end. Session timeout protection is always enabled.
             </p>
           </div>
@@ -263,7 +259,7 @@ function PrivacySecurityModal({ onClose }: { onClose: () => void }) {
 
         <button
           onClick={handleSaveSettings}
-          className="w-full h-[52px] bg-gradient-to-r from-brand-green to-brand-green-gradient text-white rounded-xl font-sora font-bold text-[16px] shadow-sm active:scale-[0.98] transition-all"
+          className="w-full h-12 bg-brand-green text-white rounded-xl font-sora font-semibold"
         >
           Save Settings
         </button>
@@ -326,6 +322,8 @@ export function ProfileScreen({
     monthlyBudget: String(user.monthlyBudget || ""),
   });
 
+  const [categoryBudgets, setCategoryBudgets] = useState<Record<string, string>>({});
+
   useEffect(() => {
     loadProfile();
   }, []);
@@ -354,6 +352,13 @@ export function ProfileScreen({
           monthlyIncome: String(data.monthlyIncome || ""),
           monthlyBudget: String(data.monthlyBudget || ""),
         });
+        if (data.categoryBudgets) {
+          const cb: Record<string, string> = {};
+          for (const [k, v] of Object.entries(data.categoryBudgets)) {
+            cb[k] = v ? String(v) : "";
+          }
+          setCategoryBudgets(cb);
+        }
       }
     } catch (e) {
       console.error("Profile load error:", e);
@@ -374,10 +379,18 @@ export function ProfileScreen({
     try {
       setSaving(true);
 
+      const cbNums: Record<string, number> = {};
+      for (const [k, v] of Object.entries(categoryBudgets)) {
+        if (v && Number(v) > 0) {
+          cbNums[k] = Number(v);
+        }
+      }
+
       await updateUserProfile({
         name: profile.name,
         monthlyIncome: income,
         monthlyBudget: budget,
+        categoryBudgets: cbNums,
       });
 
       onProfileUpdated({
@@ -508,39 +521,39 @@ export function ProfileScreen({
 
   return (
     <>
-      <div className="w-full h-full bg-page overflow-y-auto pb-32 scrollbar-hide transition-colors duration-300">
-        <div className="bg-white dark:bg-dark-card rounded-b-[32px] pt-16 pb-8 px-6 shadow-sm border-b border-black/5 dark:border-white/5 flex flex-col items-center relative z-10 transition-colors duration-300">
-          <div className="w-[88px] h-[88px] rounded-full bg-gradient-to-br from-brand-green to-brand-green-gradient flex items-center justify-center shadow-lg shadow-brand-green/20 mb-4 border-4 border-white dark:border-gray-800">
-            <span className="font-sora font-bold text-[32px] text-white tracking-tight">
+      <div className="w-full h-full bg-page dark:bg-gray-950 overflow-y-auto pb-24 scrollbar-hide transition-colors duration-300">
+        <div className="bg-white dark:bg-gray-900 rounded-b-[24px] pt-16 pb-6 px-4 shadow-sm flex flex-col items-center relative z-10 transition-colors duration-300">
+          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-brand-green to-brand-green-gradient flex items-center justify-center shadow-lg mb-3">
+            <span className="font-sora font-bold text-[28px] text-white">
               {initials}
             </span>
           </div>
 
-          <h1 className="font-sora font-bold text-[22px] text-text-primary dark:text-white tracking-tight">
+          <h1 className="font-sora font-semibold text-[18px] text-text-primary dark:text-white">
             {loading ? "Loading..." : profile.name || "User"}
           </h1>
 
-          <p className="font-dm text-[15px] text-text-secondary dark:text-gray-400 mt-1 font-medium">
+          <p className="font-dm text-[14px] text-text-secondary dark:text-gray-300 mt-1">
             {profile.email}
           </p>
 
-          <div className="w-full flex justify-between mt-8 pt-6 border-t border-gray-100 dark:border-gray-800">
+          <div className="w-full flex justify-between mt-6 pt-6 border-t border-black/5 dark:border-white/10">
             <div className="flex flex-col items-center flex-1">
-              <span className="font-dm text-[12px] font-bold uppercase tracking-wider text-text-tertiary dark:text-gray-500 mb-1">
+              <span className="font-dm text-[11px] text-text-tertiary dark:text-gray-400 mb-1">
                 Income
               </span>
-              <span className="font-mono font-bold text-[20px] text-text-primary dark:text-white tracking-tight">
+              <span className="font-mono font-semibold text-[18px] text-text-primary dark:text-white">
                 ₹{Number(profile.monthlyIncome || 0).toLocaleString("en-IN")}
               </span>
             </div>
 
-            <div className="w-px h-12 bg-gray-100 dark:bg-gray-800" />
+            <div className="w-px h-10 bg-black/5 dark:bg-white/10" />
 
             <div className="flex flex-col items-center flex-1">
-              <span className="font-dm text-[12px] font-bold uppercase tracking-wider text-text-tertiary dark:text-gray-500 mb-1">
+              <span className="font-dm text-[11px] text-text-tertiary dark:text-gray-400 mb-1">
                 Budget
               </span>
-              <span className="font-mono font-bold text-[20px] text-brand-green tracking-tight">
+              <span className="font-mono font-semibold text-[18px] text-brand-green">
                 ₹{Number(profile.monthlyBudget || 0).toLocaleString("en-IN")}
               </span>
             </div>
@@ -550,33 +563,33 @@ export function ProfileScreen({
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mx-4 sm:mx-6 mt-6 bg-white dark:bg-dark-card rounded-card p-6 shadow-sm border border-transparent dark:border-white/5 transition-colors duration-300"
+          className="mx-4 mt-4 bg-white dark:bg-gray-900 rounded-card p-5 shadow-card transition-colors duration-300"
         >
-          <h3 className="font-sora font-bold text-[18px] text-text-primary dark:text-white mb-5 tracking-tight">
+          <h3 className="font-sora font-semibold text-[16px] text-text-primary dark:text-white mb-4">
             Profile Details
           </h3>
 
-          <label className="font-dm text-[13px] font-medium text-text-secondary dark:text-gray-400">
+          <label className="font-dm text-[12px] text-text-secondary dark:text-gray-300">
             Name
           </label>
           <input
             type="text"
             value={profile.name}
             onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-            className="w-full h-[52px] bg-gray-50 dark:bg-gray-800/80 dark:text-white border border-gray-100 dark:border-gray-700 rounded-xl px-4 mt-1.5 mb-4 outline-none font-dm text-[15px] focus:border-brand-green transition-colors"
+            className="w-full h-12 bg-muted dark:bg-gray-800 dark:text-white rounded-xl px-4 mt-1 mb-3 outline-none"
           />
 
-          <label className="font-dm text-[13px] font-medium text-text-secondary dark:text-gray-400">
+          <label className="font-dm text-[12px] text-text-secondary dark:text-gray-300">
             Email
           </label>
           <input
             type="email"
             value={profile.email}
             readOnly
-            className="w-full h-[52px] bg-gray-100/50 dark:bg-gray-800/50 dark:text-gray-400 border border-transparent dark:border-gray-700/50 rounded-xl px-4 mt-1.5 mb-4 outline-none font-dm text-[15px]"
+            className="w-full h-12 bg-muted dark:bg-gray-800 dark:text-white rounded-xl px-4 mt-1 mb-3 outline-none opacity-70"
           />
 
-          <label className="font-dm text-[13px] font-medium text-text-secondary dark:text-gray-400">
+          <label className="font-dm text-[12px] text-text-secondary dark:text-gray-300">
             Monthly Income
           </label>
           <input
@@ -585,10 +598,10 @@ export function ProfileScreen({
             onChange={(e) =>
               setProfile({ ...profile, monthlyIncome: e.target.value })
             }
-            className="w-full h-[52px] bg-gray-50 dark:bg-gray-800/80 dark:text-white border border-gray-100 dark:border-gray-700 rounded-xl px-4 mt-1.5 mb-4 outline-none font-dm text-[15px] focus:border-brand-green transition-colors"
+            className="w-full h-12 bg-muted dark:bg-gray-800 dark:text-white rounded-xl px-4 mt-1 mb-3 outline-none"
           />
 
-          <label className="font-dm text-[13px] font-medium text-text-secondary dark:text-gray-400">
+          <label className="font-dm text-[12px] text-text-secondary dark:text-gray-300">
             Monthly Budget
           </label>
           <input
@@ -597,16 +610,81 @@ export function ProfileScreen({
             onChange={(e) =>
               setProfile({ ...profile, monthlyBudget: e.target.value })
             }
-            className="w-full h-[52px] bg-gray-50 dark:bg-gray-800/80 dark:text-white border border-gray-100 dark:border-gray-700 rounded-xl px-4 mt-1.5 mb-6 outline-none font-dm text-[15px] focus:border-brand-green transition-colors"
+            className="w-full h-12 bg-muted dark:bg-gray-800 dark:text-white rounded-xl px-4 mt-1 mb-4 outline-none"
           />
 
           <button
             onClick={handleSave}
             disabled={saving}
-            className="w-full h-[56px] bg-gradient-to-r from-brand-green to-brand-green-gradient text-white rounded-xl font-sora font-bold text-[16px] flex items-center justify-center gap-2.5 shadow-sm disabled:opacity-70 active:scale-[0.98] transition-all"
+            className="w-full h-12 bg-brand-green text-white rounded-xl font-sora font-semibold flex items-center justify-center gap-2 disabled:opacity-70"
           >
-            <Save size={20} />
+            <Save size={18} />
             {saving ? "Saving..." : "Save Changes"}
+          </button>
+        </motion.div>
+
+        {/* Smart Budget Assistant ⭐⭐⭐⭐⭐ */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+          className="mx-4 mt-4 bg-white dark:bg-gray-900 rounded-card p-5 shadow-card transition-colors duration-300"
+        >
+          <div className="flex items-center justify-between mb-1">
+            <h3 className="font-sora font-semibold text-[16px] text-text-primary dark:text-white flex items-center gap-2">
+              ⭐ Smart Budget Assistant
+            </h3>
+          </div>
+          <p className="font-dm text-[12px] text-text-secondary dark:text-gray-400 mb-4">
+            Set custom budget amounts for each category to get smart usage alerts.
+          </p>
+
+          <div className="space-y-3">
+            {[
+              { label: "Food", emoji: "🍽️" },
+              { label: "Grocery", emoji: "🛒" },
+              { label: "Petrol", emoji: "⛽" },
+              { label: "Travel", emoji: "🚌" },
+              { label: "Hotel", emoji: "🏨" },
+              { label: "Health", emoji: "🏥" },
+              { label: "Shopping", emoji: "🛍️" },
+              { label: "Entertainment", emoji: "🎬" },
+              { label: "Education", emoji: "🎓" },
+              { label: "Bills", emoji: "💡" },
+              { label: "Other", emoji: "📄" },
+            ].map((cat) => (
+              <div key={cat.label} className="flex items-center justify-between gap-3">
+                <span className="font-dm text-[14px] text-text-primary dark:text-white flex items-center gap-2 min-w-[130px]">
+                  <span>{cat.emoji}</span>
+                  <span>{cat.label}</span>
+                </span>
+                <div className="relative flex-1 max-w-[180px]">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono text-sm text-gray-400">
+                    ₹
+                  </span>
+                  <input
+                    type="number"
+                    value={categoryBudgets[cat.label] || ""}
+                    onChange={(e) =>
+                      setCategoryBudgets({
+                        ...categoryBudgets,
+                        [cat.label]: e.target.value,
+                      })
+                    }
+                    placeholder="Enter amount"
+                    className="w-full h-10 bg-muted dark:bg-gray-800 dark:text-white rounded-xl pl-7 pr-3 outline-none font-mono text-sm"
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="w-full mt-5 h-11 bg-brand-green/10 text-brand-green hover:bg-brand-green/20 rounded-xl font-sora font-semibold text-[14px] transition-colors"
+          >
+            {saving ? "Saving..." : "Save Category Budgets"}
           </button>
         </motion.div>
 
@@ -614,21 +692,21 @@ export function ProfileScreen({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="mx-4 sm:mx-6 mt-4 bg-white dark:bg-dark-card rounded-card shadow-sm border border-transparent dark:border-white/5 overflow-hidden transition-colors duration-300"
+          className="mx-4 mt-4 bg-white dark:bg-gray-900 rounded-card shadow-card overflow-hidden transition-colors duration-300"
         >
           <button
             onClick={() => setShowPasswordModal(true)}
-            className="w-full flex items-center gap-4 px-5 py-4.5 hover:bg-gray-50 dark:hover:bg-gray-800/80 transition-colors"
+            className="w-full flex items-center gap-3 px-4 py-4 hover:bg-muted/50 dark:hover:bg-gray-800/50 transition-colors"
           >
-            <div className="w-10 h-10 rounded-full bg-gray-50 dark:bg-gray-800 flex items-center justify-center text-text-secondary dark:text-gray-300 border border-gray-100 dark:border-gray-700">
+            <div className="w-9 h-9 rounded-full bg-muted dark:bg-gray-800 flex items-center justify-center text-text-secondary dark:text-gray-300">
               <KeyRound size={18} />
             </div>
 
-            <span className="flex-1 text-left font-dm font-bold text-[15px] text-text-primary dark:text-white tracking-wide">
+            <span className="flex-1 text-left font-dm text-[14px] text-text-primary dark:text-white">
               Change Password
             </span>
 
-            <ChevronRight size={18} className="text-text-tertiary dark:text-gray-500" />
+            <ChevronRight size={16} className="text-text-tertiary dark:text-gray-400" />
           </button>
         </motion.div>
 
@@ -636,7 +714,7 @@ export function ProfileScreen({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="mx-4 sm:mx-6 mt-4 bg-white dark:bg-dark-card rounded-card shadow-sm border border-transparent dark:border-white/5 overflow-hidden transition-colors duration-300"
+          className="mx-4 mt-4 bg-white dark:bg-gray-900 rounded-card shadow-card overflow-hidden transition-colors duration-300"
         >
           {settings.map((item, index) => {
             const Icon = item.icon;
@@ -645,17 +723,17 @@ export function ProfileScreen({
               <button
                 key={item.label}
                 onClick={item.action}
-                className={`w-full flex items-center gap-4 px-5 py-4.5 hover:bg-gray-50 dark:hover:bg-gray-800/80 transition-colors ${
+                className={`w-full flex items-center gap-3 px-4 py-4 hover:bg-muted/50 dark:hover:bg-gray-800/50 transition-colors ${
                   index !== settings.length - 1
-                    ? "border-b border-gray-100 dark:border-gray-800"
+                    ? "border-b border-black/5 dark:border-white/10"
                     : ""
                 }`}
               >
-                <div className="w-10 h-10 rounded-full bg-gray-50 dark:bg-gray-800 flex items-center justify-center text-text-secondary dark:text-gray-300 border border-gray-100 dark:border-gray-700">
+                <div className="w-9 h-9 rounded-full bg-muted dark:bg-gray-800 flex items-center justify-center text-text-secondary dark:text-gray-300">
                   <Icon size={18} />
                 </div>
 
-                <span className="flex-1 text-left font-dm font-bold text-[15px] text-text-primary dark:text-white tracking-wide">
+                <span className="flex-1 text-left font-dm text-[14px] text-text-primary dark:text-white">
                   {item.label}
                 </span>
 
@@ -665,12 +743,12 @@ export function ProfileScreen({
                   </div>
                 ) : (
                   <>
-                    <span className="font-dm font-medium text-[13px] text-text-tertiary dark:text-gray-400">
+                    <span className="font-dm text-[12px] text-text-tertiary dark:text-gray-400">
                       {item.value}
                     </span>
                     <ChevronRight
-                      size={18}
-                      className="text-text-tertiary dark:text-gray-500 ml-1"
+                      size={16}
+                      className="text-text-tertiary dark:text-gray-400"
                     />
                   </>
                 )}
@@ -679,12 +757,12 @@ export function ProfileScreen({
           })}
         </motion.div>
 
-        <div className="mx-4 sm:mx-6 mt-6">
+        <div className="mx-4 mt-4">
           <button
             onClick={onSignOut}
-            className="w-full h-[56px] bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 rounded-xl font-sora font-bold text-[16px] flex items-center justify-center gap-2 hover:bg-red-100 dark:hover:bg-red-500/20 active:scale-[0.98] transition-all border border-transparent dark:border-red-500/20"
+            className="w-full h-12 bg-danger-light dark:bg-red-950 text-danger dark:text-red-300 rounded-xl font-sora font-semibold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
           >
-            <LogOut size={20} />
+            <LogOut size={18} />
             Sign Out
           </button>
         </div>

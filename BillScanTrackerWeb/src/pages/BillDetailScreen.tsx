@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Edit2, Trash2, Save, X } from "lucide-react";
 import { Expense } from "../components/ExpenseCard";
@@ -97,16 +97,16 @@ export function BillDetailScreen({
         animate={{ y: 0 }}
         exit={{ y: "100%" }}
         transition={{ type: "spring", damping: 25, stiffness: 200 }}
-        className="w-full h-[82%] glass-effect dark:bg-dark-card rounded-t-[32px] shadow-floating relative pointer-events-auto flex flex-col overflow-hidden border-t border-white/20 dark:border-white/5"
+        className="w-full h-[82%] bg-white rounded-t-modal shadow-modal relative pointer-events-auto flex flex-col overflow-hidden"
       >
-        <div className="w-full flex justify-center pt-4 pb-5 sticky top-0 z-10">
-          <div className="w-12 h-1.5 bg-gray-300/50 dark:bg-gray-700 rounded-full" />
+        <div className="w-full flex justify-center pt-3 pb-4 bg-white sticky top-0 z-10">
+          <div className="w-10 h-1 bg-[#D3D1C7] rounded-full" />
         </div>
 
-        <div className="flex-1 overflow-y-auto px-6 pb-10 scrollbar-hide">
-          <div className="flex items-center gap-5 mt-2">
+        <div className="flex-1 overflow-y-auto px-5 pb-8 scrollbar-hide">
+          <div className="flex items-center gap-4 mt-2">
             <div
-              className="w-[60px] h-[60px] rounded-full flex items-center justify-center text-3xl shadow-sm"
+              className="w-[52px] h-[52px] rounded-full flex items-center justify-center text-2xl shadow-sm"
               style={{ backgroundColor: expense.color || "#F5F5F5" }}
             >
               {expense.icon || "📄"}
@@ -117,32 +117,34 @@ export function BillDetailScreen({
                 <input
                   value={merchant}
                   onChange={(e) => setMerchant(e.target.value)}
-                  className="w-full h-11 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl px-4 font-sora font-semibold text-[16px] outline-none border border-gray-100 dark:border-gray-700 focus:border-brand-green transition-colors"
+                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleUpdate(); } }}
+                  className="w-full h-10 bg-muted rounded-lg px-3 font-sora font-semibold text-[16px] outline-none"
                   placeholder="Merchant"
                 />
               ) : (
-                <h2 className="font-sora font-bold text-[20px] text-text-primary dark:text-white tracking-tight">
+                <h2 className="font-sora font-semibold text-[18px] text-text-primary">
                   {merchant || "Unknown"}
                 </h2>
               )}
 
-              <p className="font-dm text-[13px] font-medium text-text-secondary dark:text-gray-400 mt-1">
+              <p className="font-dm text-[13px] text-text-secondary mt-0.5">
                 {expense.date || new Date().toLocaleDateString("en-IN")}
               </p>
             </div>
           </div>
 
-          <div className="text-center mt-8 mb-8">
+          <div className="text-center mt-6 mb-6">
             {editing ? (
               <input
                 type="number"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="w-full h-[72px] bg-gray-50 dark:bg-gray-800 dark:text-white rounded-[20px] text-center font-mono font-bold text-[40px] outline-none border border-gray-100 dark:border-gray-700 focus:border-brand-green transition-colors"
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleUpdate(); } }}
+                className="w-full h-16 bg-muted rounded-xl text-center font-mono font-bold text-[36px] outline-none"
                 placeholder="Amount"
               />
             ) : (
-              <h1 className="font-mono font-bold text-[56px] text-text-primary dark:text-white leading-none tracking-tight">
+              <h1 className="font-mono font-bold text-[52px] text-text-primary leading-none">
                 ₹{Number(amount || 0).toLocaleString("en-IN")}
               </h1>
             )}
@@ -151,7 +153,7 @@ export function BillDetailScreen({
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="mt-5 h-12 bg-brand-green/10 dark:bg-brand-green/20 text-brand-green-dark dark:text-brand-green rounded-pill px-5 font-dm text-[14px] font-bold outline-none border border-brand-green/20"
+                className="mt-4 h-10 bg-brand-green-light text-brand-green-dark rounded-pill px-4 font-dm text-[13px] font-medium outline-none"
               >
                 {categories.map((cat) => (
                   <option key={cat} value={cat}>
@@ -160,93 +162,93 @@ export function BillDetailScreen({
                 ))}
               </select>
             ) : (
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-brand-green/10 dark:bg-brand-green/20 text-brand-green-dark dark:text-brand-green rounded-pill mt-4 border border-brand-green/20">
-                <span className="text-[15px]">{expense.icon || "📄"}</span>
-                <span className="font-dm text-[14px] font-bold tracking-wide">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-brand-green-light text-brand-green-dark rounded-pill mt-3">
+                <span className="text-sm">{expense.icon || "📄"}</span>
+                <span className="font-dm text-[13px] font-medium">
                   {category}
                 </span>
               </div>
             )}
           </div>
 
-          <div className="h-px w-full bg-black/5 dark:bg-white/10 my-8" />
+          <div className="h-[0.5px] w-full bg-black/10 my-6" />
 
-          <div className="bg-white dark:bg-dark-card rounded-[24px] p-5 shadow-sm border border-transparent dark:border-white/5 mb-8">
-            <h3 className="font-sora font-bold text-[17px] text-text-primary dark:text-white mb-5">
+          <div className="bg-white rounded-card p-4 shadow-card border border-black/5 mb-6">
+            <h3 className="font-sora font-semibold text-[16px] text-text-primary mb-4">
               Expense Details
             </h3>
 
-            <div className="flex justify-between mb-3.5">
-              <span className="font-dm text-[14px] font-medium text-text-secondary dark:text-gray-400">
+            <div className="flex justify-between mb-3">
+              <span className="font-dm text-[13px] text-text-secondary">
                 Date
               </span>
-              <span className="font-dm text-[14px] text-text-primary dark:text-white font-semibold">
+              <span className="font-dm text-[13px] text-text-primary font-medium">
                 {expense.date || new Date().toLocaleDateString("en-IN")}
               </span>
             </div>
 
-            <div className="flex justify-between mb-3.5">
-              <span className="font-dm text-[14px] font-medium text-text-secondary dark:text-gray-400">
+            <div className="flex justify-between mb-3">
+              <span className="font-dm text-[13px] text-text-secondary">
                 Amount
               </span>
-              <span className="font-mono text-[14px] text-text-primary dark:text-white font-bold">
+              <span className="font-dm text-[13px] text-text-primary font-medium">
                 ₹{Number(amount || 0).toLocaleString("en-IN")}
               </span>
             </div>
 
-            <div className="flex justify-between mb-3.5">
-              <span className="font-dm text-[14px] font-medium text-text-secondary dark:text-gray-400">
+            <div className="flex justify-between mb-3">
+              <span className="font-dm text-[13px] text-text-secondary">
                 Category
               </span>
-              <span className="font-dm text-[14px] text-text-primary dark:text-white font-semibold">
+              <span className="font-dm text-[13px] text-text-primary font-medium">
                 {category}
               </span>
             </div>
 
             <div className="flex justify-between">
-              <span className="font-dm text-[14px] font-medium text-text-secondary dark:text-gray-400">
+              <span className="font-dm text-[13px] text-text-secondary">
                 Merchant
               </span>
-              <span className="font-dm text-[14px] text-text-primary dark:text-white font-semibold">
+              <span className="font-dm text-[13px] text-text-primary font-medium">
                 {merchant || "Unknown"}
               </span>
             </div>
           </div>
 
-          <div className="flex gap-4">
+          <div className="flex gap-3">
             {editing ? (
               <>
                 <button
                   onClick={() => setEditing(false)}
                   disabled={saving}
-                  className="flex-1 h-[52px] rounded-xl border-2 border-gray-200 dark:border-gray-700 text-text-primary dark:text-white font-sora text-[15px] font-bold flex items-center justify-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                  className="flex-1 h-[44px] rounded-[10px] border border-black/10 text-text-primary font-dm text-[12px] font-medium flex items-center justify-center gap-1.5"
                 >
-                  <X size={18} strokeWidth={2.5} /> Cancel
+                  <X size={14} /> Cancel
                 </button>
 
                 <button
                   onClick={handleUpdate}
                   disabled={saving}
-                  className="flex-1 h-[52px] rounded-xl bg-gradient-to-r from-brand-green to-brand-green-gradient text-white font-sora text-[15px] font-bold flex items-center justify-center gap-2 shadow-sm disabled:opacity-70 active:scale-[0.98] transition-all"
+                  className="flex-1 h-[44px] rounded-[10px] bg-brand-green text-white font-dm text-[12px] font-medium flex items-center justify-center gap-1.5"
                 >
-                  <Save size={18} strokeWidth={2.5} /> {saving ? "Saving..." : "Save"}
+                  <Save size={14} /> {saving ? "Saving..." : "Save"}
                 </button>
               </>
             ) : (
               <>
                 <button
                   onClick={() => setEditing(true)}
-                  className="flex-1 h-[52px] rounded-xl border-2 border-amber-500/30 dark:border-amber-500/20 bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 font-sora text-[15px] font-bold flex items-center justify-center gap-2 hover:bg-amber-100 dark:hover:bg-amber-500/20 transition-colors"
+                  className="flex-1 h-[44px] rounded-[10px] border border-amber text-amber-dark font-dm text-[12px] font-medium flex items-center justify-center gap-1.5"
                 >
-                  <Edit2 size={18} strokeWidth={2.5} /> Edit
+                  <Edit2 size={14} /> Edit
                 </button>
 
                 <button
                   onClick={handleDelete}
                   disabled={saving}
-                  className="flex-1 h-[52px] rounded-xl border-2 border-red-500/30 dark:border-red-500/20 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 font-sora text-[15px] font-bold flex items-center justify-center gap-2 hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors"
+                  className="flex-1 h-[44px] rounded-[10px] border border-danger text-danger font-dm text-[12px] font-medium flex items-center justify-center gap-1.5"
                 >
-                  <Trash2 size={18} strokeWidth={2.5} /> {saving ? "Deleting..." : "Delete"}
+                  <Trash2 size={14} /> {saving ? "Deleting..." : "Delete"}
                 </button>
               </>
             )}

@@ -11,6 +11,7 @@ import { Toast } from "./components/Toast";
 import { Expense } from "./components/ExpenseCard";
 import { LoginScreen } from "./pages/LoginScreen";
 import { SignUpScreen, UserProfile } from "./pages/SignUpScreen";
+import { ResetPasswordScreen } from "./pages/ResetPasswordScreen";
 import { getUserProfile } from "./services/userService";
 import { logoutUser } from "./services/authService";
 import { auth } from "./firebase";
@@ -19,6 +20,7 @@ import { onAuthStateChanged } from "firebase/auth";
 type Screen =
   | "login"
   | "signup"
+  | "reset-password"
   | "home"
   | "expenses"
   | "reports"
@@ -40,9 +42,28 @@ export function App() {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("Expense saved!");
   const [user, setUser] = useState<UserProfile | null>(null);
+  const [resetCode, setResetCode] = useState<string | null>(null);
 
   const activeScreen = screenStack[screenStack.length - 1];
   const logoutTimer = useRef<any>(null);
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const oobCode = urlParams.get("oobCode");
+    const mode = urlParams.get("mode");
+
+    if (oobCode && (mode === "resetPassword" || !mode)) {
+      setResetCode(oobCode);
+      setScreenStack(["reset-password"]);
+    }
+  }, []);
+
+  const clearResetCode = () => {
+    setResetCode(null);
+    const newUrl = window.location.origin + window.location.pathname;
+    window.history.replaceState({}, document.title, newUrl);
+    setScreenStack(["login"]);
+  };
 
   const navigateTo = (screen: Screen) => {
     setScreenStack((prev) => {
@@ -232,6 +253,14 @@ export function App() {
           />
         )}
 
+        {activeScreen === "reset-password" && (
+          <ResetPasswordScreen
+            oobCode={resetCode || ""}
+            onComplete={clearResetCode}
+            onCancel={clearResetCode}
+          />
+        )}
+
         {activeScreen === "home" && user && (
           <HomeScreen
             user={user}
@@ -268,15 +297,13 @@ export function App() {
             <BillDetailScreen
               expense={selectedExpense}
               onClose={() => setSelectedExpense(null)}
-              onChanged={() => {
-                window.dispatchEvent(new Event("billScanned"));
-              }}
             />
           )}
         </AnimatePresence>
 
         {activeScreen !== "login" &&
           activeScreen !== "signup" &&
+          activeScreen !== "reset-password" &&
           activeScreen !== "scan" && (
             <BottomNav
               activeTab={activeScreen as any}
