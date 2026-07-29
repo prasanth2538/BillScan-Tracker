@@ -11,6 +11,7 @@
     "test:selenium": "npm --prefix BillScanTrackerSelenium test",
     "test:e2e": "npm --prefix BillScanTrackerSelenium test",
     "test:load": "npm --prefix BillScanTrackerLoadTest test",
+    "test:vulnerability": "npm --prefix BillScanTrackerVulnerability test",
     "test:backend": "npm --prefix BillScanTrackerBackend test"
   }
 }
