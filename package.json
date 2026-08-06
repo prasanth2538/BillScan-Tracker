@@ -3,8 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "workspaces": [
+    "BillScanTrackerWeb"
+  ],
   "scripts": {
-    "dev": "npm --prefix BillScanTrackerWeb run dev",
+    "dev": "concurrently --kill-others -n \"WEB,OCR\" -c \"cyan.bold,yellow.bold\" \"npm --prefix BillScanTrackerWeb run dev\" \"python BillScanTrackerPaddleOCR/main.py\"",
+    "dev:web": "npm --prefix BillScanTrackerWeb run dev",
+    "dev:ocr": "python BillScanTrackerPaddleOCR/main.py",
+    "ocr": "python BillScanTrackerPaddleOCR/main.py",
     "build": "npm --prefix BillScanTrackerWeb run build",
     "preview": "npm --prefix BillScanTrackerWeb run preview",
     "test:mobile": "npm --prefix BillScanTrackerAppium test",
@@ -13,5 +19,8 @@
     "test:load": "npm --prefix BillScanTrackerLoadTest test",
     "test:vulnerability": "npm --prefix BillScanTrackerVulnerability test",
     "test:backend": "npm --prefix BillScanTrackerBackend test"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.4"
   }
 }

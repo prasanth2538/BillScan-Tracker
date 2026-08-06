@@ -13,7 +13,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { getThisMonthExpenses } from "../services/expenseService";
+import { getExpenses, parseExpenseDate } from "../services/expenseService";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -32,16 +32,7 @@ const CATEGORY_META: Record<string, { color: string; icon: string }> = {
 };
 
 function getExpenseDate(expense: any) {
-  if (expense.createdAt?.seconds) {
-    return new Date(expense.createdAt.seconds * 1000);
-  }
-
-  if (expense.date) {
-    const d = new Date(expense.date);
-    if (!isNaN(d.getTime())) return d;
-  }
-
-  return new Date();
+  return parseExpenseDate(expense);
 }
 
 function getCategoryMeta(category: string) {
@@ -57,7 +48,7 @@ export function ReportsScreen() {
   useEffect(() => {
     const loadExpenses = async () => {
       try {
-        const data = await getThisMonthExpenses();
+        const data = await getExpenses();
         setExpenses(data);
       } catch (error) {
         console.error("Reports load error:", error);
@@ -162,7 +153,7 @@ export function ReportsScreen() {
     : [
         {
           title: "No spending data yet",
-          desc: "Scan and save bills to generate AI insights.",
+          desc: "Scan and save bills to generate insights.",
           badge: "Start",
           badgeColor: "text-brand-green-dark",
           badgeBg: "bg-brand-green-light",
@@ -226,10 +217,10 @@ export function ReportsScreen() {
 
       addGap(8);
 
-      // AI Insights
+      // Insights
       doc.setFillColor(240, 240, 240);
       doc.rect(16, y, pageW - 32, 8, "F");
-      addLine("AI Insights", 13, "bold", [29, 158, 117]);
+      addLine("Insights", 13, "bold", [29, 158, 117]);
       addGap(4);
 
       insights.forEach((insight) => {
@@ -306,15 +297,15 @@ export function ReportsScreen() {
     }
   };
   return (
-    <div className="w-full h-full bg-page overflow-y-auto pb-24 scrollbar-hide">
-      <div className="pt-12 px-4 pb-2 flex justify-between items-center sticky top-0 bg-page/90 backdrop-blur-md z-20">
-        <h1 className="font-sora font-semibold text-[20px] text-text-primary">
+    <div className="w-full h-full bg-page dark:bg-gray-950 overflow-y-auto pb-24 scrollbar-hide transition-colors duration-300">
+      <div className="pt-12 px-4 pb-2 flex justify-between items-center sticky top-0 bg-page/90 dark:bg-gray-950/90 backdrop-blur-md z-20">
+        <h1 className="font-sora font-semibold text-[20px] text-text-primary dark:text-white">
           Reports
         </h1>
 
         <button
           onClick={handleDownload}
-          className="w-10 h-10 flex items-center justify-center text-text-primary bg-white rounded-full shadow-sm"
+          className="w-10 h-10 flex items-center justify-center text-text-primary dark:text-white bg-white dark:bg-gray-800 rounded-full shadow-sm hover:opacity-90 transition-all"
         >
           <Download size={20} />
         </button>
@@ -328,7 +319,7 @@ export function ReportsScreen() {
             className={`px-4 py-1.5 rounded-pill font-dm text-[13px] font-medium whitespace-nowrap transition-colors ${
               activeMonth === month
                 ? "bg-brand-green text-white shadow-sm"
-                : "bg-transparent text-text-secondary"
+                : "bg-transparent text-text-secondary dark:text-gray-400 hover:text-text-primary dark:hover:text-white"
             }`}
           >
             {month}
@@ -339,24 +330,24 @@ export function ReportsScreen() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mx-4 mt-2 bg-white rounded-[20px] p-5 shadow-card"
+        className="mx-4 mt-2 bg-white dark:bg-gray-900 rounded-[20px] p-5 shadow-card transition-colors duration-300"
       >
-        <p className="font-dm text-[12px] uppercase tracking-wider text-text-secondary font-medium mb-4">
+        <p className="font-dm text-[12px] uppercase tracking-wider text-text-secondary dark:text-gray-400 font-medium mb-4">
           {activeMonth} 2026 Summary
         </p>
 
         <div className="flex justify-between items-end mb-6">
           <div>
-            <p className="font-dm text-[11px] text-text-tertiary mb-1">
+            <p className="font-dm text-[11px] text-text-tertiary dark:text-gray-400 mb-1">
               Total Spent
             </p>
-            <h2 className="font-mono font-bold text-[24px] text-text-primary leading-none">
+            <h2 className="font-mono font-bold text-[24px] text-text-primary dark:text-white leading-none">
               ₹{totalSpent.toLocaleString("en-IN")}
             </h2>
           </div>
 
           <div className="text-right">
-            <p className="font-dm text-[11px] text-text-tertiary mb-1">
+            <p className="font-dm text-[11px] text-text-tertiary dark:text-gray-400 mb-1">
               Bills
             </p>
             <p className="font-dm text-[13px] text-danger font-medium flex items-center justify-end gap-0.5">
@@ -365,7 +356,7 @@ export function ReportsScreen() {
           </div>
 
           <div className="text-right">
-            <p className="font-dm text-[11px] text-text-tertiary mb-1">
+            <p className="font-dm text-[11px] text-text-tertiary dark:text-gray-400 mb-1">
               Daily Avg
             </p>
             <p className="font-mono text-[13px] text-brand-green font-medium flex items-center justify-end gap-0.5">
@@ -395,10 +386,10 @@ export function ReportsScreen() {
           </ResponsiveContainer>
 
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <span className="font-mono font-bold text-[18px] text-text-primary">
+            <span className="font-mono font-bold text-[18px] text-text-primary dark:text-white">
               ₹{totalSpent.toLocaleString("en-IN")}
             </span>
-            <span className="font-dm text-[11px] text-text-secondary">
+            <span className="font-dm text-[11px] text-text-secondary dark:text-gray-400">
               total
             </span>
           </div>
@@ -406,7 +397,7 @@ export function ReportsScreen() {
 
         <div className="grid grid-cols-2 gap-y-3 gap-x-4">
           {donutData.length === 0 && (
-            <p className="font-dm text-[13px] text-text-tertiary col-span-2 text-center">
+            <p className="font-dm text-[13px] text-text-tertiary dark:text-gray-400 col-span-2 text-center">
               No category data yet
             </p>
           )}
@@ -418,11 +409,11 @@ export function ReportsScreen() {
                 style={{ backgroundColor: item.color }}
               />
 
-              <span className="font-dm text-[12px] text-text-secondary flex-1">
+              <span className="font-dm text-[12px] text-text-secondary dark:text-gray-300 flex-1 truncate">
                 {item.name}
               </span>
 
-              <span className="font-mono text-[12px] text-text-primary font-medium">
+              <span className="font-mono text-[12px] text-text-primary dark:text-white font-medium">
                 {item.percentage}%
               </span>
             </div>
@@ -434,15 +425,15 @@ export function ReportsScreen() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="mx-4 mt-4 bg-white rounded-card p-5 shadow-card"
+        className="mx-4 mt-4 bg-white dark:bg-gray-900 rounded-card p-5 shadow-card transition-colors duration-300"
       >
-        <h3 className="font-sora font-semibold text-[15px] text-text-primary mb-4">
+        <h3 className="font-sora font-semibold text-[15px] text-text-primary dark:text-white mb-4">
           Category breakdown
         </h3>
 
         <div className="space-y-4">
           {donutData.length === 0 && (
-            <p className="font-dm text-[13px] text-text-tertiary text-center">
+            <p className="font-dm text-[13px] text-text-tertiary dark:text-gray-400 text-center">
               No expenses found for this month
             </p>
           )}
@@ -451,12 +442,12 @@ export function ReportsScreen() {
             <div key={item.name} className="flex items-center gap-3">
               <div className="w-[90px] flex items-center gap-1.5">
                 <span className="text-sm">{item.icon}</span>
-                <span className="font-dm text-[12px] text-text-secondary truncate">
+                <span className="font-dm text-[12px] text-text-secondary dark:text-gray-300 truncate">
                   {item.name}
                 </span>
               </div>
 
-              <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+              <div className="flex-1 h-2 bg-muted dark:bg-gray-800 rounded-full overflow-hidden">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${item.percentage}%` }}
@@ -466,7 +457,7 @@ export function ReportsScreen() {
                 />
               </div>
 
-              <div className="w-[65px] text-right font-mono text-[12px] text-text-primary font-medium">
+              <div className="w-[65px] text-right font-mono text-[12px] text-text-primary dark:text-white font-medium">
                 ₹{item.value.toLocaleString("en-IN")}
               </div>
             </div>
@@ -478,9 +469,9 @@ export function ReportsScreen() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="mx-4 mt-4 bg-white rounded-card p-5 shadow-card"
+        className="mx-4 mt-4 bg-white dark:bg-gray-900 rounded-card p-5 shadow-card transition-colors duration-300"
       >
-        <h3 className="font-sora font-semibold text-[15px] text-text-primary mb-4">
+        <h3 className="font-sora font-semibold text-[15px] text-text-primary dark:text-white mb-4">
           Daily spending — {activeMonth}
         </h3>
 
@@ -524,8 +515,8 @@ export function ReportsScreen() {
               <Tooltip
                 contentStyle={{
                   borderRadius: "8px",
-                  border: "none",
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
                   fontSize: "12px",
                   fontFamily: "JetBrains Mono",
                 }}
@@ -556,25 +547,25 @@ export function ReportsScreen() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="mx-4 mt-4 bg-white rounded-card p-5 shadow-card mb-4"
+        className="mx-4 mt-4 bg-white dark:bg-gray-900 rounded-card p-5 shadow-card mb-4 transition-colors duration-300"
       >
-        <h3 className="font-sora font-semibold text-[15px] text-text-primary mb-4 flex items-center gap-1.5">
-          <Sparkles size={16} className="text-brand-green" /> AI insights
+        <h3 className="font-sora font-semibold text-[15px] text-text-primary dark:text-white mb-4 flex items-center gap-1.5">
+          <Sparkles size={16} className="text-brand-green" /> Insights
         </h3>
 
         <div className="space-y-3">
           {insights.map((insight, i) => (
             <div
               key={i}
-              className="flex items-stretch gap-3 p-3 bg-page/50 rounded-lg relative overflow-hidden"
+              className="flex items-stretch gap-3 p-3 bg-page/50 dark:bg-gray-800/50 rounded-lg relative overflow-hidden"
             >
               <div className={`absolute left-0 top-0 bottom-0 w-1 ${insight.accent}`} />
 
               <div className="flex-1 pl-1">
-                <p className="font-dm text-[13px] font-medium text-text-primary">
+                <p className="font-dm text-[13px] font-medium text-text-primary dark:text-white">
                   {insight.title}
                 </p>
-                <p className="font-dm text-[11px] text-text-secondary mt-0.5">
+                <p className="font-dm text-[11px] text-text-secondary dark:text-gray-300 mt-0.5">
                   {insight.desc}
                 </p>
               </div>

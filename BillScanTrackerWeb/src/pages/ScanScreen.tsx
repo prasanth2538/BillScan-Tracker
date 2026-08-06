@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { parseWithOwnAI } from "../ai/BillParser";
-import Tesseract from "tesseract.js";
+import { OCRService } from "../services/OCRService";
 import {
   X,
   Zap,
@@ -12,6 +12,18 @@ import {
   Edit2,
 } from "lucide-react";
 import { saveExpense } from "../services/saveExpense";
+
+declare global {
+  interface Window {
+    onMLKitResult?: (text: string) => void;
+    onMLKitError?: () => void;
+    AndroidBridge?: {
+      scanBill?: (imageData: string) => void;
+      toggleTorch?: (enable: boolean) => void;
+      toggleFlash?: (enable: boolean) => void;
+    };
+  }
+}
 
 interface ScanScreenProps {
   onClose: () => void;
@@ -55,6 +67,8 @@ export function ScanScreen({ onClose, onSave }: ScanScreenProps) {
     "scanning" | "processing" | "detected"
   >("scanning");
 
+  const [processingMessage, setProcessingMessage] = useState("Uploading...");
+
   const [flashOn, setFlashOn] = useState(false);
   const [cameraError, setCameraError] = useState("");
 
@@ -72,19 +86,19 @@ export function ScanScreen({ onClose, onSave }: ScanScreenProps) {
   useEffect(() => {
     startCamera();
 
-    (window as any).onMLKitResult = (text: string) => {
+    window.onMLKitResult = (text: string) => {
       processScannedText(text);
     };
 
-    (window as any).onMLKitError = () => {
+    window.onMLKitError = () => {
       setCameraError("Could not read text clearly. Please try again.");
       setScanState("scanning");
     };
 
     return () => {
       stopCamera();
-      delete (window as any).onMLKitResult;
-      delete (window as any).onMLKitError;
+      delete window.onMLKitResult;
+      delete window.onMLKitError;
     };
   }, []);
 
@@ -110,293 +124,102 @@ export function ScanScreen({ onClose, onSave }: ScanScreenProps) {
     streamRef.current = null;
   };
 
-  // Upscale + grayscale + contrast-boost the captured frame before OCR.
-  // UPI receipt amounts are often small, low-contrast text (top-right corner,
-  // light grey on white/dark cards) that gets lost when a phone screen is
-  // re-photographed at low resolution. Feeding Tesseract a larger, higher
-  // contrast image measurably improves recovery of that text without
-  // requiring any change to the parsing logic itself.
-  const preprocessForOCR = (
-    imageData: string,
-    forceInvert: boolean = false
-  ): Promise<string> => {
-    return new Promise((resolve) => {
-      const img = new Image();
-      img.onload = () => {
+  const toggleFlash = async () => {
+    const nextState = !flashOn;
+    setFlashOn(nextState);
+
+    if (streamRef.current) {
+      const track = streamRef.current.getVideoTracks()[0];
+      if (track) {
         try {
-          const scale = img.width < 1500 ? 2 : 1;
-          const canvas = document.createElement("canvas");
-          canvas.width = img.width * scale;
-          canvas.height = img.height * scale;
-          const ctx = canvas.getContext("2d");
-          if (!ctx) {
-            resolve(imageData);
-            return;
+          const capabilities = (track.getCapabilities ? track.getCapabilities() : {}) as { torch?: boolean };
+          if ("torch" in capabilities || capabilities.torch) {
+            await track.applyConstraints({
+              advanced: [{ torch: nextState } as unknown as MediaTrackConstraintSet],
+            });
           }
-
-          ctx.imageSmoothingEnabled = true;
-          ctx.imageSmoothingQuality = "high";
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-          const frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
-          const pixels = frame.data;
-
-          // Calculate average luminance in central 50% region (where receipt / phone screen is held)
-          const startX = Math.floor(canvas.width * 0.25);
-          const endX = Math.floor(canvas.width * 0.75);
-          const startY = Math.floor(canvas.height * 0.2);
-          const endY = Math.floor(canvas.height * 0.8);
-
-          let centerLuminance = 0;
-          let centerCount = 0;
-          for (let y = startY; y < endY; y += 2) {
-            for (let x = startX; x < endX; x += 2) {
-              const idx = (y * canvas.width + x) * 4;
-              const g =
-                0.299 * pixels[idx] +
-                0.587 * pixels[idx + 1] +
-                0.114 * pixels[idx + 2];
-              centerLuminance += g;
-              centerCount++;
-            }
-          }
-
-          const avgCenterLuminance =
-            centerLuminance / Math.max(1, centerCount);
-          const isDarkMode = forceInvert || avgCenterLuminance < 140;
-
-          const contrast = 1.3;
-          const midpoint = 128;
-
-          for (let i = 0; i < pixels.length; i += 4) {
-            let gray =
-              0.299 * pixels[i] + 0.587 * pixels[i + 1] + 0.114 * pixels[i + 2];
-
-            if (isDarkMode) {
-              gray = 255 - gray;
-            }
-
-            const boosted = Math.min(
-              255,
-              Math.max(0, (gray - midpoint) * contrast + midpoint)
-            );
-            pixels[i] = boosted;
-            pixels[i + 1] = boosted;
-            pixels[i + 2] = boosted;
-          }
-
-          ctx.putImageData(frame, 0, 0);
-          resolve(canvas.toDataURL("image/jpeg", 0.95));
-        } catch {
-          resolve(imageData);
+        } catch (err) {
+          console.warn("Hardware torch control error:", err);
         }
-      };
-      img.onerror = () => resolve(imageData);
-      img.src = imageData;
-    });
+      }
+    }
+
+    if (window.AndroidBridge?.toggleTorch) {
+      window.AndroidBridge.toggleTorch(nextState);
+    } else if (window.AndroidBridge?.toggleFlash) {
+      window.AndroidBridge.toggleFlash(nextState);
+    }
   };
 
-  // Crop top 50% region of the image where UPI receipts (GPay, PhonePe, Paytm) display recipient & amount (₹30)
-  const cropTopRegion = (imageData: string): Promise<string> => {
-    return new Promise((resolve) => {
-      const img = new Image();
-      img.onload = () => {
-        try {
-          const canvas = document.createElement("canvas");
-          const cropHeight = Math.floor(img.height * 0.5);
-          canvas.width = img.width;
-          canvas.height = cropHeight;
+  const processFileWithBackend = async (file: File) => {
+    if (scanState === "processing") return;
 
-          const ctx = canvas.getContext("2d");
-          if (!ctx) {
-            resolve(imageData);
-            return;
-          }
+    setScanState("processing");
+    setProcessingMessage("Scanning image...");
+    setCameraError("");
 
-          ctx.drawImage(
-            img,
-            0,
-            0,
-            img.width,
-            cropHeight,
-            0,
-            0,
-            img.width,
-            cropHeight
-          );
-
-          resolve(canvas.toDataURL("image/jpeg", 0.95));
-        } catch {
-          resolve(imageData);
-        }
-      };
-      img.onerror = () => resolve(imageData);
-      img.src = imageData;
-    });
-  };
-
-  // Otsu Threshold Binarization: Eliminates phone screen webcam glare & overexposure
-  const binarizeForOCR = (
-    imageData: string,
-    invert: boolean = false
-  ): Promise<string> => {
-    return new Promise((resolve) => {
-      const img = new Image();
-      img.onload = () => {
-        try {
-          const scale = img.width < 1500 ? 2 : 1;
-          const canvas = document.createElement("canvas");
-          canvas.width = img.width * scale;
-          canvas.height = img.height * scale;
-          const ctx = canvas.getContext("2d");
-          if (!ctx) {
-            resolve(imageData);
-            return;
-          }
-
-          ctx.imageSmoothingEnabled = true;
-          ctx.imageSmoothingQuality = "high";
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-          const frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
-          const pixels = frame.data;
-          const grays = new Uint8Array(pixels.length / 4);
-          const histogram = new Int32Array(256);
-
-          for (let i = 0, j = 0; i < pixels.length; i += 4, j++) {
-            const g = Math.round(
-              0.299 * pixels[i] + 0.587 * pixels[i + 1] + 0.114 * pixels[i + 2]
-            );
-            grays[j] = g;
-            histogram[g]++;
-          }
-
-          const total = grays.length;
-          let sum = 0;
-          for (let t = 0; t < 256; t++) sum += t * histogram[t];
-
-          let sumB = 0;
-          let wB = 0;
-          let wF = 0;
-          let maxVar = 0;
-          let threshold = 128;
-
-          for (let t = 0; t < 256; t++) {
-            wB += histogram[t];
-            if (wB === 0) continue;
-            wF = total - wB;
-            if (wF === 0) break;
-
-            sumB += t * histogram[t];
-            const mB = sumB / wB;
-            const mF = (sum - sumB) / wF;
-            const varBetween = wB * wF * (mB - mF) * (mB - mF);
-
-            if (varBetween > maxVar) {
-              maxVar = varBetween;
-              threshold = t;
-            }
-          }
-
-          for (let i = 0, j = 0; i < pixels.length; i += 4, j++) {
-            let g = grays[j];
-            let val = g > threshold ? 255 : 0;
-            if (invert) val = 255 - val;
-
-            pixels[i] = val;
-            pixels[i + 1] = val;
-            pixels[i + 2] = val;
-          }
-
-          ctx.putImageData(frame, 0, 0);
-          resolve(canvas.toDataURL("image/jpeg", 0.95));
-        } catch {
-          resolve(imageData);
-        }
-      };
-      img.onerror = () => resolve(imageData);
-      img.src = imageData;
-    });
-  };
-
-  const runWebOCR = async (imageData: string) => {
     try {
-      const enhanced1 = await preprocessForOCR(imageData, false);
+      setProcessingMessage("Scanning image...");
 
-      // Pass 1: Standard full-frame OCR
-      const result1 = await Tesseract.recognize(enhanced1, "eng", {
-        logger: (m: any) => console.log("Tesseract Pass 1:", m),
-      });
-
-      let fullText = result1.data.text;
-      let parsed = parseWithOwnAI(fullText);
-
-      // Pass 2: Otsu Binarized Top-Half Region OCR (with digits whitelist to force 'po' -> '30')
-      if (!parsed.amount || parsed.amount <= 0) {
-        try {
-          const topCropData = await cropTopRegion(imageData);
-          const binarizedTop = await binarizeForOCR(topCropData, true);
-
-          const result2 = await Tesseract.recognize(binarizedTop, "eng", {
-            tessedit_pageseg_mode: 11 as any,
-            tessedit_char_whitelist: "0123456789₹Rs.INR, ",
-            logger: (m: any) => console.log("Tesseract Pass 2 (Otsu Top Crop Digits):", m),
-          } as any);
-
-          if (result2.data?.text) {
-            fullText = fullText + "\n" + result2.data.text;
-          }
-        } catch (pass2Err) {
-          console.warn("Pass 2 Top-region OCR failed:", pass2Err);
-        }
-      }
-
-      // Pass 3: Otsu Binarized Full Frame (Inverted)
-      parsed = parseWithOwnAI(fullText);
-      if (!parsed.amount || parsed.amount <= 0) {
-        try {
-          const binarizedFull = await binarizeForOCR(imageData, true);
-
-          const result3 = await Tesseract.recognize(binarizedFull, "eng", {
-            tessedit_pageseg_mode: 11 as any,
-            logger: (m: any) => console.log("Tesseract Pass 3 (Otsu Full Frame):", m),
-          } as any);
-
-          if (result3.data?.text) {
-            fullText = fullText + "\n" + result3.data.text;
-          }
-        } catch (pass3Err) {
-          console.warn("Pass 3 OCR failed:", pass3Err);
-        }
-      }
-
-      processScannedText(fullText);
-    } catch (err) {
-      console.error("Web OCR failed:", err);
-      alert("OCR failed. Please try a clearer image.");
+      const result = await OCRService.uploadAndExtractText(file);
+      processScannedText(
+        result.text,
+        result.confidence,
+        result.amount,
+        result.merchant
+      );
+    } catch (err: unknown) {
+      console.error("PaddleOCR backend failed:", err);
+      const msg =
+        err instanceof Error
+          ? err.message
+          : "OCR failed. Please try a clearer image.";
+      setCameraError(msg);
       setScanState("scanning");
     }
   };
 
-  const processScannedText = (text: string) => {
+  const processScannedText = (
+    text: string,
+    serverConfidence?: number,
+    serverAmount?: number,
+    serverMerchant?: string
+  ) => {
     console.log("OCR TEXT:", text);
 
     setRawOCRText(text);
 
     const parsed = parseWithOwnAI(text);
 
-    setAmount(parsed.amount > 0 ? String(parsed.amount) : "");
-    setMerchant(parsed.merchant || "Unknown Merchant");
+    const finalAmount =
+      parsed.amount > 0
+        ? parsed.amount
+        : serverAmount && serverAmount > 0
+        ? serverAmount
+        : 0;
+
+    const finalMerchant =
+      parsed.merchant && parsed.merchant !== "Unknown Merchant"
+        ? parsed.merchant
+        : serverMerchant || "Unknown Merchant";
+
+    setAmount(finalAmount > 0 ? String(finalAmount) : "");
+    setMerchant(finalMerchant);
     setCategory(parsed.category || "Other");
-    setConfidence(parsed.amount > 0 ? 90 : 0);
+    setConfidence(
+      serverConfidence && serverConfidence > 0
+        ? serverConfidence
+        : finalAmount > 0
+        ? 90
+        : 0
+    );
 
     setScanState("detected");
   };
 
   const captureImage = () => {
-    if (!videoRef.current) return;
+    if (!videoRef.current || scanState === "processing") return;
 
-    setScanState("processing");
     setCameraError("");
 
     const canvas = document.createElement("canvas");
@@ -407,38 +230,52 @@ export function ScanScreen({ onClose, onSave }: ScanScreenProps) {
 
     const imageData = canvas.toDataURL("image/jpeg", 0.9);
 
-    if ((window as any).AndroidBridge?.scanBill) {
-      (window as any).AndroidBridge.scanBill(imageData);
+    if (window.AndroidBridge?.scanBill) {
+      setScanState("processing");
+      setProcessingMessage("Reading bill...");
+      window.AndroidBridge.scanBill(imageData);
     } else {
-      runWebOCR(imageData);
+      canvas.toBlob(async (blob) => {
+        if (!blob) {
+          setCameraError("Failed to capture image. Please try again.");
+          return;
+        }
+        const file = new File([blob], "captured_bill.jpg", {
+          type: "image/jpeg",
+        });
+        await processFileWithBackend(file);
+      }, "image/jpeg", 0.9);
     }
   };
 
   const openGallery = () => {
+    if (scanState === "processing") return;
     fileRef.current?.click();
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
 
-    if (!file) return;
+    if (!file || scanState === "processing") return;
 
-    setScanState("processing");
     setCameraError("");
 
-    const reader = new FileReader();
+    if (window.AndroidBridge?.scanBill) {
+      setScanState("processing");
+      setProcessingMessage("Reading bill...");
 
-    reader.onload = () => {
-      const imageData = reader.result as string;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const imageData = reader.result as string;
+        if (window.AndroidBridge?.scanBill) {
+          window.AndroidBridge.scanBill(imageData);
+        }
+      };
+      reader.readAsDataURL(file);
+    } else {
+      await processFileWithBackend(file);
+    }
 
-      if ((window as any).AndroidBridge?.scanBill) {
-        (window as any).AndroidBridge.scanBill(imageData);
-      } else {
-        runWebOCR(imageData);
-      }
-    };
-
-    reader.readAsDataURL(file);
     e.target.value = "";
   };
 
@@ -469,8 +306,9 @@ export function ScanScreen({ onClose, onSave }: ScanScreenProps) {
 
       stopCamera();
       onSave(numAmount);
-    } catch (err: any) {
-      setSaveError(err.message || "Failed to save expense");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to save expense";
+      setSaveError(msg);
     } finally {
       setSaving(false);
     }
@@ -494,6 +332,7 @@ export function ScanScreen({ onClose, onSave }: ScanScreenProps) {
         type="file"
         accept="image/*"
         onChange={handleFileChange}
+        disabled={scanState === "processing"}
         style={{ position: "fixed", top: "-9999px", opacity: 0 }}
       />
 
@@ -520,9 +359,10 @@ export function ScanScreen({ onClose, onSave }: ScanScreenProps) {
           <span className="font-semibold text-white text-lg">Scan Bill</span>
 
           <button
-            onClick={() => setFlashOn((f) => !f)}
-            className={`w-10 h-10 rounded-full flex items-center justify-center ${flashOn ? "bg-yellow-400" : "bg-black/50"
-              }`}
+            onClick={toggleFlash}
+            className={`w-10 h-10 rounded-full flex items-center justify-center ${
+              flashOn ? "bg-yellow-400" : "bg-black/50"
+            }`}
           >
             {flashOn ? (
               <Zap size={20} className="text-black" />
@@ -552,7 +392,7 @@ export function ScanScreen({ onClose, onSave }: ScanScreenProps) {
         {scanState === "processing" && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 z-20">
             <div className="w-16 h-16 border-4 border-white border-t-transparent rounded-full animate-spin mb-4" />
-            <p className="text-white text-lg">Reading bill...</p>
+            <p className="text-white text-lg">{processingMessage}</p>
           </div>
         )}
 
@@ -576,7 +416,12 @@ export function ScanScreen({ onClose, onSave }: ScanScreenProps) {
                   <input
                     value={merchant}
                     onChange={(e) => setMerchant(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleSave(); } }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleSave();
+                      }
+                    }}
                     className="w-full text-xl font-medium border-b pb-1 focus:outline-none bg-transparent text-gray-900 dark:text-white"
                     placeholder="Enter merchant name"
                   />
@@ -594,7 +439,13 @@ export function ScanScreen({ onClose, onSave }: ScanScreenProps) {
                         value={amount}
                         onChange={(e) => setAmount(e.target.value)}
                         onBlur={() => setIsEditingAmount(false)}
-                        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); setIsEditingAmount(false); handleSave(); } }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            setIsEditingAmount(false);
+                            handleSave();
+                          }
+                        }}
                         autoFocus
                         className="text-5xl font-bold w-full focus:outline-none border-b-2 border-green-600 bg-transparent text-gray-900 dark:text-white"
                       />
@@ -629,10 +480,11 @@ export function ScanScreen({ onClose, onSave }: ScanScreenProps) {
                       <button
                         key={cat.label}
                         onClick={() => setCategory(cat.label)}
-                        className={`px-4 py-2.5 rounded-full whitespace-nowrap text-sm font-medium transition-all ${category === cat.label
-                          ? "bg-green-600 text-white"
-                          : "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600"
-                          }`}
+                        className={`px-4 py-2.5 rounded-full whitespace-nowrap text-sm font-medium transition-all ${
+                          category === cat.label
+                            ? "bg-green-600 text-white"
+                            : "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600"
+                        }`}
                       >
                         {cat.emoji} {cat.label}
                       </button>

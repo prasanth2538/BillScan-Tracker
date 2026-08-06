@@ -14,7 +14,10 @@ const authRoutes = require('./routes/auth');
 const expenseRoutes = require('./routes/expenses');
 const reportRoutes = require('./routes/reports');
 const userRoutes = require('./routes/user');
+const ocrRoutes = require('./routes/ocr');
 
+app.use('/ocr', ocrRoutes);
+app.use('/api/v1/ocr', ocrRoutes);
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/expenses', expenseRoutes);
 app.use('/api/v1/reports', reportRoutes);

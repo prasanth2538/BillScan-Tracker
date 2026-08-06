@@ -162,7 +162,16 @@ export function SignUpScreen({ onComplete, onBack }: SignUpScreenProps) {
   const budgetVal = Number(formData.monthlyBudget.replace(/,/g, "")) || 0;
 
   return (
-    <form onSubmit={(e) => { e.preventDefault(); handleNext(); }} className="w-full min-h-screen bg-page flex flex-col px-6 pt-10 pb-6 overflow-hidden">
+    <div className="w-full min-h-screen bg-page flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden">
+      {/* Background blobs */}
+      <div className="absolute top-[-10%] right-[-20%] w-64 h-64 bg-brand-green-light rounded-full blur-3xl opacity-60 pointer-events-none" />
+      <div className="absolute bottom-[-10%] left-[-20%] w-64 h-64 bg-amber-light rounded-full blur-3xl opacity-60 pointer-events-none" />
+
+      {/* Centered Card Container */}
+      <form
+        onSubmit={(e) => { e.preventDefault(); handleNext(); }}
+        className="w-full max-w-[440px] min-h-[480px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 rounded-[28px] p-6 sm:p-8 shadow-xl dark:shadow-2xl/40 flex flex-col relative z-10 my-auto"
+      >
       <div className="flex items-center justify-between mb-6">
         <button type="button" onClick={handleBack} className="w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-sm border border-black/5 text-text-primary">
           <ArrowLeft size={22} />
@@ -357,5 +366,6 @@ export function SignUpScreen({ onComplete, onBack }: SignUpScreenProps) {
         </motion.button>
       </div>
     </form>
+    </div>
   );
 }

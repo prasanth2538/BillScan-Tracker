@@ -40,12 +40,29 @@ export const getExpenses = async (forceRefresh = false): Promise<RawExpense[]> =
   return expenses;
 };
 
+export function parseExpenseDate(expense: RawExpense): Date {
+  if (expense.date) {
+    const d = new Date(expense.date);
+    if (!isNaN(d.getTime())) return d;
+  }
+  if (expense.createdAt) {
+    if (typeof expense.createdAt.toDate === "function") {
+      return expense.createdAt.toDate();
+    }
+    if (expense.createdAt.seconds) {
+      return new Date(expense.createdAt.seconds * 1000);
+    }
+    const d = new Date(expense.createdAt);
+    if (!isNaN(d.getTime())) return d;
+  }
+  return new Date();
+}
+
 export const getThisMonthExpenses = async (forceRefresh = false): Promise<RawExpense[]> => {
   const all = await getExpenses(forceRefresh);
   const now = new Date();
   return all.filter(e => {
-    if (!e.createdAt) return true;
-    const d = e.createdAt.toDate ? e.createdAt.toDate() : new Date(e.createdAt);
+    const d = parseExpenseDate(e);
     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
   });
 };

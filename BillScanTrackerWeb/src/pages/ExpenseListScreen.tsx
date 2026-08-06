@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, X, Loader2, ShoppingCart, UtensilsCrossed, Fuel, Heart, Clapperboard, Bus } from 'lucide-react';
-import { getExpenses, RawExpense } from '../services/expenseService';
+import { ChevronRight, X, Loader2, ShoppingCart, UtensilsCrossed, Fuel, Heart, Clapperboard, Bus, Plus } from 'lucide-react';
+import { getThisMonthExpenses, RawExpense } from '../services/expenseService';
 import { saveExpense } from "../services/saveExpense";
 
 import { getUserProfile } from '../services/userService';
@@ -349,6 +349,7 @@ export function ExpenseListScreen() {
   const [manualCategory, setManualCategory] = useState('Food');
   const [manualMerchant, setManualMerchant] = useState('');
   const [savingManual, setSavingManual] = useState(false);
+  const [expandedManual, setExpandedManual] = useState(false);
   const [categoryBudgets, setCategoryBudgets] = useState<Record<string, number>>({});
 
   // Reactive dark mode tracking
@@ -367,7 +368,7 @@ export function ExpenseListScreen() {
     (async () => {
       try {
         setLoading(true);
-        const data = await getExpenses();
+        const data = await getThisMonthExpenses(true);
         setAllExpenses(data);
         const prof = await getUserProfile();
         if (prof?.categoryBudgets) {
@@ -406,8 +407,9 @@ export function ExpenseListScreen() {
         date: new Date().toISOString(), source: 'manual',
       });
       alert('Expense added successfully');
-      setAllExpenses(await getExpenses());
+      setAllExpenses(await getThisMonthExpenses(true));
       setManualAmount(''); setManualMerchant(''); setManualCategory('Food');
+      setExpandedManual(false);
     } catch (err: any) {
       console.error(err); alert(err.message || 'Failed to save');
     } finally { setSavingManual(false); }
@@ -498,43 +500,92 @@ export function ExpenseListScreen() {
               })}
             </div>
 
-            {/* ── Manual Expense Entry ── */}
-            <div className="bg-white dark:bg-[#1C1C1E] rounded-[16px] p-4 shadow-sm mt-3 mb-2">
-              <h3 className="font-sora font-semibold text-[15px] text-gray-900 dark:text-white mb-3">
-                Add Manual Expense
-              </h3>
-              <input
-                type="number"
-                value={manualAmount}
-                onChange={(e) => setManualAmount(e.target.value)}
-                placeholder="Enter amount"
-                className="w-full h-11 bg-gray-50 dark:bg-white/10 border border-black/5 dark:border-white/10 rounded-xl px-4 mb-2.5 outline-none font-dm text-[14px] text-gray-900 dark:text-white placeholder:text-gray-400"
-              />
-              <select
-                value={manualCategory}
-                onChange={(e) => setManualCategory(e.target.value)}
-                className="w-full h-11 bg-gray-50 dark:bg-white/10 border border-black/5 dark:border-white/10 rounded-xl px-4 mb-2.5 outline-none font-dm text-[14px] text-gray-900 dark:text-white"
-              >
-                {CATEGORIES.map((c) => (
-                  <option key={c.label} value={c.label}>
-                    {c.label}
-                  </option>
-                ))}
-              </select>
-              <input
-                type="text"
-                value={manualMerchant}
-                onChange={(e) => setManualMerchant(e.target.value)}
-                placeholder="Merchant / Note"
-                className="w-full h-11 bg-gray-50 dark:bg-white/10 border border-black/5 dark:border-white/10 rounded-xl px-4 mb-3 outline-none font-dm text-[14px] text-gray-900 dark:text-white placeholder:text-gray-400"
-              />
+            {/* ── Manual Expense Entry Accordion ── */}
+            <div className="bg-white dark:bg-[#1C1C1E] rounded-[16px] shadow-sm mt-3 mb-2 overflow-hidden transition-colors">
               <button
-                onClick={handleManualSave}
-                disabled={savingManual}
-                className="w-full h-11 bg-brand-green text-white rounded-xl font-sora font-semibold text-[14px] disabled:opacity-60 active:scale-[0.98] transition-all"
+                type="button"
+                onClick={() => setExpandedManual(!expandedManual)}
+                className="w-full p-4 flex items-center justify-between text-left hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
               >
-                {savingManual ? 'Saving…' : 'Add Expense'}
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-brand-green/10 flex items-center justify-center text-brand-green shrink-0">
+                    <Plus size={18} />
+                  </div>
+                  <div>
+                    <h3 className="font-sora font-semibold text-[15px] text-gray-900 dark:text-white">
+                      Add Manual Expense
+                    </h3>
+                    <p className="font-dm text-[12px] text-gray-500 dark:text-gray-400">
+                      {expandedManual ? "Tap to collapse" : "Tap to add cash or manual expense"}
+                    </p>
+                  </div>
+                </div>
+
+                <motion.div
+                  animate={{ rotate: expandedManual ? 180 : 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="text-gray-400 dark:text-gray-500 shrink-0 ml-2"
+                >
+                  <ChevronRight size={18} className="rotate-90" />
+                </motion.div>
               </button>
+
+              <AnimatePresence initial={false}>
+                {expandedManual && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    className="px-4 pb-4 pt-1 border-t border-black/5 dark:border-white/10"
+                  >
+                    <label className="font-dm text-[12px] text-gray-500 dark:text-gray-400 block mt-2 mb-1">
+                      Amount (₹)
+                    </label>
+                    <input
+                      type="number"
+                      value={manualAmount}
+                      onChange={(e) => setManualAmount(e.target.value)}
+                      placeholder="Enter amount"
+                      className="w-full h-11 bg-gray-50 dark:bg-white/10 border border-black/5 dark:border-white/10 rounded-xl px-4 mb-2.5 outline-none font-dm text-[14px] text-gray-900 dark:text-white placeholder:text-gray-400"
+                    />
+
+                    <label className="font-dm text-[12px] text-gray-500 dark:text-gray-400 block mb-1">
+                      Category
+                    </label>
+                    <select
+                      value={manualCategory}
+                      onChange={(e) => setManualCategory(e.target.value)}
+                      className="w-full h-11 bg-gray-50 dark:bg-white/10 border border-black/5 dark:border-white/10 rounded-xl px-4 mb-2.5 outline-none font-dm text-[14px] text-gray-900 dark:text-white"
+                    >
+                      {CATEGORIES.map((c) => (
+                        <option key={c.label} value={c.label}>
+                          {c.label}
+                        </option>
+                      ))}
+                    </select>
+
+                    <label className="font-dm text-[12px] text-gray-500 dark:text-gray-400 block mb-1">
+                      Merchant / Note
+                    </label>
+                    <input
+                      type="text"
+                      value={manualMerchant}
+                      onChange={(e) => setManualMerchant(e.target.value)}
+                      placeholder="Merchant / Note"
+                      className="w-full h-11 bg-gray-50 dark:bg-white/10 border border-black/5 dark:border-white/10 rounded-xl px-4 mb-3 outline-none font-dm text-[14px] text-gray-900 dark:text-white placeholder:text-gray-400"
+                    />
+
+                    <button
+                      onClick={handleManualSave}
+                      disabled={savingManual}
+                      className="w-full h-11 bg-brand-green text-white rounded-xl font-sora font-semibold text-[14px] disabled:opacity-60 active:scale-[0.98] transition-all"
+                    >
+                      {savingManual ? 'Saving…' : 'Add Expense'}
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </>
         )}

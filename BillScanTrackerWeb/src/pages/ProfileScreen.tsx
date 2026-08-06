@@ -304,6 +304,8 @@ export function ProfileScreen({
   const [saving, setSaving] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+  const [expandedProfile, setExpandedProfile] = useState(false);
+  const [expandedSmartBudget, setExpandedSmartBudget] = useState(false);
 
   const [notificationsOn, setNotificationsOn] = useState(() => {
     const saved = localStorage.getItem("billscan_notifications_enabled");
@@ -560,67 +562,98 @@ export function ProfileScreen({
           </div>
         </div>
 
+        {/* Profile Details Accordion */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mx-4 mt-4 bg-white dark:bg-gray-900 rounded-card p-5 shadow-card transition-colors duration-300"
+          className="mx-4 mt-4 bg-white dark:bg-gray-900 rounded-card shadow-card overflow-hidden transition-colors duration-300"
         >
-          <h3 className="font-sora font-semibold text-[16px] text-text-primary dark:text-white mb-4">
-            Profile Details
-          </h3>
-
-          <label className="font-dm text-[12px] text-text-secondary dark:text-gray-300">
-            Name
-          </label>
-          <input
-            type="text"
-            value={profile.name}
-            onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-            className="w-full h-12 bg-muted dark:bg-gray-800 dark:text-white rounded-xl px-4 mt-1 mb-3 outline-none"
-          />
-
-          <label className="font-dm text-[12px] text-text-secondary dark:text-gray-300">
-            Email
-          </label>
-          <input
-            type="email"
-            value={profile.email}
-            readOnly
-            className="w-full h-12 bg-muted dark:bg-gray-800 dark:text-white rounded-xl px-4 mt-1 mb-3 outline-none opacity-70"
-          />
-
-          <label className="font-dm text-[12px] text-text-secondary dark:text-gray-300">
-            Monthly Income
-          </label>
-          <input
-            type="number"
-            value={profile.monthlyIncome}
-            onChange={(e) =>
-              setProfile({ ...profile, monthlyIncome: e.target.value })
-            }
-            className="w-full h-12 bg-muted dark:bg-gray-800 dark:text-white rounded-xl px-4 mt-1 mb-3 outline-none"
-          />
-
-          <label className="font-dm text-[12px] text-text-secondary dark:text-gray-300">
-            Monthly Budget
-          </label>
-          <input
-            type="number"
-            value={profile.monthlyBudget}
-            onChange={(e) =>
-              setProfile({ ...profile, monthlyBudget: e.target.value })
-            }
-            className="w-full h-12 bg-muted dark:bg-gray-800 dark:text-white rounded-xl px-4 mt-1 mb-4 outline-none"
-          />
-
           <button
-            onClick={handleSave}
-            disabled={saving}
-            className="w-full h-12 bg-brand-green text-white rounded-xl font-sora font-semibold flex items-center justify-center gap-2 disabled:opacity-70"
+            type="button"
+            onClick={() => setExpandedProfile(!expandedProfile)}
+            className="w-full p-4 sm:p-5 flex items-center justify-between text-left hover:bg-muted/30 dark:hover:bg-gray-800/30 transition-colors"
           >
-            <Save size={18} />
-            {saving ? "Saving..." : "Save Changes"}
+            <div>
+              <h3 className="font-sora font-semibold text-[16px] text-text-primary dark:text-white flex items-center gap-2">
+                👤 Profile Details
+              </h3>
+              <p className="font-dm text-[12px] text-text-secondary dark:text-gray-400 mt-0.5">
+                {expandedProfile ? "Tap to collapse" : "Tap to view or edit name, income & budget"}
+              </p>
+            </div>
+            <motion.div
+              animate={{ rotate: expandedProfile ? 180 : 0 }}
+              transition={{ duration: 0.2 }}
+              className="w-8 h-8 rounded-full bg-muted dark:bg-gray-800 flex items-center justify-center text-text-secondary dark:text-gray-300 shrink-0 ml-2"
+            >
+              <ChevronRight size={18} className="rotate-90" />
+            </motion.div>
           </button>
+
+          <AnimatePresence initial={false}>
+            {expandedProfile && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="px-5 pb-5 pt-1 border-t border-black/5 dark:border-white/10"
+              >
+                <label className="font-dm text-[12px] text-text-secondary dark:text-gray-300 block mt-3">
+                  Name
+                </label>
+                <input
+                  type="text"
+                  value={profile.name}
+                  onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+                  className="w-full h-12 bg-muted dark:bg-gray-800 dark:text-white rounded-xl px-4 mt-1 mb-3 outline-none font-dm text-[14px]"
+                />
+
+                <label className="font-dm text-[12px] text-text-secondary dark:text-gray-300 block">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={profile.email}
+                  readOnly
+                  className="w-full h-12 bg-muted dark:bg-gray-800 dark:text-white rounded-xl px-4 mt-1 mb-3 outline-none opacity-70 font-dm text-[14px]"
+                />
+
+                <label className="font-dm text-[12px] text-text-secondary dark:text-gray-300 block">
+                  Monthly Income
+                </label>
+                <input
+                  type="number"
+                  value={profile.monthlyIncome}
+                  onChange={(e) =>
+                    setProfile({ ...profile, monthlyIncome: e.target.value })
+                  }
+                  className="w-full h-12 bg-muted dark:bg-gray-800 dark:text-white rounded-xl px-4 mt-1 mb-3 outline-none font-dm text-[14px]"
+                />
+
+                <label className="font-dm text-[12px] text-text-secondary dark:text-gray-300 block">
+                  Monthly Budget
+                </label>
+                <input
+                  type="number"
+                  value={profile.monthlyBudget}
+                  onChange={(e) =>
+                    setProfile({ ...profile, monthlyBudget: e.target.value })
+                  }
+                  className="w-full h-12 bg-muted dark:bg-gray-800 dark:text-white rounded-xl px-4 mt-1 mb-4 outline-none font-dm text-[14px]"
+                />
+
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="w-full h-12 bg-brand-green text-white rounded-xl font-sora font-semibold flex items-center justify-center gap-2 disabled:opacity-70 active:scale-[0.98] transition-all"
+                >
+                  <Save size={18} />
+                  {saving ? "Saving..." : "Save Changes"}
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
 
         {/* Smart Budget Assistant ⭐⭐⭐⭐⭐ */}
@@ -628,64 +661,93 @@ export function ProfileScreen({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
-          className="mx-4 mt-4 bg-white dark:bg-gray-900 rounded-card p-5 shadow-card transition-colors duration-300"
+          className="mx-4 mt-4 bg-white dark:bg-gray-900 rounded-card shadow-card overflow-hidden transition-colors duration-300"
         >
-          <div className="flex items-center justify-between mb-1">
-            <h3 className="font-sora font-semibold text-[16px] text-text-primary dark:text-white flex items-center gap-2">
-              ⭐ Smart Budget Assistant
-            </h3>
-          </div>
-          <p className="font-dm text-[12px] text-text-secondary dark:text-gray-400 mb-4">
-            Set custom budget amounts for each category to get smart usage alerts.
-          </p>
-
-          <div className="space-y-3">
-            {[
-              { label: "Food", emoji: "🍽️" },
-              { label: "Grocery", emoji: "🛒" },
-              { label: "Petrol", emoji: "⛽" },
-              { label: "Travel", emoji: "🚌" },
-              { label: "Hotel", emoji: "🏨" },
-              { label: "Health", emoji: "🏥" },
-              { label: "Shopping", emoji: "🛍️" },
-              { label: "Entertainment", emoji: "🎬" },
-              { label: "Education", emoji: "🎓" },
-              { label: "Bills", emoji: "💡" },
-              { label: "Other", emoji: "📄" },
-            ].map((cat) => (
-              <div key={cat.label} className="flex items-center justify-between gap-3">
-                <span className="font-dm text-[14px] text-text-primary dark:text-white flex items-center gap-2 min-w-[130px]">
-                  <span>{cat.emoji}</span>
-                  <span>{cat.label}</span>
-                </span>
-                <div className="relative flex-1 max-w-[180px]">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono text-sm text-gray-400">
-                    ₹
-                  </span>
-                  <input
-                    type="number"
-                    value={categoryBudgets[cat.label] || ""}
-                    onChange={(e) =>
-                      setCategoryBudgets({
-                        ...categoryBudgets,
-                        [cat.label]: e.target.value,
-                      })
-                    }
-                    placeholder="Enter amount"
-                    className="w-full h-10 bg-muted dark:bg-gray-800 dark:text-white rounded-xl pl-7 pr-3 outline-none font-mono text-sm"
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-
           <button
-            onClick={handleSave}
-            disabled={saving}
-            className="w-full mt-5 h-11 bg-brand-green/10 text-brand-green hover:bg-brand-green/20 rounded-xl font-sora font-semibold text-[14px] transition-colors"
+            type="button"
+            onClick={() => setExpandedSmartBudget(!expandedSmartBudget)}
+            className="w-full p-4 sm:p-5 flex items-center justify-between text-left hover:bg-muted/30 dark:hover:bg-gray-800/30 transition-colors"
           >
-            {saving ? "Saving..." : "Save Category Budgets"}
+            <div>
+              <h3 className="font-sora font-semibold text-[16px] text-text-primary dark:text-white flex items-center gap-2">
+                ⭐ Smart Budget Assistant
+              </h3>
+              <p className="font-dm text-[12px] text-text-secondary dark:text-gray-400 mt-0.5">
+                {expandedSmartBudget ? "Tap to collapse" : "Tap to set custom category budgets & alerts"}
+              </p>
+            </div>
+            <motion.div
+              animate={{ rotate: expandedSmartBudget ? 180 : 0 }}
+              transition={{ duration: 0.2 }}
+              className="w-8 h-8 rounded-full bg-muted dark:bg-gray-800 flex items-center justify-center text-text-secondary dark:text-gray-300 shrink-0 ml-2"
+            >
+              <ChevronRight size={18} className="rotate-90" />
+            </motion.div>
           </button>
+
+          <AnimatePresence initial={false}>
+            {expandedSmartBudget && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="px-5 pb-5 pt-1 border-t border-black/5 dark:border-white/10"
+              >
+                <p className="font-dm text-[12px] text-text-secondary dark:text-gray-400 mt-2 mb-4">
+                  Set custom budget amounts for each category to get smart usage alerts.
+                </p>
+
+                <div className="space-y-3">
+                  {[
+                    { label: "Food", emoji: "🍽️" },
+                    { label: "Grocery", emoji: "🛒" },
+                    { label: "Petrol", emoji: "⛽" },
+                    { label: "Travel", emoji: "🚌" },
+                    { label: "Hotel", emoji: "🏨" },
+                    { label: "Health", emoji: "🏥" },
+                    { label: "Shopping", emoji: "🛍️" },
+                    { label: "Entertainment", emoji: "🎬" },
+                    { label: "Education", emoji: "🎓" },
+                    { label: "Bills", emoji: "💡" },
+                    { label: "Other", emoji: "📄" },
+                  ].map((cat) => (
+                    <div key={cat.label} className="flex items-center justify-between gap-3">
+                      <span className="font-dm text-[14px] text-text-primary dark:text-white flex items-center gap-2 min-w-[130px]">
+                        <span>{cat.emoji}</span>
+                        <span>{cat.label}</span>
+                      </span>
+                      <div className="relative flex-1 max-w-[180px]">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono text-sm text-gray-400">
+                          ₹
+                        </span>
+                        <input
+                          type="number"
+                          value={categoryBudgets[cat.label] || ""}
+                          onChange={(e) =>
+                            setCategoryBudgets({
+                              ...categoryBudgets,
+                              [cat.label]: e.target.value,
+                            })
+                          }
+                          placeholder="Enter amount"
+                          className="w-full h-10 bg-muted dark:bg-gray-800 dark:text-white rounded-xl pl-7 pr-3 outline-none font-mono text-sm"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="w-full mt-5 h-11 bg-brand-green/10 text-brand-green hover:bg-brand-green/20 rounded-xl font-sora font-semibold text-[14px] transition-colors active:scale-[0.98]"
+                >
+                  {saving ? "Saving..." : "Save Category Budgets"}
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
 
         <motion.div

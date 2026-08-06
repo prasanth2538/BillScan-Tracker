@@ -8,6 +8,8 @@ export interface ParsedBill {
 
 const cleanName = (name: string): string => {
   let cleaned = name
+    .replace(/^[A-Z]{2}\)\s*/i, "")
+    .replace(/\(.*?\)/g, "")
     .replace(/([a-z])([A-Z])/g, "$1 $2")
     .replace(/[^a-zA-Z0-9\s]/g, "")
     .trim();
@@ -16,7 +18,30 @@ const cleanName = (name: string): string => {
 };
 
 const cleanMerchantName = (rawName: string): string => {
-  let name = cleanName(rawName);
+  if (/\b(?:save\s+expense|retake\s+photo|retake|scan\s+bill|confidence|raw\s+ocr|merchant|category|split\s+this\s+payment|split\s+payment|split\s+this\s+bill|split\s+bill|split\s+expense|split\s+with\s+friends|pay\s+again|share\s+receipt|view\s+details|check\s+balance|total\s+qty|toral\s+qty|total\s+quantity|total\s+items?)\b/i.test(rawName)) {
+    return "";
+  }
+  let cleanedRaw = rawName
+    .replace(/^[Q@#%\*\$\+\-\=\<\>\!\?\(\)\[\]\{\}\\\/]+/gi, "")
+    .replace(/\b(?:pvt|private)\s*\.?\s*(?:ltd|limited)\.?\b/gi, "")
+    .replace(/\b(?:ltd|limited|inc|corp|corporation|llc)\.?\b/gi, "")
+    .trim();
+  let name = cleanName(cleanedRaw);
+
+  // Strip single-letter logo OCR artifact attached to start of uppercase word (e.g. "QTRENDS" -> "TRENDS")
+  if (/^[QXZ][A-Z]{3,}/.test(name) && !/^(PVR|INOX|HDFC|ICICI|BHIM|AMAZON|TRENDS|DMART)/i.test(name)) {
+    const stripped = name.replace(/^[QXZ](?=[A-Z]{3,})/g, "");
+    if (stripped.length >= 3) {
+      name = stripped;
+    }
+  }
+
+  // Filter out single-word garbled OCR noise (e.g. "dignll", "xkyz", "sf0s5s2c12r")
+  if (!name.includes(" ") && name.length >= 4) {
+    if (/[bcdfghjklmnpqrstvwxz]{4,}/i.test(name) || /\d+[a-z]{2,}/i.test(name) || /[a-z]{2,}\d+/i.test(name)) {
+      return "";
+    }
+  }
 
   const words = name.split(/\s+/).filter(Boolean);
   if (words.length >= 2) {
@@ -45,6 +70,11 @@ const cleanMerchantName = (rawName: string): string => {
         return words.slice(1).join(" ");
       }
     }
+
+    // Strip leading single-letter logo OCR artifact if followed by a real word (e.g. "A TRENDS" -> "Trends")
+    if (words[0].length === 1 && words.length >= 2 && words[1].length >= 3) {
+      return words.slice(1).join(" ");
+    }
   }
 
   return name;
@@ -69,10 +99,35 @@ const NUMBER_WORDS: Record<string, number> = {
 };
 
 const extractAmountFromWords = (rawText: string): number => {
-  const m = rawText.match(/rupees?\s+([a-z\s]+?)(?:\s+only|\n|$)/i);
+  const m = rawText.match(/rupees?\s+([a-z0-9\s\r\n,\.-]+?)(?:\s+only|\)|$)/i);
   if (!m) return 0;
 
-  const words = m[1].toLowerCase().split(/\s+/).filter(Boolean);
+  const phrase = m[1].trim();
+  const digitMatch = phrase.match(/(\d+(?:\.\d{1,2})?)/);
+  if (digitMatch) {
+    const val = parseFloat(digitMatch[1]);
+    if (isValidAmount(val)) return val;
+  }
+
+  const rawPhrase = phrase.toLowerCase().replace(/[\r\n,\.-]+/g, " ");
+  const paiseMatch = rawPhrase.match(/^(.*?)(?:\s+and\s+|\s+)?(\w+)\s+paise/i);
+
+  let rupeesPhrase = rawPhrase;
+  let paiseVal = 0;
+
+  if (paiseMatch) {
+    rupeesPhrase = paiseMatch[1];
+    const paiseWord = paiseMatch[2];
+    let pTemp = 0;
+    for (const w of paiseWord.split(/\s+/)) {
+      if (NUMBER_WORDS[w] !== undefined) pTemp += NUMBER_WORDS[w];
+    }
+    if (pTemp > 0 && pTemp < 100) {
+      paiseVal = pTemp / 100;
+    }
+  }
+
+  const words = rupeesPhrase.split(/\s+/).filter(Boolean);
   let total = 0;
   let temp = 0;
 
@@ -88,12 +143,12 @@ const extractAmountFromWords = (rawText: string): number => {
       }
     }
   }
-  total += temp;
+  total += temp + paiseVal;
   return isValidAmount(total) ? total : 0;
 };
 
 // Standardize currency text & clean formatting (e.g. ₹1,250 -> ₹1250)
-const normalizeCurrencyText = (rawText: string): string => {
+export const normalizeCurrencyText = (rawText: string): string => {
   let text = rawText
     .replace(/\bRs\./gi, "₹")
     .replace(/\bRs\b/gi, "₹")
@@ -103,11 +158,29 @@ const normalizeCurrencyText = (rawText: string): string => {
     .replace(/\bRupees?\b/gi, "₹")
     .replace(/₹\./g, "₹");
 
-  // Remove top phone status bar clock & notification noise (e.g. "92 Oe ® -0 ¢ Te", "09:02")
+  // Remove top phone status bar clock & notification noise (e.g. "1419 @ 9 mK", "10:5 ! m in H", "14:19", "09:02", "52 m [OF RR RFE")
   text = text
+    .replace(/^\s*\d{3,4}\s*(?=[@\$\|\*\#\%\s]|\n|$)/gi, "")
+    .replace(/^\s*\d{1,2}:\d{1,2}\b[^\n]*/gmi, "")
     .replace(/^\s*\d{1,2}\s+Oe\b[^\n]*/gmi, "")
     .replace(/\b\d{1,2}\s+Oe\b/gi, "")
-    .replace(/\bMID\b/gi, "");
+    // Strip "NN m ..." lines (clock time shown as "52 m" or "09 m" with status bar icons after)
+    .replace(/^\s*\d{1,2}\s+m\b[^\n]*/gmi, "")
+    .replace(/\bMID\b/gi, "")
+    // Strip navigation-arrow header lines from UPI apps (e.g. "< < 63" in SuperMoney).
+    // These are back-button UI fragments followed by a status-bar number (battery %, etc.)
+    // and must be removed before amount extraction so the digit doesn’t spoof the amount.
+    .replace(/^\s*(?:<\s*)+\d{1,3}\b[^\n]*$/gmi, "");
+
+
+  // ⚠️ IMPORTANT: Strip cashback/reward lines BEFORE the "$X L" → "₹X00" substitution.
+  // On web Tesseract OCR, "$2 L ®" (which represents ₹200) and "You earned ₹4.0 cashback"
+  // frequently collapse onto the same OCR line. If cashback removal runs AFTER the $X L
+  // substitution, the converted ₹200 gets wiped together with the cashback text.
+  // By removing cashback content first, the clean "$2 L" fragment survives for substitution.
+  text = text
+    .replace(/^.*?\b(?:cashback|earned\s+cashback|you\s+earned|scratch\s*card|reward\s*earned)\b.*$/gmi, "")
+    .replace(/₹?\s*\d+(?:\.\d{1,2})?\s*cashback\b/gi, "");
 
   // Handle Google Sans font OCR misreads where '30' or '₹30' is recognized as 'po', '= po', '>>po', 'so', 'p0', 's0'
   text = text
@@ -117,34 +190,165 @@ const normalizeCurrencyText = (rawText: string): string => {
     .replace(/(?:^|\s)(?:=|>|>>|¢|~|\*|#|\+)?\s*s0\b/gi, " 30")
     .replace(/\bp(\d{1,4})\b/gi, "3$1");
 
-  // Remove battery percentage & status bar icon noise (e.g. 0%, 6%, [6%)
-  text = text.replace(/\b\d{1,3}%\b/g, "").replace(/\[\d{1,3}%\s*\|?/g, "");
+  // Handle Google Pay bold font misreads in Tesseract OCR.
+  // Common misreads: 6→p/b (bold 6 resembles p or b), 5→L/S (bold 5 resembles L or S).
+  // ₹65  → "+p L -"  or "+b L -"  or "+p S -"  or "+b S -"   (p/b=6, L/S=5)
+  // ₹650 → "+p L O" → after p+L rule: "₹65 O" → existing \d\sO rule: "₹650" ✓
+  // Do NOT consume rest of line ([^\n]*) here so chained O/D chars still work.
+  text = text
+    .replace(/(?:^|[\s])(?:[+\-*#$>@¢~]{0,3}\s*)[pb]\s+[LS]\b/gim, " ₹65");
 
-  // Remove Bank Logo Icon OCR noise (e.g. [60 | Indian Overseas Bank, [30 | SBI)
+  // Handle Google Sans font OCR misreads in Google Pay / Paytm screenshots (e.g. ₹200 -> "$2 L ®", "₹2 L")
+  // MUST require explicit $ or ₹ currency symbol prefix so item units like "1L" (1 Litre) are not misread as ₹100
+  text = text
+    .replace(/(?:^|\s)[\$₹]\s*(\d{1,4})\s*L\b/gi, (_, d) => ` ₹${d}00`)
+    .replace(/\b(\d{1,4})[OooD]{4}\b/g, "$10000")  // ₹10000 (e.g. 1OOOO)
+    .replace(/\b(\d{1,4})[OooD]{3}\b/g, "$1000")   // ₹1000  (e.g. 1OOO)
+    .replace(/\b(\d{1,4})[OooD]{2}\b/g, "$100")    // ₹100,200.. (e.g. 2OO)
+    .replace(/\b(\d{1,4})[OooD]\b/g, "$10")        // ₹10,20..   (e.g. 2O)
+    .replace(/\b(\d{1,4})\s+[OooD]\s+[OooD]\s+[OooD]\b/g, "$1000") // 1 O O O
+    .replace(/\b(\d{1,4})\s+[OooD]\s+[OooD]\b/g, "$100")            // 2 O O
+    .replace(/\b(\d{1,4})\s+[OooD]\b/g, "$10");                     // 2 O
+
+
+
+  // Remove Bank Logo & Copy Button Icon OCR noise (e.g. [60 | Indian Overseas Bank, [30 | SBI, (5), ($5), (C], (m))
   text = text
     .replace(/\[\s*\d+\s*[\|\]]?\s*/gi, "")
-    .replace(/\b\d+\s*\|\s*/gi, "");
+    .replace(/\b\d+\s*\|\s*/gi, "")
+    .replace(/[\(\[]\s*[\$\#\*\@\~₹]?\s*[0-9a-zA-Z]{1,2}\s*[\)\]]/gi, "");
 
-  // Remove UPI IDs and handles that contain numbers (e.g. srirammandapaka 2005@oksbi, 9876543210@ybl, user123@paytm)
+  // Remove masked bank account / card numbers (e.g. XXXXXXXXX000189, XXXXXXX189, XXXX189, ****0189, XX189)
   text = text
-    .replace(/\b[\w\.\-]+\s*@\s*[\w\.\-]+\b/gi, "")
+    .replace(/[Xx\*]{2,}\s*\d+/g, "")
+    .replace(/\b[Xx\*]+\d+\b/gi, "")
+    .replace(/\b[Xx\*]{2,}[0-9a-zA-Z]+\b/gi, "");
+
+  // Remove Bill No, Invoice No, Token No, Order No, Table No, Ref No, Receipt No (e.g. Bill No.: 57833, BII No.: 57833, Token No.: 28, Table No.: D10, Bill No : MRI25-25/88412)
+  text = text
+    .replace(/\b(?:bill|bll|bii|invoice|inv|token|order|table|kot|ref|txn|receipt)\s*(?:no|number|num|#|\.)?[\s:]*[a-zA-Z0-9\-\/]+\b/gi, "")
+    .replace(/^\s*(?:bill|bll|bii|invoice|inv|token|order|table|kot|ref|txn|receipt)\b[^\n]*$/gmi, "")
+    .replace(/\b(?:gstin|gitin|gst|fssai|cin)\s*:?\s*[0-9A-Za-z\-\/]+\b/gi, "")
+    .replace(/\b(?:ph|phone|mob|mobile|tel|contact)\s*:?\s*[\d\s-]{6,15}\b/gi, "")
+    .replace(/\b(?:chennai|pincode|pin|zip)?[\s-]*6\d{5}\b/gi, "");
+
+  // Remove Transaction IDs, UTR numbers, UPI reference IDs (e.g. T2608011927222819802318, UTR: 584485129120)
+  text = text
+    .replace(/\bT\d{14,}\b/gi, "")
+    .replace(/\bUTR\s*:\s*\d+/gi, "");
+
+  // Remove UPI IDs and handles that contain numbers (e.g. srirammandapaka2005@oksbi, 9876543210@ybl, user123@paytm, paytm.s2er74 u@pty)
+  text = text
+    .replace(/\b(?:paytm|gpay|phonepe|bhim)\.[a-zA-Z0-9\.\-_]+(?:\s+[a-zA-Z0-9]+)?\s*@\s*[a-zA-Z0-9\.\-_]+/gi, "")
+    .replace(/\b(?:paytm|gpay|phonepe|bhim)\.[a-zA-Z0-9\.\-_]+\b/gi, "")
+    .replace(/\b[a-zA-Z0-9\.\-_]+\s*@\s*[a-zA-Z0-9\.\-_]+\b/gi, "")
     .replace(/\S+@\S+/gi, "");
 
-  // Remove full date & time stamps (e.g. "7 Jul 2026, 10:07 pm", "14 Jul 2026", "06:41 pm")
+  // Remove full date & time stamps (e.g. "7 Jul 2026, 10:07 pm", "14 Jul 2026", "06:41 pm", "23/D6/2025", "Tine: 11:20 AM")
   text = text
     .replace(/\b\d{1,2}\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z,0-9\s:]*\b[^\n]*/gi, "")
-    .replace(/\b\d{1,2}[-/\.]\d{1,2}[-/\.]\d{2,4}\b/g, "")
-    .replace(/\b\d{1,2}:\d{2}(?::\d{2})?\s*(?:am|pm)?\b/gi, "");
+    .replace(/\b\d{1,2}[-/\.][a-z0-9]{1,2}[-/\.]\d{2,4}\b/gi, "")
+    .replace(/\b\d{1,2}:\d{2}(?::\d{2})?\s*(?:am|pm)?\b/gi, "")
+    .replace(/^\s*(?:date|tine|time|dt)\s*[:\s][^\n]*$/gmi, "");
 
-  // Convert common OCR misreads of Rupee symbol attached to numbers (e.g. Z20 -> ₹20, z20 -> ₹20, A20 -> ₹20, T20 -> ₹20)
+  // Convert common OCR misreads of Rupee symbol attached to numbers (e.g. Z20 -> ₹20, z20 -> ₹20, A20 -> ₹20, T20 -> ₹20, Z866.26 -> ₹866.26)
   // Exclude standalone 'R' / 'r' after words (e.g. "Chithra R 320") so surname initial R is not converted to a Rupee symbol
-  text = text.replace(/(?:^|[\s\(\[\{,\:\-])(?:[zZTtaA€£]|\*|#|\?|S)\s*(\d+(?:\.\d{1,2})?)\b/g, " ₹$1");
+  text = text.replace(/(?:^|[\s\(\[\{,:\-])(?:[zZTtaA€£eExXsSkK]|\*|#|\?|S)[\.:\-\=\s]*(\d+(?:\.\d{1,2})?)\b/g, " ₹$1");
+
+  // Handle @ as ₹ symbol misread (e.g. "@15" → "₹15").
+  // UPI IDs (user@bank) are already stripped above so remaining @ is non-email context.
+  text = text.replace(/(?:^|[\s+*#>])@\s*(\d+(?:\.\d{1,2})?)\b/g, " ₹$1");
 
   // Remove commas inside numbers
   text = text.replace(/(₹|\b\d{1,3}),(\d{3})/g, "$1$2");
   text = text.replace(/(\d+),(\d{3})/g, "$1$2");
 
   return text;
+};
+
+// ─── UPI Payment Context Extractor ──────────────────────────────────────────
+// Safety-net for UPI receipts where the large bold amount couldn't be decoded by
+// the symbol/keyword passes. Finds "Payment successful" and applies targeted
+// character-level OCR corrections only to the lines immediately following it.
+
+const UPI_SKIP_RE = /cashback|earned|reward|scratch|transaction\s*id|view\s*details|powered|pay\s*again|done\b|%\b|\d+%|debited\s*from|account|transfer\s*details|utr/i;
+const UPI_BREAK_RE = /\d{1,2}\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)|\d{1,2}:\d{2}/i;
+
+const correctOCRCharsForAmount = (line: string): string =>
+  line
+    // Remove masked bank account / card numbers & UPI handles (e.g. XXXXXXXXX000189, paytm.s2er74u)
+    .replace(/[Xx\*]{2,}\s*\d+/g, "")
+    .replace(/\b[Xx\*]+\d+\b/gi, "")
+    .replace(/\b(?:paytm|gpay|phonepe|bhim)\.[a-zA-Z0-9\.\-_]+\b/gi, "")
+    // Rupee symbol misread as 7, ?, z, Z, T before amount (e.g. "720" -> "₹20")
+    .replace(/(?:^|\s)[7\?zZTt]\s*(\d{1,4}(?:\.\d{1,2})?)\b/g, " ₹$1")
+    // O, o, D → 0 when adjacent to digits
+    .replace(/(\d)[OoD](\d)/g, "$10$2")
+    .replace(/(\d)[OoD](\s|$)/g, "$10$2")
+    .replace(/(^|\s)[OoD](\d)/g, "$10$2")
+    // S, s → 5 when between/after digits
+    .replace(/(\d)[Ss](\d)/g, "$15$2")
+    .replace(/(\d)[Ss](\s|$)/g, "$15$2")
+    // l, I → 1 between digits
+    .replace(/(\d)[lI](\d)/g, "$11$2")
+    // B → 8 between digits
+    .replace(/(\d)B(\d)/g, "$18$2")
+    // p, b → 6 before digit or L/S (bold 6 misread)
+    .replace(/\b[pb]([0-9])/gi, "6$1")
+    .replace(/\b[pb]\s+[LS]\b/gi, "65")
+    // SuperMoney bold font misreads: Tesseract reads ₹ as "+ @" and 1+5 as "s w".
+    //   "@ s"  → "15"  (@ represents ₹ or 1, s = 5)
+    //   "@<N>" → "1N"  (@ = 1 when before a single digit)
+    .replace(/@\s*[Ss]\b/g, "15")
+    .replace(/@\s*([0-9])/g, "1$1")
+    // Currency symbol misreads at start of number (@ also acts as ₹)
+    .replace(/(?:^|\s)[#¥€£*~^@]\s*(\d+(?:\.\d{1,2})?)/g, " ₹$1")
+    // Separate concatenated numbers attached to letters without space (e.g. "Total Amount316.46" -> "Total Amount 316.46")
+    .replace(/([a-zA-Z])(\d+(?:\.\d{1,2})?)/g, "$1 $2");
+
+const extractUPIPaymentAmount = (normalizedText: string): number => {
+  const lines = normalizedText.split("\n").map((l) => l.trim());
+  const successIdx = lines.findIndex((l) =>
+    /(?:payment|transaction)\s+successful|paid\s+to\b|money\s+sent|sent\s+successfully|\bcompleted\b/i.test(l)
+  );
+  if (successIdx < 0) return 0;
+
+  const startIdx = Math.max(0, successIdx - 5);
+  const endIdx = Math.min(lines.length, successIdx + 11);
+
+  for (let i = startIdx; i < endIdx; i++) {
+    const line = lines[i];
+    if (!line) continue;
+    if (UPI_SKIP_RE.test(line)) continue;
+    if (UPI_BREAK_RE.test(line)) break;
+
+    // 1. Try direct ₹ symbol match first (normalization may have already fixed it)
+    const directMatch = line.match(/₹\s*(\d+(?:\.\d{1,2})?)/);
+    if (directMatch) {
+      const v = parseFloat(directMatch[1]);
+      if (isValidAmount(v)) return v;
+    }
+
+    // 2. Apply targeted character correction and retry
+    const corrected = correctOCRCharsForAmount(line);
+    const correctedRupee = corrected.match(/₹\s*(\d+(?:\.\d{1,2})?)/);
+    if (correctedRupee) {
+      const v = parseFloat(correctedRupee[1]);
+      if (isValidAmount(v)) return v;
+    }
+
+    // 3. Standalone multi-digit number (at least 2 digits) from corrected line.
+    // ONLY check standalone bare numbers if on or after the success line (i >= successIdx - 1)
+    // to prevent top status bar clock/header noise (e.g. "10:5", "63%") from spoofing amounts.
+    if (i >= Math.max(0, successIdx - 1)) {
+      const nums = [...corrected.matchAll(/\b(\d{2,7}(?:\.\d{1,2})?)\b/g)];
+      for (const m of nums) {
+        const v = parseFloat(m[1]);
+        if (isValidAmount(v)) return v;
+      }
+    }
+  }
+  return 0;
 };
 
 // ─── Amount Extraction ──────────────────────────────────────────────────────
@@ -159,6 +363,72 @@ export const extractAmount = (rawText: string): number => {
   const text = normalizeCurrencyText(rawText);
   const lines = text.split("\n");
 
+  // PASS 0.1: UPI Payment context extractor (runs on normalized text so cashback/noise
+  // already stripped). Applies per-character OCR corrections on lines after "Payment successful".
+  const upiAmount = extractUPIPaymentAmount(text);
+  if (upiAmount > 0) return upiAmount;
+
+
+  // PASS 0.4: High-Priority Explicit Final Total Line Match (Total Amount, Grand Total, Net Amount, Total Payable)
+  // Handles OCR line noise where Rupee symbol is misread or total number appears on preceding line (e.g. "866.26 \n Total Amount")
+  const finalTotalKeyRegex = /(?:total\s*amount|grand\s*total|net\s*amount|total\s*payable|total\s*pay|final\s*amount|total\s*due|bill\s*total|total\s*(?:rs\.?|inr|₹))/i;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (finalTotalKeyRegex.test(line) && !/sub\s*total/i.test(line)) {
+      // Look backward (up to 15 lines) AND forward (up to 60 lines) around Total Amount line
+      const combined = lines.slice(Math.max(0, i - 15), Math.min(lines.length, i + 60)).join(" ");
+
+      // 1. Prioritize numbers explicitly prefixed or suffixed with the Rupee symbol (₹)
+      const rupeeNumbers = [...combined.matchAll(/(?:₹\s*(\d+(?:\.\d{1,2})?)|(\d+(?:\.\d{1,2})?)\s*₹(?!\s*\d))/g)]
+        .map((m) => parseFloat(m[1] || m[2]))
+        .filter((n) => isValidAmount(n));
+
+      if (rupeeNumbers.length > 0) {
+        return Math.max(...rupeeNumbers);
+      }
+
+      // 2. Fallback to bare numbers on/around Total line (exclude tax rates like 2.5)
+      const numbersOnLine = [...combined.matchAll(/(?:^|[^0-9\.])(\d+(?:\.\d{1,2})?)(?=[^0-9\.]|$)/g)]
+        .map((m) => parseFloat(m[1]))
+        .filter((n) => isValidAmount(n));
+
+      if (numbersOnLine.length > 0) {
+        const multiDigitOrDecimals = numbersOnLine.filter((n) => n >= 10 || n % 1 !== 0);
+        if (multiDigitOrDecimals.length > 0) {
+          return Math.max(...multiDigitOrDecimals);
+        }
+      }
+    }
+  }
+
+  // PASS 0.5: Standalone "Total" (excluding "Sub Total") line match
+  const standaloneTotalKeyRegex = /(?<!sub\s*)(?<!sub)\btotal\b/i;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (standaloneTotalKeyRegex.test(line) && !/sub\s*total/i.test(line)) {
+      const combined = lines.slice(Math.max(0, i - 15), Math.min(lines.length, i + 60)).join(" ");
+
+      const rupeeNumbers = [...combined.matchAll(/(?:₹\s*(\d+(?:\.\d{1,2})?)|(\d+(?:\.\d{1,2})?)\s*₹(?!\s*\d))/g)]
+        .map((m) => parseFloat(m[1] || m[2]))
+        .filter((n) => isValidAmount(n));
+
+      if (rupeeNumbers.length > 0) {
+        return Math.max(...rupeeNumbers);
+      }
+
+      const numbersOnLine = [...combined.matchAll(/(?:^|[^0-9\.])(\d+(?:\.\d{1,2})?)(?=[^0-9\.]|$)/g)]
+        .map((m) => parseFloat(m[1]))
+        .filter((n) => isValidAmount(n));
+
+      if (numbersOnLine.length > 0) {
+        const multiDigitOrDecimals = numbersOnLine.filter((n) => n >= 10 || n % 1 !== 0);
+        if (multiDigitOrDecimals.length > 0) {
+          return Math.max(...multiDigitOrDecimals);
+        }
+      }
+    }
+  }
+
   // PASS 1: Explicit Rupee Symbol Match (₹)
   const rupeeMatches: number[] = [];
   const rupeeRegex = /₹\s*(\d+(?:\.\d{1,2})?)/g;
@@ -170,7 +440,7 @@ export const extractAmount = (rawText: string): number => {
     }
   }
 
-  const rupeeAfterRegex = /(\d+(?:\.\d{1,2})?)\s*₹/g;
+  const rupeeAfterRegex = /(\d+(?:\.\d{1,2})?)\s*₹(?!\s*\d)/g;
   while ((match = rupeeAfterRegex.exec(text)) !== null) {
     const val = parseFloat(match[1]);
     if (isValidAmount(val)) {
@@ -179,91 +449,97 @@ export const extractAmount = (rawText: string): number => {
   }
 
   if (rupeeMatches.length > 0) {
-    return rupeeMatches[0];
-  }
-
-  // PASS 1.5: PhonePe / UPI Cross-Line Amount Suffix Matching
-  // In UPI apps (PhonePe, GPay, Paytm), amounts often appear in multiple places (top right next to merchant, and next to debited bank account).
-  // OCR often misreads the '₹' symbol as a leading digit ('3', '2', '7', '8'). E.g. '₹20' -> '320' on merchant line and '20' / '220' on debited account line.
-  const lineNumbers: { num: number; raw: string; line: string }[] = [];
-  for (const line of lines) {
-    const cleanedLine = line
-      .replace(/https?:\/\/\S+/gi, "")
-      .replace(/\+?\d{10,}/g, "")
-      .replace(/\b[A-Z0-9]{12,}\b/gi, "")
-      .replace(/[X\*]{2,}\d+/gi, "")
-      .replace(/\b\d{1,2}:\d{2}(?::\d{2})?\s*(?:am|pm)?\b/gi, "");
-
-    const numbers = [...cleanedLine.matchAll(/\b(\d+(?:\.\d{1,2})?)\b/g)];
-    for (const m of numbers) {
-      const val = parseFloat(m[1]);
-      if (isValidAmount(val)) {
-        lineNumbers.push({ num: val, raw: m[1], line });
-      }
+    // On bills with multiple item prices/quantities (e.g. adult 2 280.00, Total Amount 660.80),
+    // prefer multi-digit / decimal amounts and select the maximum total amount rather than item quantities.
+    const validRupees = rupeeMatches.filter((r) => r >= 10 || r % 1 !== 0);
+    if (validRupees.length > 0) {
+      return Math.max(...validRupees);
     }
+    return Math.max(...rupeeMatches);
   }
 
-  if (lineNumbers.length >= 2) {
-    for (let i = 0; i < lineNumbers.length; i++) {
-      for (let j = i + 1; j < lineNumbers.length; j++) {
-        const r1 = lineNumbers[i].raw;
-        const r2 = lineNumbers[j].raw;
+  // PASS 1.5: PhonePe / UPI Cross-Line Amount Suffix Matching (ONLY for digital UPI transfers)
+  const isUPIContext = /(?:payment|transaction)\s+successful|paid\s+to|money\s+sent|completed|^to\s+|phonepe|gpay|paytm/i.test(text);
+  if (isUPIContext) {
+    const lineNumbers: { num: number; raw: string; line: string }[] = [];
+    for (const line of lines) {
+      const cleanedLine = line
+        .replace(/https?:\/\/\S+/gi, "")
+        .replace(/\+?\d{10,}/g, "")
+        .replace(/\b[A-Z0-9]{12,}\b/gi, "")
+        .replace(/[X\*]{2,}\d+/gi, "")
+        .replace(/\b\d{1,2}:\d{2}(?::\d{2})?\s*(?:am|pm)?\b/gi, "");
 
-        if (r1 === r2) continue;
-
-        // Sub-case A: r1="320", r2="220" -> both length 3, suffix "20"
-        if (r1.length >= 3 && r1.length === r2.length) {
-          const suffix1 = r1.slice(1);
-          const suffix2 = r2.slice(1);
-          if (suffix1 === suffix2) {
-            const strippedVal = parseFloat(suffix1);
-            if (isValidAmount(strippedVal)) {
-              return strippedVal;
-            }
-          }
-        }
-
-        // Sub-case B: r1="320" (misread Rupee digit + 20) and r2="20"
-        if (r1.length === r2.length + 1 && /^[3278]/.test(r1)) {
-          if (r1.slice(1) === r2) {
-            const val = parseFloat(r2);
-            if (isValidAmount(val)) {
-              return val;
-            }
-          }
-        }
-
-        // Sub-case C: r2="320" (misread Rupee digit + 20) and r1="20"
-        if (r2.length === r1.length + 1 && /^[3278]/.test(r2)) {
-          if (r2.slice(1) === r1) {
-            const val = parseFloat(r1);
-            if (isValidAmount(val)) {
-              return val;
-            }
-          }
-        }
-      }
-    }
-  }
-
-  // PASS 2: Single-Line 3-Digit Misread Rupee Prefix (e.g. '= Chithra R 320' -> '₹20', '350' -> '₹50')
-  // In PhonePe/GPay receipts, '₹20' on recipient/merchant line is often misread as a 3-digit number '320' or '220' or '720'
-  // because the '₹' symbol is recognized as a leading digit ('3', '2', '7', '8') attached to a 2-digit amount ('20').
-  for (const line of lines) {
-    const lowerLine = line.toLowerCase();
-    if (
-      lowerLine.includes("paid") ||
-      lowerLine.includes("to") ||
-      lowerLine.includes("debited") ||
-      lowerLine.includes("transfer") ||
-      lowerLine.includes("chithra")
-    ) {
-      const numbers = [...line.matchAll(/\b([3278]\d{2})\b/g)];
+      const numbers = [...cleanedLine.matchAll(/\b(\d+(?:\.\d{1,2})?)\b/g)];
       for (const m of numbers) {
-        const fullNum = m[1];
-        const strippedVal = parseFloat(fullNum.slice(1));
-        if (isValidAmount(strippedVal) && strippedVal >= 10 && strippedVal <= 99) {
-          return strippedVal;
+        const val = parseFloat(m[1]);
+        if (isValidAmount(val)) {
+          lineNumbers.push({ num: val, raw: m[1], line });
+        }
+      }
+    }
+
+    if (lineNumbers.length >= 2) {
+      for (let i = 0; i < lineNumbers.length; i++) {
+        for (let j = i + 1; j < lineNumbers.length; j++) {
+          const r1 = lineNumbers[i].raw;
+          const r2 = lineNumbers[j].raw;
+
+          if (r1 === r2) continue;
+
+          // Sub-case A: r1="320", r2="220" -> both length 3, suffix "20"
+          if (r1.length >= 3 && r1.length === r2.length) {
+            const suffix1 = r1.slice(1);
+            const suffix2 = r2.slice(1);
+            if (suffix1 === suffix2) {
+              const strippedVal = parseFloat(suffix1);
+              if (isValidAmount(strippedVal)) {
+                return strippedVal;
+              }
+            }
+          }
+
+          // Sub-case B: r1="320" (misread Rupee digit + 20) and r2="20"
+          if (r1.length === r2.length + 1 && /^[3278]/.test(r1)) {
+            if (r1.slice(1) === r2) {
+              const val = parseFloat(r2);
+              if (isValidAmount(val) && val >= 10) {
+                return val;
+              }
+            }
+          }
+
+          // Sub-case C: r2="320" (misread Rupee digit + 20) and r1="20"
+          if (r2.length === r1.length + 1 && /^[3278]/.test(r2)) {
+            if (r2.slice(1) === r1) {
+              const val = parseFloat(r1);
+              if (isValidAmount(val) && val >= 10) {
+                return val;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // PASS 2: Single-Line 3-Digit Misread Rupee Prefix (ONLY for digital UPI transfers)
+  if (isUPIContext) {
+    for (const line of lines) {
+      const lowerLine = line.toLowerCase();
+      if (
+        /\bpaid\b/i.test(lowerLine) ||
+        /\bto\s+[a-z]/i.test(lowerLine) ||
+        /\bdebited\b/i.test(lowerLine) ||
+        /\btransfer\b/i.test(lowerLine)
+      ) {
+        const numbers = [...line.matchAll(/\b([3278]\d{2})\b/g)];
+        for (const m of numbers) {
+          const fullNum = m[1];
+          const strippedVal = parseFloat(fullNum.slice(1));
+          if (isValidAmount(strippedVal) && strippedVal >= 10 && strippedVal <= 99) {
+            return strippedVal;
+          }
         }
       }
     }
@@ -288,27 +564,38 @@ export const extractAmount = (rawText: string): number => {
     }
   }
 
-  // PASS 4: Action keywords & line search (including 'from' and 'to' and adjacent lines)
+  // PASS 4.5: Action keywords & line search (using exact word boundary matching)
   const actionKeywords = [
-    "paid",
-    "payment",
-    "sent",
-    "debited",
-    "credited",
-    "received",
-    "transfer",
-    "amount",
-    "total",
-    "successful",
-    "from",
-    "to",
+    /\bpaid\b/i,
+    /\bpayment\b/i,
+    /\bsent\b/i,
+    /\bdebited\b/i,
+    /\bcredited\b/i,
+    /\breceived\b/i,
+    /\btransfer\b/i,
+    /\bamount\b/i,
+    /\btotal\b/i,
+    /\bsuccessful\b/i,
+    /\bfrom\b/i,
+    /\bto\b/i,
   ];
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    const lowerLine = line.toLowerCase();
-    if (actionKeywords.some((kw) => lowerLine.includes(kw))) {
-      const combined = line + " " + (lines[i + 1] || "");
+    // Ignore table headers like "Ticket Type Qty Amount", "Qty Amount", "Rate Amount" or standalone "Item", "Qty", "Amount"
+    if (/qty\s+amount|rate\s+amount|price\s+amount|ticket\s+type/i.test(line)) {
+      continue;
+    }
+
+    if (/^(?:item|qty|quantity|rate|price|amount)$/i.test(line.trim())) {
+      const surrounding = lines.slice(Math.max(0, i - 4), Math.min(lines.length, i + 5)).join(" ");
+      if (/\b(?:item|qty|quantity|rate|price|ticket)\b/i.test(surrounding)) {
+        continue;
+      }
+    }
+
+    if (actionKeywords.some((regex) => regex.test(line))) {
+      const combined = lines.slice(i, i + 4).join(" ");
       const cleanedLine = combined
         .replace(/https?:\/\/\S+/gi, "")
         .replace(/\+?\d{10,}/g, "")
@@ -322,6 +609,8 @@ export const extractAmount = (rawText: string): number => {
 
       for (const num of numbers) {
         if (isValidAmount(num)) {
+          // Skip single-digit noise (e.g. stray '3' or '2' quantity)
+          if (num < 10) continue;
           return num;
         }
       }
@@ -383,9 +672,43 @@ export const extractMerchant = (rawText: string): string => {
     .filter(Boolean);
 
   const skipWords = [
+    "movie",
+    "movie ticket",
+    "cinema",
+    "cinema ticket",
+    "theatre",
+    "theater",
+    "cgst",
+    "sgst",
+    "igst",
+    "vat",
+    "gst",
+    "subtotal",
+    "sub total",
+    "booking id",
+    "completed",
+    "get them talking",
+    "just do it",
+    "welcome",
+    "welcome to",
+    "thank you",
+    "visit again",
+    "tax invoice",
+    "cash memo",
+    "retail invoice",
+    "invoice",
+    "exchange within",
+    "shopping bill",
     "send again",
     "view history",
     "split expense",
+    "split this expense",
+    "split this payment",
+    "split payment",
+    "split this bill",
+    "split bill",
+    "split with friends",
+    "split",
     "share receipt",
     "transaction",
     "transaction successful",
@@ -426,12 +749,60 @@ export const extractMerchant = (rawText: string): string => {
     "sbi",
     "hdfc",
     "axis bank",
+    "indian overseas bank",
+    "state bank of india",
+    "bank of baroda",
+    "canara bank",
+    "union bank",
+    "punjab national bank",
+    "kotak bank",
+    "federal bank",
+    "central bank",
+    "bank of india",
+    "idbi bank",
     "edit",
     "pay again",
     "copy",
     "salary ka wait",
     "activate now",
     "credit",
+    "min",
+    "mins",
+    "sec",
+    "secs",
+    "hrs",
+    "device",
+    "devices",
+    "battery",
+    "wifi",
+    "volte",
+    "lte",
+    "having issues",
+    "poweredby",
+    "google transaction id",
+    "google transaction",
+    "transaction id",
+    "save expense",
+    "retake photo",
+    "retake",
+    "scan bill",
+    "confidence",
+    "raw ocr debug",
+    "raw ocr",
+    "merchant",
+    "category",
+    "total qty",
+    "toral qty",
+    "total quantity",
+    "total count",
+    "total item",
+    "total items",
+    "cashier",
+    "biller",
+    "dine in",
+    "token no",
+    "bill no",
+    "table no",
   ];
 
   const isSkipped = (line: string): boolean => {
@@ -441,8 +812,117 @@ export const extractMerchant = (rawText: string): string => {
     if (/\.png|\.jpg|\.jpeg|\.pdf/i.test(line)) return true;
     if (/^\d{1,2}\s+\w+\s+\d{4}/.test(line.trim())) return true;
     if (/^\d{1,2}:\d{2}/.test(line.trim())) return true;
+    if (/^(?:min|mins|sec|secs|hr|hrs|device|devices|battery|wifi|volte|lte|status|notification|notifications|power|powered|poweredby)\b/i.test(line.trim())) return true;
+    if (/^\d+\s*(?:min|mins|sec|secs|hr|hrs|device|devices|mb|gb|kb|kbs|mbs|gbs|%)\b/i.test(line.trim())) return true;
+    if (/\b(?:bank|overseas|state\s*bank|baroda|canara|union\s*bank)\b/i.test(line.trim()) && /\d{3,}/.test(line.trim())) return true;
+    if (/^C\|C[A-Z0-9]+/i.test(line.trim())) return true;
+    if (/^[a-zA-Z\s]+[-–]\s*\d{5,6}\b/.test(line.trim())) return true;
+    if (/^\d{5,6}\b/.test(line.trim())) return true;
+    if (/^T\d{10,}/i.test(line.trim())) return true;
+    if (/\b(?=.*\d)[A-Z0-9]{15,}\b/i.test(line.trim())) return true;
+    if (/\bUTR\b/i.test(line.trim())) return true;
+    if (/\bTransaction ID\b/i.test(line.trim())) return true;
+    if (/^[X\*]{4,}\d+/i.test(line.trim())) return true;
+    if (/^(?:cgst|sgst|igst|vat|gst|sub\s*total|total|toral|total\s*qty|toral\s*qty|total\s*items?|booking\s*id|cinema\s*ticket)\b/i.test(line.trim())) return true;
+    if (/^(?:qty|quantity|items?|price|amount|cashier|biller|token|bill\s*no|bii\s*no|table\s*no|dine\s*in)\b/i.test(line.trim())) return true;
+    if (/\b(?:total\s*qty|toral\s*qty|total\s*quantity|total\s*items?)\b/i.test(line.trim())) return true;
+    // Skip item lines with unit quantities & OCR misreads (e.g. Rice 5kg, Sugar 1kg, Tea 250gm, Sunflower 1L, Salt 1kg, Rce Skg, Wheat Flo lkg)
+    if (/\d*\s*(?:kg|skg|lkg|zkg|g|gm|gms|ml|l|ltr|pc|pcs|pack|pkt|ha)\b/i.test(line.trim())) return true;
+    if (/\b(?:rice|rce|dal|toor|sugar|tea|oil|sunlower|flour|flo|salt|wheat|paneer|milk|attar|atta|masala|biscuit|noodles?)\b/i.test(line.trim())) return true;
+    if (/^(?:cty|qty|rate|price|amount|\d+)+$/i.test(line.trim())) return true;
+    // Skip location & address lines (e.g. Koramangala Bangalore 560034, 80 Feet Road, Ph: 080-25559876)
+    if (/\b(?:bangalore|bengaluru|koramangala|indiranagar|jayanagar|whitefield|hsr|mumbai|delhi|chennai|hyderabad|pune)\b/i.test(line.trim())) return true;
+    if (/\b(?:\d{6}|5600\d{2})\b/.test(line.trim())) return true;
+    if (/\b(?:road|street|nagar|layout|colony|marg|cross|main|floor|suite|plot|sector|phase|pincode|pin|gstin|fssai)\b/i.test(line.trim())) return true;
+    if (/^\s*(?:no\.|ph:|phone:|tel:)/i.test(line.trim())) return true;
     return false;
   };
+
+  // Pattern 0: Cinema / Movie Ticket Title
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const movieMatch = line.match(/^movie\s*:\s*(.+)/i);
+    if (movieMatch?.[1]) {
+      const cleanTitle = movieMatch[1]
+        .replace(/^[:\s\-\=\|\#]+/, "")
+        .replace(/\(\s*\d[daD]\s*\)/i, "")
+        .replace(/\b\d[daD]\b/i, "")
+        .replace(/[^a-zA-Z0-9\s]/g, " ")
+        .trim();
+      if (cleanTitle.length > 2 && !/^(?:date|time|audi|seats?|ticket|qty|amount|cgst|sgst|igst|gst|tax|sub\s*total|total)/i.test(cleanTitle)) {
+        return cleanTitle;
+      }
+    }
+    if (/^movie\s*:?$/i.test(line)) {
+      // First check for colon-prefixed title lines in MLKit output (e.g. ": Kalki 2898 AD (2D)")
+      for (let j = 0; j < lines.length; j++) {
+        const candidate = lines[j];
+        if (candidate.startsWith(":")) {
+          const rawTitle = candidate.replace(/^[:\s\-\=\|\#]+/, "").trim();
+          if (
+            rawTitle &&
+            !isSkipped(rawTitle) &&
+            !/^(?:date|time|audi|seats?|ticket|qty|amount|cgst|sgst|igst|gst|tax|sub\s*total|total|adult)/i.test(rawTitle)
+          ) {
+            const cleanTitle = rawTitle
+              .replace(/\(\s*\d[daD]\s*\)/i, "")
+              .replace(/\b\d[daD]\b/i, "")
+              .replace(/[^a-zA-Z0-9\s]/g, " ")
+              .trim();
+            if (cleanTitle.length > 2) {
+              return cleanTitle;
+            }
+          }
+        }
+      }
+
+      for (let j = i + 1; j < Math.min(i + 20, lines.length); j++) {
+        const nextLine = lines[j];
+        if (
+          nextLine &&
+          !isSkipped(nextLine) &&
+          !/^(?:date|time|audi|seats?|ticket|qty|amount|cgst|sgst|igst|gst|tax|sub\s*total|total|adult)/i.test(nextLine.trim())
+        ) {
+          const cleanTitle = nextLine
+            .replace(/^[:\s\-\=\|\#]+/, "")
+            .replace(/\(\s*\d[daD]\s*\)/i, "")
+            .replace(/\b\d[daD]\b/i, "")
+            .replace(/[^a-zA-Z0-9\s]/g, " ")
+            .trim();
+          if (cleanTitle.length > 2) {
+            return cleanTitle;
+          }
+        }
+      }
+    }
+  }
+
+  // Pattern 0.5: Banking Name inline (PhonePe verified bank name)
+  for (const line of lines) {
+    const bankingMatch = line.match(/banking\s*name\s*[:@\-\s]+\s*(.+)/i);
+    if (bankingMatch?.[1]) {
+      const cleanBankName = cleanMerchantName(bankingMatch[1].replace(/[@:\#]/g, "").trim());
+      if (cleanBankName.length > 2 && !isSkipped(cleanBankName)) {
+        return cleanBankName;
+      }
+    }
+  }
+
+  // Pattern 0.8: Fuel / Petrol Pump / Store Anchor Line Detector
+  for (const line of lines.slice(0, 20)) {
+    if (isSkipped(line)) continue;
+    const lower = line.toLowerCase();
+    if (
+      /\b(?:petroleum|filling\s*station|service\s*station|petrol\s*pump|fuel|hpcl|hpl|iocl|bpcl|bharat\s*petroleum|indian\s*oil|hindustan\s*petroleum|shell|nayara|essar|d-?mart|supermarket|hypermarket|mart|bazaar)\b/i.test(
+        lower
+      )
+    ) {
+      const cleanFuel = cleanMerchantName(line);
+      if (cleanFuel && cleanFuel.length >= 3 && !/^(?:petrol|diesel|fuel|item|qty|amount)\b/i.test(cleanFuel)) {
+        return cleanFuel;
+      }
+    }
+  }
 
   // Pattern 1: Standalone "To" line (Paytm style: "To \n ED Money Transfer \n Prudhvi Raj Bobb")
   for (let i = 0; i < lines.length; i++) {
@@ -460,10 +940,16 @@ export const extractMerchant = (rawText: string): string => {
     }
   }
 
-  // Pattern 2: "To <name>" inline
+  // Pattern 2: "To: <name>" or "To <name>" or "TO<Name>" inline
   for (const line of lines) {
-    if (line.toLowerCase().startsWith("to ")) {
-      const merchant = cleanMerchantName(line.replace(/^to\s+/i, ""));
+    const toMatch = line.match(/^(?:to\s*:\s*|to\s+|to(?=[A-Z][a-z]{2,}|[A-Z]{3,}))(.+)/i);
+    if (toMatch?.[1]) {
+      const rawCandidate = toMatch[1].trim();
+      if (/^https?:\/\//i.test(rawCandidate)) continue;
+      if (/\.png|\.jpg/i.test(rawCandidate)) continue;
+      if (/@/.test(rawCandidate)) continue;
+
+      const merchant = cleanMerchantName(rawCandidate);
       if (merchant.length > 2 && !isSkipped(merchant)) return merchant;
     }
   }
@@ -533,23 +1019,56 @@ export const extractMerchant = (rawText: string): string => {
     }
   }
 
-  // Pattern 6: Prefer ALL-CAPS business header
-  for (const line of lines) {
+  // Pattern 5.8: Store / Brand / Restaurant Header Combiner & Detector
+  // Matches store & restaurant names with brand keywords (e.g., "Geeraas Restaurant", "Anbu Foods", "More MEGA STORE", "DMart", "Smart Bazaar")
+  const storeKeywords = /\b(?:mega\s*store|retail|supermarket|hypermarket|mart|bazaar|provision|store|groceries|super\s*market|restaurant|cafe|café|bakery|bistro|kitchen|hotel|diner|foods|sweets|canteen|mess|eatery|dining)\b/i;
+  for (let i = 0; i < Math.min(25, lines.length); i++) {
+    const line = lines[i];
     if (isSkipped(line)) continue;
-    const merchant = cleanMerchantName(line);
-    if (
-      merchant.length > 6 &&
-      /^[A-Z][A-Z\s]{4,}$/.test(merchant) &&
-      merchant.trim().split(/\s+/).length >= 2
-    )
-      return merchant;
+    if (storeKeywords.test(line)) {
+      const cleanStore = cleanMerchantName(line);
+      if (cleanStore && cleanStore.length >= 3 && !isSkipped(cleanStore)) {
+        // If line is e.g. "MEGA STORE" or "Retail", try joining with nearby clean header brand line (e.g. "More")
+        if (/^(?:mega\s*store|retail|store|mart|supermarket)$/i.test(cleanStore)) {
+          for (let j = Math.max(0, i - 4); j < Math.min(lines.length, i + 4); j++) {
+            if (j === i) continue;
+            const adjacent = lines[j];
+            if (!adjacent || isSkipped(adjacent)) continue;
+            const adjClean = cleanMerchantName(adjacent);
+            if (adjClean && adjClean.length >= 3 && !isSkipped(adjClean) && !storeKeywords.test(adjClean)) {
+              return j < i ? `${adjClean} ${cleanStore}` : `${cleanStore} ${adjClean}`;
+            }
+          }
+        }
+        return cleanStore;
+      }
+    }
   }
 
-  // Fallback: first clean non-noise line in top 8
-  for (const line of lines.slice(0, 8)) {
+  // Pattern 6: Top header clean brand name
+  for (const line of lines.slice(0, 25)) {
     if (isSkipped(line)) continue;
+    if (/^\d+$/.test(line)) continue;
     const merchant = cleanMerchantName(line);
-    if (merchant.length > 3) return merchant;
+    if (
+      merchant.length >= 3 &&
+      !/^(?:item|qty|price|amount|date|time|bill|orion|mall|road|bangalore|address|phone|ph)\b/i.test(merchant)
+    ) {
+      return merchant;
+    }
+  }
+
+  // Fallback: first clean non-noise line in top 30
+  for (const line of lines.slice(0, 30)) {
+    if (isSkipped(line)) continue;
+    if (/^\d+$/.test(line)) continue;
+    const merchant = cleanMerchantName(line);
+    if (
+      merchant.length >= 3 &&
+      !/^(?:item|qty|price|amount|date|time|bill|orion|mall|road|bangalore|address|phone|ph)\b/i.test(merchant)
+    ) {
+      return merchant;
+    }
   }
 
   return "Unknown Merchant";
@@ -560,10 +1079,41 @@ export const extractMerchant = (rawText: string): string => {
 export const detectCategory = (rawText: string): string => {
   const lower = rawText.toLowerCase();
 
+  // Entertainment checked BEFORE Travel so Cinema/Movie tickets aren't misclassified as Travel
   if (
-    ["petrol", "diesel", "fuel", "hpl", "hpcl", "iocl", "bharat petroleum"].some(
-      (w) => lower.includes(w)
-    )
+    [
+      "movie",
+      "cinema",
+      "pvr",
+      "inox",
+      "theatre",
+      "theater",
+      "bookmyshow",
+      "kalki",
+      "audi",
+      "screen",
+      "seats",
+      "show",
+    ].some((w) => lower.includes(w))
+  )
+    return "Entertainment";
+
+  if (
+    [
+      "petrol",
+      "diesel",
+      "fuel",
+      "hpl",
+      "hpcl",
+      "iocl",
+      "bharat petroleum",
+      "petroleum",
+      "oil filling",
+      "filling station",
+      "gas station",
+      "service station",
+      "oil station",
+    ].some((w) => lower.includes(w))
   )
     return "Petrol";
 
@@ -611,21 +1161,38 @@ export const detectCategory = (rawText: string): string => {
       "metro",
       "train",
       "bus",
-      "ticket",
       "cab",
       "auto",
       "irctc",
       "redbus",
+      "flight",
+      "airline",
+      "indigo",
+      "air india",
     ].some((w) => lower.includes(w))
   )
     return "Travel";
 
   if (
-    ["movie", "cinema", "pvr", "inox", "theatre", "bookmyshow"].some((w) =>
-      lower.includes(w)
-    )
+    [
+      "myntra",
+      "amazon",
+      "flipkart",
+      "meesho",
+      "zara",
+      "trends",
+      "clothing",
+      "jeans",
+      "t-shirt",
+      "shirt",
+      "pant",
+      "apparel",
+      "fashion",
+      "footwear",
+      "shopping",
+    ].some((w) => lower.includes(w))
   )
-    return "Entertainment";
+    return "Shopping";
 
   if (
     [
@@ -643,9 +1210,18 @@ export const detectCategory = (rawText: string): string => {
     return "Health";
 
   if (
-    ["recharge", "electricity", "water", "gas", "bill", "wifi", "broadband"].some(
-      (w) => lower.includes(w)
-    )
+    [
+      "recharge",
+      "electricity",
+      "water bill",
+      "electricity bill",
+      "gas bill",
+      "wifi bill",
+      "broadband",
+      "dth",
+      "utility bill",
+      "power bill",
+    ].some((w) => lower.includes(w))
   )
     return "Bills";
 
@@ -655,13 +1231,6 @@ export const detectCategory = (rawText: string): string => {
     )
   )
     return "Education";
-
-  if (
-    ["myntra", "amazon", "flipkart", "meesho", "zara", "trends", "clothing"].some(
-      (w) => lower.includes(w)
-    )
-  )
-    return "Shopping";
 
   return "Other";
 };
