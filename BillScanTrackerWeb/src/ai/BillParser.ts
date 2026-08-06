@@ -166,10 +166,11 @@ export const normalizeCurrencyText = (rawText: string): string => {
     .replace(/\bRupees?\b/gi, "₹")
     .replace(/₹\./g, "₹");
 
-  // Remove top phone status bar clock & notification noise (e.g. "1419 @ 9 mK", "10:5 ! m in H", "14:19", "09:02", "52 m [OF RR RFE")
+  // Remove top phone status bar clock & notification noise (e.g. "10:13min", "1419 @ 9 mK", "10:5 ! m in H", "14:19", "09:02", "52 m [OF RR RFE")
   text = text
     .replace(/^\s*\d{3,4}\s*(?=[@\$\|\*\#\%\s]|\n|$)/gi, "")
-    .replace(/^\s*\d{1,2}:\d{1,2}\b[^\n]*/gmi, "")
+    .replace(/^\s*\d{1,2}:\d{2}[^\n]*/gmi, "")
+    .replace(/\b\d{1,2}:\d{2}(?:min|mins|m|sec|secs|s|hrs|hr|am|pm)?\b/gi, "")
     .replace(/^\s*\d{1,2}\s+Oe\b[^\n]*/gmi, "")
     .replace(/\b\d{1,2}\s+Oe\b/gi, "")
     // Strip "NN m ..." lines (clock time shown as "52 m" or "09 m" with status bar icons after)
@@ -390,7 +391,14 @@ const extractUPIPaymentAmount = (normalizedText: string): number => {
     const nums = [...corrected.matchAll(/\b(\d{2,7}(?:\.\d{1,2})?)\b/g)];
     for (const m of nums) {
       const v = parseFloat(m[1]);
-      if (isValidAmount(v)) return v;
+      if (isValidAmount(v)) {
+        // Handle PhonePe/Paytm custom Rupee font misread where ₹ is read as '7' prefix (e.g. 790 -> 90, 750 -> 50)
+        if (/^7[1-9]\d$/.test(m[1])) {
+          const stripped = parseFloat(m[1].slice(1));
+          if (isValidAmount(stripped) && stripped >= 10) return stripped;
+        }
+        return v;
+      }
     }
   }
   return 0;
