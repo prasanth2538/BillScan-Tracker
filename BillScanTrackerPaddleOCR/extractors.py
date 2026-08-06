@@ -150,22 +150,16 @@ def extract_merchant(items: List[Dict[str, Any]]) -> Optional[str]:
                 # Scenario 1: Same line contains merchant name, e.g. "To DONGARA VINILA"
                 remainder = text[len(kw):].strip(" :-\t")
                 remainder_clean = clean_merchant_name(remainder)
-                if remainder_clean:
+                if remainder_clean and len(remainder_clean) >= 3:
                     return remainder_clean
 
-                # Scenario 2: Merchant name is on the next spatial line immediately below
-                if i + 1 < len(items):
-                    next_item = items[i + 1]
+                # Scenario 2: Merchant name is on adjacent lines below (skipping 2-letter avatar initials like BA)
+                for j in range(i + 1, min(i + 6, len(items))):
+                    next_item = items[j]
                     next_text = next_item.get("text", "").strip()
-                    next_box = next_item.get("box", {})
-
-                    # Check spatial vertical distance (Y proximity)
-                    curr_y = box.get("y", 0) + box.get("h", 0)
-                    next_y = next_box.get("y", 0)
-                    if abs(next_y - curr_y) <= 120:
-                        clean_next = clean_merchant_name(next_text)
-                        if clean_next:
-                            return clean_next
+                    clean_next = clean_merchant_name(next_text)
+                    if clean_next and len(clean_next) >= 3 and not (len(clean_next) <= 2 and clean_next.isupper()):
+                        return clean_next
 
     # Pattern 2: Retail / Store Brand Header Combiner (e.g. "More MEGA STORE", "More Retail", "DMart", "Smart Bazaar")
     store_kw = re.compile(r'\b(?:mega\s*store|retail|supermarket|hypermarket|mart|bazaar|provision|store|groceries|super\s*market)\b', re.IGNORECASE)
@@ -237,8 +231,12 @@ def clean_merchant_name(name: str) -> Optional[str]:
     if re.search(r'^\s*(?:no\.|ph:|phone:|tel:)', name, re.IGNORECASE):
         return None
 
-    # Must contain at least 2 characters and at least one letter
-    if len(name) >= 2 and re.search(r'[a-zA-Z]', name):
+    # Filter out 1-2 letter uppercase avatar icon initials (e.g. BA, CR, VK, AK)
+    if len(name) <= 2 and name.isupper():
+        return None
+
+    # Must contain at least 3 characters and at least one letter
+    if len(name) >= 3 and re.search(r'[a-zA-Z]', name):
         return name
 
     return None

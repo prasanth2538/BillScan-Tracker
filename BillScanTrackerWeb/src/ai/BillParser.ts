@@ -28,6 +28,11 @@ const cleanMerchantName = (rawName: string): string => {
     .trim();
   let name = cleanName(cleanedRaw);
 
+  // Filter out 1-2 letter avatar icon noise (e.g. "BA", "CR", "VK", "AK", "AB")
+  if (/^[A-Z]{1,2}$/.test(name)) {
+    return "";
+  }
+
   // Strip single-letter logo OCR artifact attached to start of uppercase word (e.g. "QTRENDS" -> "TRENDS")
   if (/^[QXZ][A-Z]{3,}/.test(name) && !/^(PVR|INOX|HDFC|ICICI|BHIM|AMAZON|TRENDS|DMART)/i.test(name)) {
     const stripped = name.replace(/^[QXZ](?=[A-Z]{3,})/g, "");
@@ -555,14 +560,7 @@ export const extractAmount = (rawText: string): number => {
     }
   }
 
-  // PASS 4: MLKit misreading ₹ as '7' prefix before digits (e.g. ₹50 -> 750, ₹90 -> 790, ₹500 -> 7500)
-  const misread7Regex = /\b7(\d{2,4})\b/g;
-  while ((match = misread7Regex.exec(text)) !== null) {
-    const val = parseFloat(match[1]);
-    if (isValidAmount(val)) {
-      return val;
-    }
-  }
+  // PASS 4: (Pass removed to prevent valid amounts like 790 or 750 from being misread as 90 or 50)
 
   // PASS 4.5: Action keywords & line search (using exact word boundary matching)
   const actionKeywords = [
@@ -993,18 +991,18 @@ export const extractMerchant = (rawText: string): string => {
       if (/\+?\d{10,}/.test(candidate)) continue;
       if (/₹\s?\d+/.test(candidate)) continue;
       if (/@/.test(candidate)) continue;
+      if (/^[A-Z]{1,2}$/.test(candidate.trim())) continue;
 
       const merchant = cleanMerchantName(
         candidate.replace(/Paid to/gi, "").replace(/Paid/gi, "")
       );
-      if (merchant.length >= 2) {
+      if (merchant.length >= 3 && !/^[A-Z]{1,2}$/.test(merchant.trim())) {
         candidates.push(merchant);
       }
     }
 
     if (candidates.length > 0) {
-      // Prefer real name candidates (length >= 4 or multi-word) over 2-3 letter avatar noise like "CR", "Jic"
-      const realNames = candidates.filter((c) => c.length >= 4 || c.includes(" "));
+      const realNames = candidates.filter((c) => c.length >= 3 || c.includes(" "));
       if (realNames.length > 0) return cleanMerchantName(realNames[0]);
       return cleanMerchantName(candidates[0]);
     }
