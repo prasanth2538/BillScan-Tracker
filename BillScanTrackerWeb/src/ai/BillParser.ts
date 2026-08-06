@@ -268,6 +268,12 @@ export const normalizeCurrencyText = (rawText: string): string => {
   // UPI IDs (user@bank) are already stripped above so remaining @ is non-email context.
   text = text.replace(/(?:^|[\s+*#>])@\s*(\d+(?:\.\d{1,2})?)\b/g, " ₹$1");
 
+  // PhonePe / GPay custom Rupee symbol font misread where ₹ before 2-digit amount is read as '7' (e.g. 790 -> ₹90, 780 -> ₹80, 750 -> ₹50)
+  const isUPI = /(?:payment|transaction)\s+successful|paid\s+to|money\s+sent|completed|^to\s+|phonepe|gpay|paytm/i.test(rawText);
+  if (isUPI) {
+    text = text.replace(/(?:^|[\s\n])7([1-9]\d)\b/g, " ₹$1");
+  }
+
   // Remove commas inside numbers
   text = text.replace(/(₹|\b\d{1,3}),(\d{3})/g, "$1$2");
   text = text.replace(/(\d+),(\d{3})/g, "$1$2");
@@ -934,6 +940,24 @@ export const extractMerchant = (rawText: string): string => {
     if (inlineMatch?.[1]) {
       const merchant = cleanMerchantName(inlineMatch[1].trim());
       if (merchant.length > 2) return merchant;
+    }
+  }
+
+  // Pattern 3d: UPI VPA Handle Payee Anchor Detector (e.g. line before "paytm.s2er74 u@pty", "user@okaxis", "reliance@icici")
+  // In UPI apps, the Payee Name immediately precedes the UPI handle (VPA)
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (/@/.test(line) || /\b[a-zA-Z0-9\.\-_]+\s*@\s*[a-zA-Z0-9\.\-_]+\b/i.test(line) || /\b(?:paytm|pty|gpay|ybl|oksbi|okaxis)\b/i.test(line)) {
+      for (let j = i - 1; j >= Math.max(0, i - 4); j--) {
+        const prevLine = lines[j];
+        if (!prevLine || isSkipped(prevLine)) continue;
+        if (/^\d+$/.test(prevLine) || /₹/.test(prevLine) || /^(?:paid\s+to|payment|transfer|details)/i.test(prevLine.trim())) continue;
+
+        const merchant = cleanMerchantName(prevLine);
+        if (merchant.length >= 3 && !/^[A-Z]{1,2}$/.test(merchant)) {
+          return merchant;
+        }
+      }
     }
   }
 
