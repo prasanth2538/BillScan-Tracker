@@ -12,6 +12,7 @@ import {
   X,
   Eye,
   EyeOff,
+  CheckCircle2,
 } from "lucide-react";
 import jsPDF from "jspdf";
 import { UserProfile } from "./SignUpScreen";
@@ -302,6 +303,8 @@ export function ProfileScreen({
 }: ProfileScreenProps) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [savedSuccess, setSavedSuccess] = useState(false);
+  const [saveSuccessMsg, setSaveSuccessMsg] = useState("");
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [expandedProfile, setExpandedProfile] = useState(false);
@@ -369,7 +372,7 @@ export function ProfileScreen({
     }
   };
 
-  const handleSave = async () => {
+  const handleSave = async (msg: string = "Profile updated successfully!") => {
     const income = Number(profile.monthlyIncome || 0);
     const budget = Number(profile.monthlyBudget || 0);
 
@@ -380,6 +383,7 @@ export function ProfileScreen({
 
     try {
       setSaving(true);
+      setSaveSuccessMsg("");
 
       const cbNums: Record<string, number> = {};
       for (const [k, v] of Object.entries(categoryBudgets)) {
@@ -403,7 +407,13 @@ export function ProfileScreen({
         monthlyBudget: budget,
       });
 
-      alert("Profile updated successfully");
+      setSavedSuccess(true);
+      setSaveSuccessMsg(msg);
+      setTimeout(() => {
+        setSavedSuccess(false);
+        setSaveSuccessMsg("");
+      }, 3500);
+
     } catch (e: any) {
       alert(e.message || "Update failed");
     } finally {
@@ -643,13 +653,35 @@ export function ProfileScreen({
                   className="w-full h-12 bg-muted dark:bg-gray-800 dark:text-white rounded-xl px-4 mt-1 mb-4 outline-none font-dm text-[14px]"
                 />
 
+                {saveSuccessMsg && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-3 flex items-center gap-2 bg-green-50 dark:bg-emerald-950/40 border border-green-200 dark:border-emerald-800 rounded-xl px-4 py-2.5"
+                  >
+                    <CheckCircle2 size={16} className="text-brand-green flex-shrink-0" />
+                    <p className="font-dm text-[13px] text-green-700 dark:text-emerald-300 font-medium">
+                      {saveSuccessMsg}
+                    </p>
+                  </motion.div>
+                )}
+
                 <button
-                  onClick={handleSave}
+                  onClick={() => handleSave("Profile details saved successfully!")}
                   disabled={saving}
-                  className="w-full h-12 bg-brand-green text-white rounded-xl font-sora font-semibold flex items-center justify-center gap-2 disabled:opacity-70 active:scale-[0.98] transition-all"
+                  className="w-full h-12 bg-brand-green text-white rounded-xl font-sora font-semibold flex items-center justify-center gap-2 disabled:opacity-70 active:scale-[0.98] transition-all shadow-md shadow-brand-green/20"
                 >
-                  <Save size={18} />
-                  {saving ? "Saving..." : "Save Changes"}
+                  {saving ? (
+                    "Saving..."
+                  ) : savedSuccess ? (
+                    <span className="flex items-center gap-1.5 text-white font-medium">
+                      <CheckCircle2 size={18} /> Saved Successfully!
+                    </span>
+                  ) : (
+                    <>
+                      <Save size={18} /> Save Changes
+                    </>
+                  )}
                 </button>
               </motion.div>
             )}
@@ -738,12 +770,35 @@ export function ProfileScreen({
                   ))}
                 </div>
 
+                {saveSuccessMsg && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-4 flex items-center gap-2 bg-green-50 dark:bg-emerald-950/40 border border-green-200 dark:border-emerald-800 rounded-xl px-4 py-2.5"
+                  >
+                    <CheckCircle2 size={16} className="text-brand-green flex-shrink-0" />
+                    <p className="font-dm text-[13px] text-green-700 dark:text-emerald-300 font-medium">
+                      {saveSuccessMsg}
+                    </p>
+                  </motion.div>
+                )}
+
                 <button
-                  onClick={handleSave}
+                  onClick={() => handleSave("Category budgets saved successfully!")}
                   disabled={saving}
-                  className="w-full mt-5 h-11 bg-brand-green/10 text-brand-green hover:bg-brand-green/20 rounded-xl font-sora font-semibold text-[14px] transition-colors active:scale-[0.98]"
+                  className="w-full mt-4 h-12 bg-brand-green text-white hover:bg-emerald-600 rounded-xl font-sora font-semibold text-[14px] flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-md shadow-brand-green/20"
                 >
-                  {saving ? "Saving..." : "Save Category Budgets"}
+                  {saving ? (
+                    "Saving..."
+                  ) : savedSuccess ? (
+                    <span className="flex items-center gap-1.5 text-white font-medium">
+                      <CheckCircle2 size={18} /> Category Budgets Saved!
+                    </span>
+                  ) : (
+                    <>
+                      <CheckCircle2 size={18} /> Save Category Budgets
+                    </>
+                  )}
                 </button>
               </motion.div>
             )}
