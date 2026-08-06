@@ -322,38 +322,75 @@ const extractUPIPaymentAmount = (normalizedText: string): number => {
   if (successIdx < 0) return 0;
 
   const startIdx = Math.max(0, successIdx - 5);
-  const endIdx = Math.min(lines.length, successIdx + 11);
+  const endIdx = Math.min(lines.length, successIdx + 14);
+  const upiLines = lines.slice(startIdx, endIdx);
 
+  // 1. Cross-line suffix matching:
+  // Handles cases where top amount line is read as "790" (misread Rupee symbol + 90)
+  // while bottom debited/account line is read as "90" or "₹90".
+  const numbersInBlock: { val: number; raw: string; line: string }[] = [];
+  for (const l of upiLines) {
+    if (UPI_SKIP_RE.test(l)) continue;
+    const cleanL = l
+      .replace(/https?:\/\/\S+/gi, "")
+      .replace(/\+?\d{10,}/g, "")
+      .replace(/[X\*]{2,}\d+/g, "")
+      .replace(/\b\d{1,2}:\d{2}(?::\d{2})?\s*(?:am|pm)?\b/gi, "");
+
+    const matches = [...cleanL.matchAll(/(?:₹\s*(\d+(?:\.\d{1,2})?)|\b(\d+(?:\.\d{1,2})?)\b)/g)];
+    for (const m of matches) {
+      const rawStr = m[1] || m[2];
+      const numVal = parseFloat(rawStr);
+      if (isValidAmount(numVal)) {
+        numbersInBlock.push({ val: numVal, raw: rawStr, line: l });
+      }
+    }
+  }
+
+  for (let i = 0; i < numbersInBlock.length; i++) {
+    for (let j = i + 1; j < numbersInBlock.length; j++) {
+      const n1 = numbersInBlock[i];
+      const n2 = numbersInBlock[j];
+      if (n1.val === n2.val) continue;
+
+      const r1 = n1.raw;
+      const r2 = n2.raw;
+
+      // Case A: r1="790", r2="90" (r1 starts with misread Rupee digit 7/3/2, r1.slice(1) === r2)
+      if (r1.length === r2.length + 1 && /^[7328]/.test(r1) && r1.slice(1) === r2) {
+        const val = parseFloat(r2);
+        if (isValidAmount(val) && val >= 10) return val;
+      }
+      // Case B: r2="790", r1="90"
+      if (r2.length === r1.length + 1 && /^[7328]/.test(r2) && r2.slice(1) === r1) {
+        const val = parseFloat(r1);
+        if (isValidAmount(val) && val >= 10) return val;
+      }
+    }
+  }
+
+  // 2. Try direct ₹ symbol match first
   for (let i = startIdx; i < endIdx; i++) {
     const line = lines[i];
-    if (!line) continue;
-    if (UPI_SKIP_RE.test(line)) continue;
-    if (UPI_BREAK_RE.test(line)) break;
+    if (!line || UPI_SKIP_RE.test(line)) continue;
 
-    // 1. Try direct ₹ symbol match first (normalization may have already fixed it)
     const directMatch = line.match(/₹\s*(\d+(?:\.\d{1,2})?)/);
     if (directMatch) {
       const v = parseFloat(directMatch[1]);
       if (isValidAmount(v)) return v;
     }
+  }
 
-    // 2. Apply targeted character correction and retry
+  // 3. Standalone bare number check on/after success line
+  for (let i = Math.max(0, successIdx - 1); i < endIdx; i++) {
+    const line = lines[i];
+    if (!line || UPI_SKIP_RE.test(line)) continue;
+
     const corrected = correctOCRCharsForAmount(line);
-    const correctedRupee = corrected.match(/₹\s*(\d+(?:\.\d{1,2})?)/);
-    if (correctedRupee) {
-      const v = parseFloat(correctedRupee[1]);
+    const nums = [...corrected.matchAll(/\b(\d{2,7}(?:\.\d{1,2})?)\b/g)];
+    for (const m of nums) {
+      const v = parseFloat(m[1]);
       if (isValidAmount(v)) return v;
-    }
-
-    // 3. Standalone multi-digit number (at least 2 digits) from corrected line.
-    // ONLY check standalone bare numbers if on or after the success line (i >= successIdx - 1)
-    // to prevent top status bar clock/header noise (e.g. "10:5", "63%") from spoofing amounts.
-    if (i >= Math.max(0, successIdx - 1)) {
-      const nums = [...corrected.matchAll(/\b(\d{2,7}(?:\.\d{1,2})?)\b/g)];
-      for (const m of nums) {
-        const v = parseFloat(m[1]);
-        if (isValidAmount(v)) return v;
-      }
     }
   }
   return 0;
