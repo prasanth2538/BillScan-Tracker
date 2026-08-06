@@ -77,8 +77,11 @@ const cleanMerchantName = (rawName: string): string => {
     }
 
     // Strip leading single-letter logo OCR artifact if followed by a real word (e.g. "A TRENDS" -> "Trends")
+    // EXCEPT when the letter is 'D' followed by 'Mart' (e.g. "D Mart", "D Mart Supermarket")
     if (words[0].length === 1 && words.length >= 2 && words[1].length >= 3) {
-      return words.slice(1).join(" ");
+      if (!/^d$/i.test(words[0]) || !/^mart$/i.test(words[1])) {
+        return words.slice(1).join(" ");
+      }
     }
   }
 
@@ -375,34 +378,33 @@ export const extractAmount = (rawText: string): number => {
 
 
   // PASS 0.4: High-Priority Explicit Final Total Line Match (Total Amount, Grand Total, Net Amount, Total Payable)
-  // Handles OCR line noise where Rupee symbol is misread or total number appears on preceding line (e.g. "866.26 \n Total Amount")
   const finalTotalKeyRegex = /(?:total\s*amount|grand\s*total|net\s*amount|total\s*payable|total\s*pay|final\s*amount|total\s*due|bill\s*total|total\s*(?:rs\.?|inr|₹))/i;
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     if (finalTotalKeyRegex.test(line) && !/sub\s*total/i.test(line)) {
-      // Look backward (up to 15 lines) AND forward (up to 60 lines) around Total Amount line
-      const combined = lines.slice(Math.max(0, i - 15), Math.min(lines.length, i + 60)).join(" ");
+      // 1. First search ON or AFTER the TOTAL line (up to 25 lines ahead)
+      const forwardText = lines.slice(i, Math.min(lines.length, i + 25)).join(" ");
+      const forwardRupees = [...forwardText.matchAll(/(?:₹\s*(\d+(?:\.\d{1,2})?)|(\d+(?:\.\d{1,2})?)\s*₹(?!\s*\d))/g)]
+        .map((m) => parseFloat(m[1] || m[2]))
+        .filter((n) => isValidAmount(n));
+      if (forwardRupees.length > 0) return Math.max(...forwardRupees);
 
-      // 1. Prioritize numbers explicitly prefixed or suffixed with the Rupee symbol (₹)
+      const forwardDecimals = [...forwardText.matchAll(/\b(\d+(?:\.\d{1,2}))\b/g)]
+        .map((m) => parseFloat(m[1]))
+        .filter((n) => isValidAmount(n) && !/2\.5|5|12|18|28/.test(String(n)));
+      if (forwardDecimals.length > 0) return Math.max(...forwardDecimals);
+
+      // 2. Look in surrounding total block (excluding unpunctuated 5-digit item numbers >= 10000)
+      const combined = lines.slice(Math.max(0, i - 10), Math.min(lines.length, i + 35)).join(" ");
       const rupeeNumbers = [...combined.matchAll(/(?:₹\s*(\d+(?:\.\d{1,2})?)|(\d+(?:\.\d{1,2})?)\s*₹(?!\s*\d))/g)]
         .map((m) => parseFloat(m[1] || m[2]))
         .filter((n) => isValidAmount(n));
+      if (rupeeNumbers.length > 0) return Math.max(...rupeeNumbers);
 
-      if (rupeeNumbers.length > 0) {
-        return Math.max(...rupeeNumbers);
-      }
-
-      // 2. Fallback to bare numbers on/around Total line (exclude tax rates like 2.5)
-      const numbersOnLine = [...combined.matchAll(/(?:^|[^0-9\.])(\d+(?:\.\d{1,2})?)(?=[^0-9\.]|$)/g)]
+      const validDecimals = [...combined.matchAll(/\b(\d+\.\d{2})\b/g)]
         .map((m) => parseFloat(m[1]))
         .filter((n) => isValidAmount(n));
-
-      if (numbersOnLine.length > 0) {
-        const multiDigitOrDecimals = numbersOnLine.filter((n) => n >= 10 || n % 1 !== 0);
-        if (multiDigitOrDecimals.length > 0) {
-          return Math.max(...multiDigitOrDecimals);
-        }
-      }
+      if (validDecimals.length > 0) return Math.max(...validDecimals);
     }
   }
 
@@ -411,26 +413,22 @@ export const extractAmount = (rawText: string): number => {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     if (standaloneTotalKeyRegex.test(line) && !/sub\s*total/i.test(line)) {
-      const combined = lines.slice(Math.max(0, i - 15), Math.min(lines.length, i + 60)).join(" ");
-
-      const rupeeNumbers = [...combined.matchAll(/(?:₹\s*(\d+(?:\.\d{1,2})?)|(\d+(?:\.\d{1,2})?)\s*₹(?!\s*\d))/g)]
+      const forwardText = lines.slice(i, Math.min(lines.length, i + 25)).join(" ");
+      const forwardRupees = [...forwardText.matchAll(/(?:₹\s*(\d+(?:\.\d{1,2})?)|(\d+(?:\.\d{1,2})?)\s*₹(?!\s*\d))/g)]
         .map((m) => parseFloat(m[1] || m[2]))
         .filter((n) => isValidAmount(n));
+      if (forwardRupees.length > 0) return Math.max(...forwardRupees);
 
-      if (rupeeNumbers.length > 0) {
-        return Math.max(...rupeeNumbers);
-      }
-
-      const numbersOnLine = [...combined.matchAll(/(?:^|[^0-9\.])(\d+(?:\.\d{1,2})?)(?=[^0-9\.]|$)/g)]
+      const forwardDecimals = [...forwardText.matchAll(/\b(\d+(?:\.\d{1,2}))\b/g)]
         .map((m) => parseFloat(m[1]))
         .filter((n) => isValidAmount(n));
+      if (forwardDecimals.length > 0) return Math.max(...forwardDecimals);
 
-      if (numbersOnLine.length > 0) {
-        const multiDigitOrDecimals = numbersOnLine.filter((n) => n >= 10 || n % 1 !== 0);
-        if (multiDigitOrDecimals.length > 0) {
-          return Math.max(...multiDigitOrDecimals);
-        }
-      }
+      const combined = lines.slice(Math.max(0, i - 10), Math.min(lines.length, i + 35)).join(" ");
+      const validDecimals = [...combined.matchAll(/\b(\d+\.\d{2})\b/g)]
+        .map((m) => parseFloat(m[1]))
+        .filter((n) => isValidAmount(n));
+      if (validDecimals.length > 0) return Math.max(...validDecimals);
     }
   }
 
@@ -1117,6 +1115,28 @@ export const detectCategory = (rawText: string): string => {
 
   if (
     [
+      "grocery",
+      "groceries",
+      "dmart",
+      "d mart",
+      "d-mart",
+      "supermarket",
+      "hypermarket",
+      "mart",
+      "bazaar",
+      "bigbasket",
+      "blinkit",
+      "zepto",
+      "vegetables",
+      "fruits",
+      "provision",
+      "store",
+    ].some((w) => lower.includes(w))
+  )
+    return "Grocery";
+
+  if (
+    [
       "restaurant",
       "food",
       "cafe",
@@ -1132,24 +1152,6 @@ export const detectCategory = (rawText: string): string => {
     ].some((w) => lower.includes(w))
   )
     return "Food";
-
-  if (
-    [
-      "grocery",
-      "groceries",
-      "dmart",
-      "supermarket",
-      "mart",
-      "bigbasket",
-      "blinkit",
-      "zepto",
-      "vegetables",
-      "fruits",
-      "store",
-      "provision",
-    ].some((w) => lower.includes(w))
-  )
-    return "Grocery";
 
   if (
     [
