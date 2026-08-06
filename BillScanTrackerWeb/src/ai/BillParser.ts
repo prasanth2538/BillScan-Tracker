@@ -1002,7 +1002,9 @@ export const extractMerchant = (rawText: string): string => {
     }
 
     if (candidates.length > 0) {
-      const realNames = candidates.filter((c) => c.length >= 3 || c.includes(" "));
+      const fullPersonNames = candidates.filter((c) => c.trim().includes(" ") && c.trim().split(/\s+/).length >= 2);
+      if (fullPersonNames.length > 0) return cleanMerchantName(fullPersonNames[0]);
+      const realNames = candidates.filter((c) => c.length >= 3);
       if (realNames.length > 0) return cleanMerchantName(realNames[0]);
       return cleanMerchantName(candidates[0]);
     }
