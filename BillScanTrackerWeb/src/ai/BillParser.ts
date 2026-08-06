@@ -288,8 +288,8 @@ const correctOCRCharsForAmount = (line: string): string =>
     .replace(/[Xx\*]{2,}\s*\d+/g, "")
     .replace(/\b[Xx\*]+\d+\b/gi, "")
     .replace(/\b(?:paytm|gpay|phonepe|bhim)\.[a-zA-Z0-9\.\-_]+\b/gi, "")
-    // Rupee symbol misread as 7, ?, z, Z, T before amount (e.g. "720" -> "₹20")
-    .replace(/(?:^|\s)[7\?zZTt]\s*(\d{1,4}(?:\.\d{1,2})?)\b/g, " ₹$1")
+    // Rupee symbol misread as ?, z, Z, T before amount (e.g. "z20" -> "₹20")
+    .replace(/(?:^|\s)[\?zZTt]\s*(\d{1,4}(?:\.\d{1,2})?)\b/g, " ₹$1")
     // O, o, D → 0 when adjacent to digits
     .replace(/(\d)[OoD](\d)/g, "$10$2")
     .replace(/(\d)[OoD](\s|$)/g, "$10$2")
