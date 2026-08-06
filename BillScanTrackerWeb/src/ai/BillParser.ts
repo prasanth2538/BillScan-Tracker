@@ -287,7 +287,6 @@ export const normalizeCurrencyText = (rawText: string): string => {
 // character-level OCR corrections only to the lines immediately following it.
 
 const UPI_SKIP_RE = /cashback|earned|reward|scratch|transaction\s*id|view\s*details|powered|pay\s*again|done\b|%\b|\d+%|debited\s*from|account|transfer\s*details|utr/i;
-const UPI_BREAK_RE = /\d{1,2}\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)|\d{1,2}:\d{2}/i;
 
 const correctOCRCharsForAmount = (line: string): string =>
   line
