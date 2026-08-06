@@ -140,6 +140,17 @@ def extract_merchant(items: List[Dict[str, Any]]) -> Optional[str]:
                         if clean_m:
                             return clean_m
 
+    # Pattern 0.5: UPI VPA Handle Payee Anchor Detector (line before @pty, @icici, @okaxis, @ybl)
+    for i, item in enumerate(items):
+        text = item.get("text", "").strip()
+        if "@" in text or re.search(r'\b(?:paytm|pty|gpay|ybl|oksbi|okaxis)\b', text, re.IGNORECASE):
+            for j in range(i - 1, max(-1, i - 4), -1):
+                prev_text = items[j].get("text", "").strip()
+                clean_prev = clean_merchant_name(prev_text)
+                if clean_prev and len(clean_prev) >= 3:
+                    if not re.search(r'^(?:paid\s+to|payment|transfer|details|\d+$|₹)', clean_prev, re.IGNORECASE):
+                        return clean_prev
+
     for i, item in enumerate(items):
         text = item.get("text", "").strip()
         box = item.get("box", {})

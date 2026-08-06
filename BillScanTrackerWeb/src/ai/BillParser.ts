@@ -859,6 +859,24 @@ export const extractMerchant = (rawText: string): string => {
     }
   }
 
+  // Pattern 0.2: UPI VPA Handle Payee Anchor Detector (e.g. line before "paytm.s2er74 u@pty", "user@okaxis", "reliance@icici")
+  // In UPI apps (PhonePe, GPay, Paytm, BHIM), the Payee Name immediately precedes the UPI handle (VPA)
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (/@/.test(line) || /\b[a-zA-Z0-9\.\-_]+\s*@\s*[a-zA-Z0-9\.\-_]+\b/i.test(line) || /\b(?:paytm|pty|gpay|ybl|oksbi|okaxis)\b/i.test(line)) {
+      for (let j = i - 1; j >= Math.max(0, i - 4); j--) {
+        const prevLine = lines[j];
+        if (!prevLine || isSkipped(prevLine)) continue;
+        if (/^\d+$/.test(prevLine) || /₹/.test(prevLine) || /^(?:paid\s+to|payment|transfer|details)/i.test(prevLine.trim())) continue;
+
+        const merchant = cleanMerchantName(prevLine);
+        if (merchant.length >= 3 && !/^[A-Z]{1,2}$/.test(merchant)) {
+          return merchant;
+        }
+      }
+    }
+  }
+
   // Pattern 0.5: Banking Name inline (PhonePe verified bank name)
   for (const line of lines) {
     const bankingMatch = line.match(/banking\s*name\s*[:@\-\s]+\s*(.+)/i);
