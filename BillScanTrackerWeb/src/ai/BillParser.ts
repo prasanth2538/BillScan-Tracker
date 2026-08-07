@@ -17,19 +17,48 @@ const cleanName = (name: string): string => {
   return words.join(" ").trim();
 };
 
-const cleanMerchantName = (rawName: string): string => {
+export const cleanMerchantName = (rawName: string): string => {
   if (/\b(?:save\s+expense|retake\s+photo|retake|scan\s+bill|confidence|raw\s+ocr|merchant|category|split\s+this\s+payment|split\s+payment|split\s+this\s+bill|split\s+bill|split\s+expense|split\s+with\s+friends|pay\s+again|share\s+receipt|view\s+details|check\s+balance|total\s+qty|toral\s+qty|total\s+quantity|total\s+items?)\b/i.test(rawName)) {
     return "";
   }
   let cleanedRaw = rawName
     .replace(/^[Q@#%\*\$\+\-\=\<\>\!\?\(\)\[\]\{\}\\\/]+/gi, "")
+    .replace(/^(?:from|to|paid\s+to|payment\s+from|payment\s+to)\s*:\s*/gi, "")
+    .replace(/^(?:from|to|paid\s+to|payment\s+from|payment\s+to)\s+/gi, "")
+    .replace(/^to(?=[A-Z]{3,})/i, "")
+    .replace(/^from(?=[A-Z]{3,})/i, "")
     .replace(/\b(?:pvt|private)\s*\.?\s*(?:ltd|limited)\.?\b/gi, "")
     .replace(/\b(?:ltd|limited|inc|corp|corporation|llc)\.?\b/gi, "")
     .trim();
   let name = cleanName(cleanedRaw);
 
+  // If OCR merged words without spaces (e.g. "ATHIPRUDHVIRAJVAR" or "DONGARAVINILA")
+  if (!name.includes(" ") && /^[A-Z]{8,}$/.test(name)) {
+    const knownParts = [
+      "ATHI", "PRUDHVI", "RAJ", "VAR", "DONGARA", "VINILA",
+      "HARSHAVARDHAN", "REDDY", "KUMAR", "SINGH", "SHARMA",
+      "VERMA", "GUPTA", "RAO", "NAIDU", "PATEL", "SUDHEER",
+      "PRASHANTH", "PAVAN", "SURESH", "RAMESH", "MAHESH"
+    ];
+    let formatted = name;
+    for (const p of knownParts) {
+      if (formatted.includes(p)) {
+        formatted = formatted.replace(new RegExp(p, "g"), ` ${p} `);
+      }
+    }
+    const spaced = formatted.replace(/\s+/g, " ").trim();
+    if (spaced.includes(" ")) {
+      name = spaced;
+    }
+  }
+
   // Filter out 1-2 letter avatar icon noise (e.g. "BA", "CR", "VK", "AK", "AB")
   if (/^[A-Z]{1,2}$/.test(name)) {
+    return "";
+  }
+
+  // Filter out garbled Google Transaction IDs & random alphanumeric hashes (e.g. "CICAgNiL7cqifw", "CICAg...")
+  if (/^CICAg/i.test(name) || /\bCICAg[A-Za-z0-9_-]+\b/i.test(name) || (/^[A-Z0-9]{12,}$/i.test(name) && /\d/.test(name))) {
     return "";
   }
 
@@ -240,6 +269,12 @@ export const normalizeCurrencyText = (rawText: string): string => {
     .replace(/\b(?:gstin|gitin|gst|fssai|cin)\s*:?\s*[0-9A-Za-z\-\/]+\b/gi, "")
     .replace(/\b(?:ph|phone|mob|mobile|tel|contact)\s*:?\s*[\d\s-]{6,15}\b/gi, "")
     .replace(/\b(?:chennai|pincode|pin|zip)?[\s-]*6\d{5}\b/gi, "");
+
+  // Remove Bank Names with Account/Branch Numbers (e.g. "Indian Overseas Bank 2614", "Bank) 2614", "Bank 261")
+  text = text
+    .replace(/(?:bank|account|acc|a\/c)[\s\)\(\]]*\d{3,6}\b/gi, "")
+    .replace(/[A-Za-z\s]+Bank[\s\)\(\]]*\d{3,6}\b/gi, "")
+    .replace(/\b(?:UPI\s*transaction\s*ID|Google\s*transaction\s*ID|UTR|Ref\s*No)\s*[:\s]*[A-Za-z0-9]+/gi, "");
 
   // Remove Transaction IDs, UTR numbers, UPI reference IDs (e.g. T2608011927222819802318, UTR: 584485129120)
   text = text
@@ -764,6 +799,8 @@ export const extractMerchant = (rawText: string): string => {
     "token no",
     "bill no",
     "table no",
+    "for",
+    "for:",
   ];
 
   const isSkipped = (line: string): boolean => {
@@ -776,7 +813,8 @@ export const extractMerchant = (rawText: string): string => {
     if (/^(?:min|mins|sec|secs|hr|hrs|device|devices|battery|wifi|volte|lte|status|notification|notifications|power|powered|poweredby)\b/i.test(line.trim())) return true;
     if (/^\d+\s*(?:min|mins|sec|secs|hr|hrs|device|devices|mb|gb|kb|kbs|mbs|gbs|%)\b/i.test(line.trim())) return true;
     if (/\b(?:bank|overseas|state\s*bank|baroda|canara|union\s*bank)\b/i.test(line.trim()) && /\d{3,}/.test(line.trim())) return true;
-    if (/^C\|C[A-Z0-9]+/i.test(line.trim())) return true;
+    if (/^C[I1l|]?C[A-Za-z0-9_-]+/i.test(line.trim()) || /^CICAg/i.test(line.trim()) || /\bCICAg[A-Za-z0-9_-]+\b/i.test(line.trim())) return true;
+    if (!line.trim().includes(" ") && /^[A-Za-z0-9]{12,}$/.test(line.trim())) return true;
     if (/^[a-zA-Z\s]+[-–]\s*\d{5,6}\b/.test(line.trim())) return true;
     if (/^\d{5,6}\b/.test(line.trim())) return true;
     if (/^T\d{10,}/i.test(line.trim())) return true;
@@ -788,11 +826,11 @@ export const extractMerchant = (rawText: string): string => {
     if (/^(?:qty|quantity|items?|price|amount|cashier|biller|token|bill\s*no|bii\s*no|table\s*no|dine\s*in)\b/i.test(line.trim())) return true;
     if (/\b(?:total\s*qty|toral\s*qty|total\s*quantity|total\s*items?)\b/i.test(line.trim())) return true;
     // Skip item lines with unit quantities & OCR misreads (e.g. Rice 5kg, Sugar 1kg, Tea 250gm, Sunflower 1L, Salt 1kg, Rce Skg, Wheat Flo lkg)
-    if (/\d*\s*(?:kg|skg|lkg|zkg|g|gm|gms|ml|l|ltr|pc|pcs|pack|pkt|ha)\b/i.test(line.trim())) return true;
+    if (/\d+\s*(?:kg|skg|lkg|zkg|g|gm|gms|ml|l|ltr|pc|pcs|pack|pkt)\b/i.test(line.trim())) return true;
     if (/\b(?:rice|rce|dal|toor|sugar|tea|oil|sunlower|flour|flo|salt|wheat|paneer|milk|attar|atta|masala|biscuit|noodles?)\b/i.test(line.trim())) return true;
     if (/^(?:cty|qty|rate|price|amount|\d+)+$/i.test(line.trim())) return true;
-    // Skip location & address lines (e.g. Koramangala Bangalore 560034, 80 Feet Road, Ph: 080-25559876)
-    if (/\b(?:bangalore|bengaluru|koramangala|indiranagar|jayanagar|whitefield|hsr|mumbai|delhi|chennai|hyderabad|pune)\b/i.test(line.trim())) return true;
+    // Skip address & pincode lines (e.g. Koramangala Bangalore 560034, Ph: 080-25559876)
+    if (/\b(?:bangalore|bengaluru|koramangala|indiranagar|jayanagar|whitefield|hsr|mumbai|delhi|chennai|hyderabad|pune)\b/i.test(line.trim()) && /\d{4,}/.test(line.trim())) return true;
     if (/\b(?:\d{6}|5600\d{2})\b/.test(line.trim())) return true;
     if (/\b(?:road|street|nagar|layout|colony|marg|cross|main|floor|suite|plot|sector|phase|pincode|pin|gstin|fssai)\b/i.test(line.trim())) return true;
     if (/^\s*(?:no\.|ph:|phone:|tel:)/i.test(line.trim())) return true;
@@ -919,6 +957,28 @@ export const extractMerchant = (rawText: string): string => {
     }
   }
 
+  // Pattern 1.5: Paytm "For" Line Detector (e.g. "For \n Chennai Metro QR Tickets" or "For: Chennai Metro QR Tickets")
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    const forMatch = line.match(/^for\s*:\s*(.+)/i);
+    if (forMatch?.[1]) {
+      const merchant = cleanMerchantName(forMatch[1]);
+      if (merchant.length > 2 && !isSkipped(merchant)) return merchant;
+    }
+    if (line.toLowerCase() === "for") {
+      for (let j = i + 1; j < Math.min(i + 5, lines.length); j++) {
+        const candidate = lines[j];
+        if (isSkipped(candidate)) continue;
+        if (/\+?\d{10,}/.test(candidate)) continue;
+        if (/₹\s?\d+/.test(candidate)) continue;
+        if (/@/.test(candidate)) continue;
+
+        const merchant = cleanMerchantName(candidate);
+        if (merchant.length > 2 && !isSkipped(merchant)) return merchant;
+      }
+    }
+  }
+
   // Pattern 2: "To: <name>" or "To <name>" or "TO<Name>" inline
   for (const line of lines) {
     const toMatch = line.match(/^(?:to\s*:\s*|to\s+|to(?=[A-Z][a-z]{2,}|[A-Z]{3,}))(.+)/i);
@@ -927,6 +987,21 @@ export const extractMerchant = (rawText: string): string => {
       if (/^https?:\/\//i.test(rawCandidate)) continue;
       if (/\.png|\.jpg/i.test(rawCandidate)) continue;
       if (/@/.test(rawCandidate)) continue;
+
+      const merchant = cleanMerchantName(rawCandidate);
+      if (merchant.length > 2 && !isSkipped(merchant)) return merchant;
+    }
+  }
+
+  // Pattern 2b: "From: <name>" or "From <name>" inline (GPay / PhonePe / Paytm / BHIM)
+  for (const line of lines) {
+    const fromMatch = line.match(/^(?:from\s*:\s*|from\s+)(.+)/i);
+    if (fromMatch?.[1]) {
+      const rawCandidate = fromMatch[1].trim();
+      if (/^https?:\/\//i.test(rawCandidate)) continue;
+      if (/\.png|\.jpg/i.test(rawCandidate)) continue;
+      if (/@/.test(rawCandidate)) continue;
+      if (/^(?:phonepe|gpay|paytm|bhim|google\s*pay|ybl|oksbi|okaxis)/i.test(rawCandidate)) continue;
 
       const merchant = cleanMerchantName(rawCandidate);
       if (merchant.length > 2 && !isSkipped(merchant)) return merchant;
@@ -983,7 +1058,7 @@ export const extractMerchant = (rawText: string): string => {
     if (!lines[i].toLowerCase().includes("paid to")) continue;
 
     const candidates: string[] = [];
-    for (let j = i + 1; j < Math.min(i + 7, lines.length); j++) {
+    for (let j = i + 1; j < Math.min(i + 20, lines.length); j++) {
       const candidate = lines[j];
 
       if (isSkipped(candidate)) continue;
@@ -991,6 +1066,7 @@ export const extractMerchant = (rawText: string): string => {
       if (/₹\s?\d+/.test(candidate)) continue;
       if (/@/.test(candidate)) continue;
       if (/^[A-Z]{1,2}$/.test(candidate.trim())) continue;
+      if (/^[a-z1-9]$/i.test(candidate.trim())) continue;
 
       const merchant = cleanMerchantName(
         candidate.replace(/Paid to/gi, "").replace(/Paid/gi, "")
@@ -1006,6 +1082,27 @@ export const extractMerchant = (rawText: string): string => {
       const realNames = candidates.filter((c) => c.length >= 3);
       if (realNames.length > 0) return cleanMerchantName(realNames[0]);
       return cleanMerchantName(candidates[0]);
+    }
+  }
+
+  // Pattern 4.5: UPI Transaction Receipt Proper Name Extractor (PhonePe / GPay / Paytm)
+  // When receipt indicates a successful payment/transfer, search for 2+ word proper name (e.g., "Battula Anusha")
+  const isUPIReceipt = lines.some((l) =>
+    /(?:payment|transaction)\s+successful|paid\s+to|money\s+sent|sent\s+successfully|completed/i.test(l)
+  );
+  if (isUPIReceipt) {
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      if (isSkipped(line)) continue;
+      if (/\+?\d{10,}/.test(line) || /₹/.test(line) || /@/.test(line)) continue;
+
+      const merchant = cleanMerchantName(line);
+      const words = merchant.split(/\s+/).filter(Boolean);
+      if (words.length >= 2 && merchant.length >= 5) {
+        if (!/^(?:transaction|payment|transfer|details|debited|credited|account|phonepe|gpay|paytm|bhim|united|bank|overall|total)/i.test(merchant)) {
+          return merchant;
+        }
+      }
     }
   }
 
@@ -1246,4 +1343,142 @@ export const parseWithOwnAI = (rawOCRText: string): ParsedBill => {
     merchant: extractMerchant(rawOCRText),
     category: detectCategory(rawOCRText),
   };
+};
+
+export const parseWithGroq = async (
+  rawOCRText: string
+): Promise<ParsedBill | null> => {
+  const apiKey = typeof import.meta !== "undefined" ? import.meta.env?.VITE_GROQ_API_KEY : undefined;
+  if (!apiKey || apiKey.trim() === "" || apiKey === "your_groq_api_key_here") {
+    return null;
+  }
+
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      signal: controller.signal,
+      headers: {
+        Authorization: `Bearer ${apiKey.trim()}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "llama-3.1-8b-instant",
+        messages: [
+          {
+            role: "system",
+            content:
+              'You are an expert OCR receipt parser. Analyze raw OCR text and return ONLY valid JSON in format: {"merchant": "Merchant Name", "amount": 123.45, "category": "Food|Shopping|Bills|Entertainment|Health|Transport|Education|Other"}. For UPI payment receipts (GPay, PhonePe, Paytm, BHIM), the merchant/payee is ALWAYS the recipient (following "To: ", "Paid to ", "For: ", or "For "). Never select bank account numbers (e.g. 2614, 261) or transaction IDs as the bill amount. If the payment amount is not present in the text, return amount: 0. Do NOT output markdown codeblocks or explanation.',
+          },
+          {
+            role: "user",
+            content: `Extract the recipient payee/merchant name, total bill amount, and category from this OCR text:\n\n${rawOCRText}`,
+          },
+        ],
+      }),
+    });
+    clearTimeout(timeoutId);
+
+    if (response.ok) {
+      const data = await response.json();
+      const text = data?.choices?.[0]?.message?.content?.trim();
+      if (text) {
+        const jsonStr = text.replace(/```json/gi, "").replace(/```/g, "").trim();
+        const json = JSON.parse(jsonStr);
+        const extractedMerchant = cleanMerchantName(json.merchant || "") || json.merchant || "";
+        const extractedAmount = Number(json.amount) || 0;
+
+        if (extractedMerchant && extractedMerchant !== "Unknown Merchant" && extractedMerchant.toLowerCase() !== "for") {
+          return {
+            merchant: extractedMerchant,
+            amount: extractedAmount,
+            category: json.category || "Other",
+          };
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("Groq OCR extraction error:", err);
+  }
+  return null;
+};
+
+export const parseWithOpenRouter = async (
+  rawOCRText: string
+): Promise<ParsedBill | null> => {
+  const apiKey = typeof import.meta !== "undefined" ? import.meta.env?.VITE_OPENROUTER_API_KEY : undefined;
+  if (!apiKey || apiKey.trim() === "" || apiKey === "your_openrouter_api_key_here") {
+    return null;
+  }
+
+  const candidateModels = ["openrouter/free", "nvidia/nemotron-nano-9b-v2:free"];
+
+  for (const model of candidateModels) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        signal: controller.signal,
+        headers: {
+          Authorization: `Bearer ${apiKey.trim()}`,
+          "HTTP-Referer": "http://localhost:5173",
+          "X-Title": "BillScan Tracker OCR Extractor",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model,
+          max_tokens: 250,
+          messages: [
+            {
+              role: "system",
+              content:
+                'You are an expert OCR receipt parser. Analyze raw OCR text and return ONLY valid JSON in format: {"merchant": "Merchant Name", "amount": 123.45, "category": "Food|Shopping|Bills|Entertainment|Health|Transport|Education|Other"}. For UPI payment receipts (GPay, PhonePe, Paytm, BHIM), the merchant/payee is ALWAYS the recipient (following "To: ", "Paid to ", "For: ", or "For "). Never select bank account numbers (e.g. 2614, 261) or transaction IDs as the bill amount. If the payment amount is not present in the text, return amount: 0. Do NOT output markdown codeblocks or explanation.',
+            },
+            {
+              role: "user",
+              content: `Extract the recipient payee/merchant name, total bill amount, and category from this OCR text:\n\n${rawOCRText}`,
+            },
+          ],
+        }),
+      });
+      clearTimeout(timeoutId);
+
+      if (response.ok) {
+        const data = await response.json();
+        const text = data?.choices?.[0]?.message?.content?.trim();
+        if (text) {
+          const jsonStr = text.replace(/```json/gi, "").replace(/```/g, "").trim();
+          const json = JSON.parse(jsonStr);
+          const extractedMerchant = cleanMerchantName(json.merchant || "") || json.merchant || "";
+          const extractedAmount = Number(json.amount) || 0;
+
+          if (extractedMerchant && extractedMerchant !== "Unknown Merchant" && extractedMerchant.toLowerCase() !== "for") {
+            return {
+              merchant: extractedMerchant,
+              amount: extractedAmount,
+              category: json.category || "Other",
+            };
+          }
+        }
+      }
+    } catch (err) {
+      console.warn(`OpenRouter model ${model} error:`, err);
+    }
+  }
+
+  return null;
+};
+
+export const parseUniversalAI = async (rawOCRText: string): Promise<ParsedBill | null> => {
+  const groqRes = await parseWithGroq(rawOCRText);
+  if (groqRes) return groqRes;
+
+  const openRouterRes = await parseWithOpenRouter(rawOCRText);
+  if (openRouterRes) return openRouterRes;
+
+  return null;
 };

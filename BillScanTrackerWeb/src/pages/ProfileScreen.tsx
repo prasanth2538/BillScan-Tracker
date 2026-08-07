@@ -13,6 +13,7 @@ import {
   Eye,
   EyeOff,
   CheckCircle2,
+  FileText,
 } from "lucide-react";
 import jsPDF from "jspdf";
 import { UserProfile } from "./SignUpScreen";
@@ -328,6 +329,7 @@ export function ProfileScreen({
   });
 
   const [categoryBudgets, setCategoryBudgets] = useState<Record<string, string>>({});
+  const [showPdfSuccessModal, setShowPdfSuccessModal] = useState(false);
 
   useEffect(() => {
     loadProfile();
@@ -469,7 +471,7 @@ export function ProfileScreen({
         doc.save("BillScan-Profile-Report.pdf");
       }
 
-      alert("PDF report downloaded successfully.");
+      setShowPdfSuccessModal(true);
     } catch (e: any) {
       alert(e.message || "Export failed");
     }
@@ -891,6 +893,46 @@ export function ProfileScreen({
         )}
         {showPrivacyModal && (
           <PrivacySecurityModal onClose={() => setShowPrivacyModal(false)} />
+        )}
+        {showPdfSuccessModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="w-full max-w-sm bg-white dark:bg-gray-900 rounded-3xl p-6 shadow-2xl border border-gray-100 dark:border-gray-800 text-center relative overflow-hidden"
+            >
+              <button
+                onClick={() => setShowPdfSuccessModal(false)}
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-white p-1 rounded-full bg-gray-100 dark:bg-gray-800 transition-colors"
+              >
+                <X size={18} />
+              </button>
+
+              <div className="w-14 h-14 rounded-full bg-green-500/10 text-green-500 flex items-center justify-center mx-auto mb-4">
+                <CheckCircle2 size={32} />
+              </div>
+
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
+                Profile PDF Exported!
+              </h3>
+
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-6 flex items-center justify-center gap-1.5">
+                <FileText size={14} className="text-green-500" />
+                <span className="font-semibold text-gray-700 dark:text-gray-300">
+                  BillScan-Profile-Report.pdf
+                </span>{" "}
+                downloaded successfully.
+              </p>
+
+              <button
+                onClick={() => setShowPdfSuccessModal(false)}
+                className="w-full py-3 bg-brand-green hover:bg-brand-green/90 text-white font-bold text-xs rounded-xl shadow-md transition-all active:scale-95"
+              >
+                Done
+              </button>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </>

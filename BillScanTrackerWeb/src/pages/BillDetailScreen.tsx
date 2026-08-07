@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Edit2, Trash2, Save, X } from "lucide-react";
+import { Edit2, Trash2, Save, X, Calendar } from "lucide-react";
 import { Expense } from "../components/ExpenseCard";
 import { updateExpense, deleteExpense } from "../services/expenseService";
 
@@ -12,13 +12,15 @@ interface BillDetailScreenProps {
 
 const categories = [
   "Food",
+  "Grocery",
   "Petrol",
-  "Groceries",
-  "Movies",
   "Travel",
+  "Hotel",
   "Health",
-  "Hotels",
-  "Transport",
+  "Shopping",
+  "Entertainment",
+  "Education",
+  "Bills",
   "Other",
 ];
 
@@ -33,10 +35,11 @@ export function BillDetailScreen({
   const [merchant, setMerchant] = useState(expense.merchant || "");
   const [amount, setAmount] = useState(String(expense.amount || ""));
   const [category, setCategory] = useState(expense.category || "Other");
+  const [date, setDate] = useState(expense.date || new Date().toISOString().split("T")[0]);
 
   const handleUpdate = async () => {
     if (!amount || Number(amount) <= 0) {
-      alert("Please enter valid amount");
+      alert("Please enter a valid amount");
       return;
     }
 
@@ -44,10 +47,10 @@ export function BillDetailScreen({
       setSaving(true);
 
       await updateExpense(expense.id, {
-        merchant,
+        merchant: merchant || "Expense",
         amount: Number(amount),
         category,
-        date: expense.date || new Date().toISOString(),
+        date,
       });
 
       alert("Expense updated successfully");
@@ -62,34 +65,31 @@ export function BillDetailScreen({
   };
 
   const handleDelete = async () => {
-  const ok = confirm("Are you sure you want to delete this expense?");
-  if (!ok) return;
+    const ok = confirm(`Are you sure you want to delete this expense from "${merchant || "Expense"}" (₹${Number(amount || 0).toLocaleString("en-IN")})?`);
+    if (!ok) return;
 
-  try {
-    setSaving(true);
+    try {
+      setSaving(true);
+      await deleteExpense(expense.id);
+      alert("Expense deleted successfully");
+      onChanged?.();
+      onClose();
+    } catch (error: any) {
+      console.error("Delete failed:", error);
+      alert(error.message || "Delete failed");
+    } finally {
+      setSaving(false);
+    }
+  };
 
-    console.log("Deleting expense id:", expense.id);
-
-    await deleteExpense(expense.id);
-
-    alert("Expense deleted successfully");
-    onChanged?.();
-    onClose();
-  } catch (error: any) {
-    console.error("Delete failed:", error);
-    alert(error.message || "Delete failed");
-  } finally {
-    setSaving(false);
-  }
-};
   return (
-    <div className="absolute inset-0 z-50 flex items-end justify-center pointer-events-none">
+    <div className="fixed inset-0 z-50 flex items-end justify-center">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="absolute inset-0 bg-black/40 pointer-events-auto"
+        className="absolute inset-0 bg-black/50"
       />
 
       <motion.div
@@ -97,119 +97,119 @@ export function BillDetailScreen({
         animate={{ y: 0 }}
         exit={{ y: "100%" }}
         transition={{ type: "spring", damping: 25, stiffness: 200 }}
-        className="w-full h-[82%] bg-white rounded-t-modal shadow-modal relative pointer-events-auto flex flex-col overflow-hidden"
+        className="relative w-full max-w-lg rounded-t-[28px] max-h-[88vh] bg-white dark:bg-[#1C1C1E] text-gray-900 dark:text-white flex flex-col overflow-hidden shadow-2xl z-10"
       >
-        <div className="w-full flex justify-center pt-3 pb-4 bg-white sticky top-0 z-10">
-          <div className="w-10 h-1 bg-[#D3D1C7] rounded-full" />
+        <div className="w-full flex justify-between items-center px-5 pt-3 pb-2 sticky top-0 bg-white dark:bg-[#1C1C1E] z-10">
+          <div className="w-10 h-1 bg-gray-300 dark:bg-white/20 rounded-full mx-auto" />
+          <button
+            onClick={onClose}
+            className="absolute right-4 top-3 w-8 h-8 rounded-full bg-gray-100 dark:bg-white/10 flex items-center justify-center text-gray-500 dark:text-gray-300"
+          >
+            <X size={16} />
+          </button>
         </div>
 
         <div className="flex-1 overflow-y-auto px-5 pb-8 scrollbar-hide">
           <div className="flex items-center gap-4 mt-2">
             <div
-              className="w-[52px] h-[52px] rounded-full flex items-center justify-center text-2xl shadow-sm"
+              className="w-[52px] h-[52px] rounded-full flex items-center justify-center text-2xl shadow-sm flex-shrink-0"
               style={{ backgroundColor: expense.color || "#F5F5F5" }}
             >
               {expense.icon || "📄"}
             </div>
 
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               {editing ? (
                 <input
                   value={merchant}
                   onChange={(e) => setMerchant(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleUpdate(); } }}
-                  className="w-full h-10 bg-muted rounded-lg px-3 font-sora font-semibold text-[16px] outline-none"
-                  placeholder="Merchant"
+                  className="w-full h-10 bg-gray-100 dark:bg-white/10 rounded-lg px-3 font-sora font-semibold text-[15px] outline-none text-gray-900 dark:text-white"
+                  placeholder="Merchant / Store Name"
                 />
               ) : (
-                <h2 className="font-sora font-semibold text-[18px] text-text-primary">
-                  {merchant || "Unknown"}
+                <h2 className="font-sora font-semibold text-[18px] text-gray-900 dark:text-white truncate">
+                  {merchant || "Unknown Merchant"}
                 </h2>
               )}
 
-              <p className="font-dm text-[13px] text-text-secondary mt-0.5">
-                {expense.date || new Date().toLocaleDateString("en-IN")}
+              <p className="font-dm text-[12px] text-gray-500 dark:text-gray-400 mt-0.5">
+                {date}
               </p>
             </div>
           </div>
 
           <div className="text-center mt-6 mb-6">
             {editing ? (
-              <input
-                type="number"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleUpdate(); } }}
-                className="w-full h-16 bg-muted rounded-xl text-center font-mono font-bold text-[36px] outline-none"
-                placeholder="Amount"
-              />
+              <div className="space-y-3">
+                <input
+                  type="number"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  className="w-full h-14 bg-gray-100 dark:bg-white/10 rounded-xl text-center font-mono font-bold text-[32px] outline-none text-gray-900 dark:text-white"
+                  placeholder="Amount ₹"
+                />
+                <div className="flex gap-2">
+                  <select
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="flex-1 h-10 bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 rounded-lg px-3 font-dm text-[13px] font-medium outline-none"
+                  >
+                    {categories.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    type="date"
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                    className="h-10 bg-gray-100 dark:bg-white/10 text-gray-800 dark:text-gray-200 rounded-lg px-3 font-dm text-[13px] outline-none"
+                  />
+                </div>
+              </div>
             ) : (
-              <h1 className="font-mono font-bold text-[52px] text-text-primary leading-none">
-                ₹{Number(amount || 0).toLocaleString("en-IN")}
-              </h1>
-            )}
-
-            {editing ? (
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="mt-4 h-10 bg-brand-green-light text-brand-green-dark rounded-pill px-4 font-dm text-[13px] font-medium outline-none"
-              >
-                {categories.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-brand-green-light text-brand-green-dark rounded-pill mt-3">
-                <span className="text-sm">{expense.icon || "📄"}</span>
-                <span className="font-dm text-[13px] font-medium">
-                  {category}
-                </span>
+              <div>
+                <h1 className="font-mono font-bold text-[46px] text-gray-900 dark:text-white leading-none">
+                  ₹{Number(amount || 0).toLocaleString("en-IN")}
+                </h1>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 rounded-full mt-3">
+                  <span className="text-sm">{expense.icon || "📄"}</span>
+                  <span className="font-dm text-[13px] font-medium">
+                    {category}
+                  </span>
+                </div>
               </div>
             )}
           </div>
 
-          <div className="h-[0.5px] w-full bg-black/10 my-6" />
+          <div className="h-[1px] w-full bg-gray-200 dark:bg-white/10 my-5" />
 
-          <div className="bg-white rounded-card p-4 shadow-card border border-black/5 mb-6">
-            <h3 className="font-sora font-semibold text-[16px] text-text-primary mb-4">
+          <div className="bg-gray-50 dark:bg-white/5 rounded-2xl p-4 border border-black/5 dark:border-white/10 mb-6">
+            <h3 className="font-sora font-semibold text-[15px] text-gray-900 dark:text-white mb-3">
               Expense Details
             </h3>
 
-            <div className="flex justify-between mb-3">
-              <span className="font-dm text-[13px] text-text-secondary">
-                Date
-              </span>
-              <span className="font-dm text-[13px] text-text-primary font-medium">
-                {expense.date || new Date().toLocaleDateString("en-IN")}
-              </span>
+            <div className="flex justify-between mb-2.5 font-dm text-[13px]">
+              <span className="text-gray-500 dark:text-gray-400">Date</span>
+              <span className="text-gray-900 dark:text-white font-medium">{date}</span>
             </div>
 
-            <div className="flex justify-between mb-3">
-              <span className="font-dm text-[13px] text-text-secondary">
-                Amount
-              </span>
-              <span className="font-dm text-[13px] text-text-primary font-medium">
+            <div className="flex justify-between mb-2.5 font-dm text-[13px]">
+              <span className="text-gray-500 dark:text-gray-400">Amount</span>
+              <span className="text-gray-900 dark:text-white font-medium font-mono">
                 ₹{Number(amount || 0).toLocaleString("en-IN")}
               </span>
             </div>
 
-            <div className="flex justify-between mb-3">
-              <span className="font-dm text-[13px] text-text-secondary">
-                Category
-              </span>
-              <span className="font-dm text-[13px] text-text-primary font-medium">
-                {category}
-              </span>
+            <div className="flex justify-between mb-2.5 font-dm text-[13px]">
+              <span className="text-gray-500 dark:text-gray-400">Category</span>
+              <span className="text-gray-900 dark:text-white font-medium">{category}</span>
             </div>
 
-            <div className="flex justify-between">
-              <span className="font-dm text-[13px] text-text-secondary">
-                Merchant
-              </span>
-              <span className="font-dm text-[13px] text-text-primary font-medium">
+            <div className="flex justify-between font-dm text-[13px]">
+              <span className="text-gray-500 dark:text-gray-400">Merchant</span>
+              <span className="text-gray-900 dark:text-white font-medium">
                 {merchant || "Unknown"}
               </span>
             </div>
@@ -221,34 +221,34 @@ export function BillDetailScreen({
                 <button
                   onClick={() => setEditing(false)}
                   disabled={saving}
-                  className="flex-1 h-[44px] rounded-[10px] border border-black/10 text-text-primary font-dm text-[12px] font-medium flex items-center justify-center gap-1.5"
+                  className="flex-1 h-[44px] rounded-xl border border-gray-300 dark:border-white/20 text-gray-700 dark:text-gray-300 font-dm text-[13px] font-medium flex items-center justify-center gap-1.5 hover:bg-gray-100 dark:hover:bg-white/10"
                 >
-                  <X size={14} /> Cancel
+                  <X size={15} /> Cancel
                 </button>
 
                 <button
                   onClick={handleUpdate}
                   disabled={saving}
-                  className="flex-1 h-[44px] rounded-[10px] bg-brand-green text-white font-dm text-[12px] font-medium flex items-center justify-center gap-1.5"
+                  className="flex-1 h-[44px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-dm text-[13px] font-medium flex items-center justify-center gap-1.5 shadow-md"
                 >
-                  <Save size={14} /> {saving ? "Saving..." : "Save"}
+                  <Save size={15} /> {saving ? "Saving..." : "Save Changes"}
                 </button>
               </>
             ) : (
               <>
                 <button
                   onClick={() => setEditing(true)}
-                  className="flex-1 h-[44px] rounded-[10px] border border-amber text-amber-dark font-dm text-[12px] font-medium flex items-center justify-center gap-1.5"
+                  className="flex-1 h-[44px] rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300 font-dm text-[13px] font-medium flex items-center justify-center gap-1.5 hover:bg-amber-100 dark:hover:bg-amber-900/50"
                 >
-                  <Edit2 size={14} /> Edit
+                  <Edit2 size={15} /> Edit Bill
                 </button>
 
                 <button
                   onClick={handleDelete}
                   disabled={saving}
-                  className="flex-1 h-[44px] rounded-[10px] border border-danger text-danger font-dm text-[12px] font-medium flex items-center justify-center gap-1.5"
+                  className="flex-1 h-[44px] rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 font-dm text-[13px] font-medium flex items-center justify-center gap-1.5 hover:bg-red-100 dark:hover:bg-red-900/50"
                 >
-                  <Trash2 size={14} /> {saving ? "Deleting..." : "Delete"}
+                  <Trash2 size={15} /> {saving ? "Deleting..." : "Delete Bill"}
                 </button>
               </>
             )}

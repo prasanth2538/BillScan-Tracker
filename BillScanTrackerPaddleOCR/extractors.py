@@ -165,12 +165,27 @@ def extract_merchant(items: List[Dict[str, Any]]) -> Optional[str]:
                     return remainder_clean
 
                 # Scenario 2: Merchant name is on adjacent lines below (skipping 2-letter avatar initials like BA)
-                for j in range(i + 1, min(i + 6, len(items))):
+                for j in range(i + 1, min(i + 20, len(items))):
                     next_item = items[j]
                     next_text = next_item.get("text", "").strip()
                     clean_next = clean_merchant_name(next_text)
                     if clean_next and len(clean_next) >= 3 and not (len(clean_next) <= 2 and clean_next.isupper()):
                         return clean_next
+
+    # Pattern 1.5: UPI Transaction Receipt Proper Name Extractor (PhonePe / GPay / Paytm)
+    is_upi_receipt = any(
+        re.search(r'(?:payment|transaction)\s+successful|paid\s+to|money\s+sent|sent\s+successfully|completed', item.get("text", ""), re.IGNORECASE)
+        for item in items
+    )
+    if is_upi_receipt:
+        for item in items:
+            text = item.get("text", "").strip()
+            if not text or len(text) < 5 or re.search(r'₹|@|\+?\d{10,}', text):
+                continue
+            clean = clean_merchant_name(text)
+            if clean and len(clean) >= 5 and " " in clean:
+                if not re.search(r'^(?:transaction|payment|transfer|details|debited|credited|account|phonepe|gpay|paytm|bhim|united|bank|overall|total)', clean, re.IGNORECASE):
+                    return clean
 
     # Pattern 2: Retail / Store Brand Header Combiner (e.g. "More MEGA STORE", "More Retail", "DMart", "Smart Bazaar")
     store_kw = re.compile(r'\b(?:mega\s*store|retail|supermarket|hypermarket|mart|bazaar|provision|store|groceries|super\s*market)\b', re.IGNORECASE)

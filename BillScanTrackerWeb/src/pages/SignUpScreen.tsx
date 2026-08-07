@@ -170,7 +170,7 @@ export function SignUpScreen({ onComplete, onBack }: SignUpScreenProps) {
       {/* Centered Card Container */}
       <form
         onSubmit={(e) => { e.preventDefault(); handleNext(); }}
-        className="w-full max-w-[440px] min-h-[480px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 rounded-[28px] p-6 sm:p-8 shadow-xl dark:shadow-2xl/40 flex flex-col relative z-10 my-auto"
+        className="w-full max-w-[440px] min-h-[500px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 rounded-[28px] p-6 sm:p-8 shadow-xl dark:shadow-2xl/40 flex flex-col justify-between relative z-10 my-auto"
       >
       <div className="flex items-center justify-between mb-6">
         <button type="button" onClick={handleBack} className="w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-sm border border-black/5 text-text-primary">
@@ -186,10 +186,10 @@ export function SignUpScreen({ onComplete, onBack }: SignUpScreenProps) {
         <div className="w-11" />
       </div>
 
-      <div className="flex-1 relative">
+      <div className="flex-1 flex flex-col justify-start">
         <AnimatePresence mode="wait">
           {step === 1 && (
-            <motion.div key="step1" variants={variants} initial="enter" animate="center" exit="exit" className="absolute inset-0">
+            <motion.div key="step1" variants={variants} initial="enter" animate="center" exit="exit" className="w-full flex-1 flex flex-col">
               <h2 className="font-sora font-semibold text-[26px] text-text-primary mb-2">What's your name?</h2>
               <p className="font-dm text-[15px] text-text-secondary mb-6">Let's get to know you better.</p>
 
@@ -201,14 +201,14 @@ export function SignUpScreen({ onComplete, onBack }: SignUpScreenProps) {
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleNext(); } }}
                   placeholder="Full Name"
-                  className="w-full h-[60px] bg-white rounded-[16px] pl-12 pr-4 text-[18px] text-text-primary border border-black/10 focus:border-brand-green focus:outline-none"
+                  className="w-full h-[56px] bg-white rounded-[16px] pl-12 pr-4 text-[17px] text-text-primary border border-black/10 focus:border-brand-green focus:outline-none"
                 />
               </div>
             </motion.div>
           )}
 
           {step === 2 && (
-            <motion.div key="step2" variants={variants} initial="enter" animate="center" exit="exit" className="absolute inset-0">
+            <motion.div key="step2" variants={variants} initial="enter" animate="center" exit="exit" className="w-full flex-1 flex flex-col">
               <h2 className="font-sora font-semibold text-[26px] text-text-primary mb-2">Create account</h2>
               <p className="font-dm text-[15px] text-text-secondary mb-6">Enter email and password.</p>
 
@@ -219,73 +219,75 @@ export function SignUpScreen({ onComplete, onBack }: SignUpScreenProps) {
                 </div>
               )}
 
-              <div className="relative mb-4">
-                <Mail size={22} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-tertiary" />
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => {
-                    setFormData({ ...formData, email: e.target.value });
-                    setErrorMsg("");
-                  }}
-                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleNext(); } }}
-                  placeholder="Email address"
-                  className="w-full h-[60px] bg-white rounded-[16px] pl-12 pr-4 text-[18px] text-text-primary border border-black/10 focus:border-brand-green focus:outline-none"
-                />
-              </div>
+              <div className="space-y-3.5">
+                <div className="relative">
+                  <Mail size={22} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-tertiary" />
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => {
+                      setFormData({ ...formData, email: e.target.value });
+                      setErrorMsg("");
+                    }}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleNext(); } }}
+                    placeholder="Email address"
+                    className="w-full h-[56px] bg-white rounded-[16px] pl-12 pr-4 text-[17px] text-text-primary border border-black/10 focus:border-brand-green focus:outline-none"
+                  />
+                </div>
 
-              <div className="relative mb-4">
-                <Lock size={22} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-tertiary" />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={formData.password}
-                  onChange={(e) => {
-                    setFormData({ ...formData, password: e.target.value });
-                    setErrorMsg("");
-                  }}
-                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleNext(); } }}
-                  placeholder="Password (min 6 chars)"
-                  className="w-full h-[60px] bg-white rounded-[16px] pl-12 pr-12 text-[18px] text-text-primary border border-black/10 focus:border-brand-green focus:outline-none"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-text-tertiary hover:text-text-primary focus:outline-none"
-                >
-                  {showPassword ? <EyeOff size={22} /> : <Eye size={22} />}
-                </button>
-              </div>
+                <div className="relative">
+                  <Lock size={22} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-tertiary" />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={formData.password}
+                    onChange={(e) => {
+                      setFormData({ ...formData, password: e.target.value });
+                      setErrorMsg("");
+                    }}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleNext(); } }}
+                    placeholder="Password (min 6 chars)"
+                    className="w-full h-[56px] bg-white rounded-[16px] pl-12 pr-12 text-[17px] text-text-primary border border-black/10 focus:border-brand-green focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-text-tertiary hover:text-text-primary focus:outline-none"
+                  >
+                    {showPassword ? <EyeOff size={22} /> : <Eye size={22} />}
+                  </button>
+                </div>
 
-              <div className="relative">
-                <Lock size={22} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-tertiary" />
-                <input
-                  type={showConfirmPassword ? "text" : "password"}
-                  value={formData.confirmPassword}
-                  onChange={(e) => {
-                    setFormData({ ...formData, confirmPassword: e.target.value });
-                    setErrorMsg("");
-                  }}
-                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleNext(); } }}
-                  placeholder="Re-enter password"
-                  className="w-full h-[60px] bg-white rounded-[16px] pl-12 pr-12 text-[18px] text-text-primary border border-black/10 focus:border-brand-green focus:outline-none"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-text-tertiary hover:text-text-primary focus:outline-none"
-                >
-                  {showConfirmPassword ? <EyeOff size={22} /> : <Eye size={22} />}
-                </button>
-              </div>
+                <div className="relative">
+                  <Lock size={22} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-tertiary" />
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={formData.confirmPassword}
+                    onChange={(e) => {
+                      setFormData({ ...formData, confirmPassword: e.target.value });
+                      setErrorMsg("");
+                    }}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleNext(); } }}
+                    placeholder="Re-enter password"
+                    className="w-full h-[56px] bg-white rounded-[16px] pl-12 pr-12 text-[17px] text-text-primary border border-black/10 focus:border-brand-green focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-text-tertiary hover:text-text-primary focus:outline-none"
+                  >
+                    {showConfirmPassword ? <EyeOff size={22} /> : <Eye size={22} />}
+                  </button>
+                </div>
 
-              {formData.confirmPassword && formData.password !== formData.confirmPassword && (
-                <p className="text-xs text-red-500 mt-2 ml-1">Passwords do not match.</p>
-              )}
+                {formData.confirmPassword && formData.password !== formData.confirmPassword && (
+                  <p className="text-xs text-red-500 pt-1 pl-1">Passwords do not match.</p>
+                )}
+              </div>
             </motion.div>
           )}
 
           {step === 3 && (
-            <motion.div key="step3" variants={variants} initial="enter" animate="center" exit="exit" className="absolute inset-0">
+            <motion.div key="step3" variants={variants} initial="enter" animate="center" exit="exit" className="w-full flex-1 flex flex-col">
               <h2 className="font-sora font-semibold text-[26px] text-text-primary mb-2">Your details</h2>
               <p className="font-dm text-[15px] text-text-secondary mb-6">Help us personalize your budget.</p>
 
@@ -296,64 +298,66 @@ export function SignUpScreen({ onComplete, onBack }: SignUpScreenProps) {
                 </div>
               )}
 
-              <div className="relative mb-4">
-                <Calendar size={22} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-tertiary" />
-                <input
-                  type="number"
-                  min={18}
-                  max={100}
-                  value={formData.age}
-                  onChange={(e) => {
-                    setFormData({ ...formData, age: e.target.value });
-                    setErrorMsg("");
-                  }}
-                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleNext(); } }}
-                  placeholder="Age (18 - 100)"
-                  className="w-full h-[60px] bg-white rounded-[16px] pl-12 pr-4 text-[18px] text-text-primary border border-black/10 focus:border-brand-green focus:outline-none"
-                />
-              </div>
-              {formData.age && (Number(formData.age) < 18 || Number(formData.age) > 100) && (
-                <p className="text-xs text-red-500 mt-[-8px] mb-3 ml-1">Age must be between 18 and 100.</p>
-              )}
+              <div className="space-y-3.5">
+                <div className="relative">
+                  <Calendar size={22} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-tertiary" />
+                  <input
+                    type="number"
+                    min={18}
+                    max={100}
+                    value={formData.age}
+                    onChange={(e) => {
+                      setFormData({ ...formData, age: e.target.value });
+                      setErrorMsg("");
+                    }}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleNext(); } }}
+                    placeholder="Age (18 - 100)"
+                    className="w-full h-[56px] bg-white rounded-[16px] pl-12 pr-4 text-[17px] text-text-primary border border-black/10 focus:border-brand-green focus:outline-none"
+                  />
+                </div>
+                {formData.age && (Number(formData.age) < 18 || Number(formData.age) > 100) && (
+                  <p className="text-xs text-red-500 pt-1 pl-1">Age must be between 18 and 100.</p>
+                )}
 
-              <div className="relative mb-4">
-                <IndianRupee size={22} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-tertiary" />
-                <input
-                  type="text"
-                  value={formData.monthlyIncome}
-                  onChange={(e) => {
-                    handleIncomeChange(e);
-                    setErrorMsg("");
-                  }}
-                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleNext(); } }}
-                  placeholder="Monthly Income"
-                  className="w-full h-[60px] bg-white rounded-[16px] pl-12 pr-4 text-[18px] text-text-primary border border-black/10 focus:border-brand-green focus:outline-none"
-                />
-              </div>
+                <div className="relative">
+                  <IndianRupee size={22} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-tertiary" />
+                  <input
+                    type="text"
+                    value={formData.monthlyIncome}
+                    onChange={(e) => {
+                      handleIncomeChange(e);
+                      setErrorMsg("");
+                    }}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleNext(); } }}
+                    placeholder="Monthly Income"
+                    className="w-full h-[56px] bg-white rounded-[16px] pl-12 pr-4 text-[17px] text-text-primary border border-black/10 focus:border-brand-green focus:outline-none"
+                  />
+                </div>
 
-              <div className="relative">
-                <IndianRupee size={22} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-tertiary" />
-                <input
-                  type="text"
-                  value={formData.monthlyBudget}
-                  onChange={(e) => {
-                    handleBudgetChange(e);
-                    setErrorMsg("");
-                  }}
-                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleNext(); } }}
-                  placeholder="Monthly Budget"
-                  className="w-full h-[60px] bg-white rounded-[16px] pl-12 pr-4 text-[18px] text-text-primary border border-black/10 focus:border-brand-green focus:outline-none"
-                />
+                <div className="relative">
+                  <IndianRupee size={22} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-tertiary" />
+                  <input
+                    type="text"
+                    value={formData.monthlyBudget}
+                    onChange={(e) => {
+                      handleBudgetChange(e);
+                      setErrorMsg("");
+                    }}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleNext(); } }}
+                    placeholder="Monthly Budget"
+                    className="w-full h-[56px] bg-white rounded-[16px] pl-12 pr-4 text-[17px] text-text-primary border border-black/10 focus:border-brand-green focus:outline-none"
+                  />
+                </div>
+                {budgetVal > 0 && incomeVal > 0 && budgetVal > incomeVal && (
+                  <p className="text-xs text-red-500 pt-1 pl-1">Monthly budget cannot be greater than monthly income.</p>
+                )}
               </div>
-              {budgetVal > 0 && incomeVal > 0 && budgetVal > incomeVal && (
-                <p className="text-xs text-red-500 mt-2 ml-1">Monthly budget cannot be greater than monthly income.</p>
-              )}
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      <div className="shrink-0 pt-4">
+      <div className="shrink-0 pt-6 mt-auto">
         <motion.button
           whileTap={{ scale: 0.98 }}
           type="submit"

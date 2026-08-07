@@ -27,7 +27,7 @@ declare global {
 
 interface ScanScreenProps {
   onClose: () => void;
-  onSave: (amount?: number) => void;
+  onSave: (amount?: number, category?: string, merchant?: string) => void;
 }
 
 const CATEGORIES = [
@@ -186,7 +186,6 @@ export function ScanScreen({ onClose, onSave }: ScanScreenProps) {
     serverMerchant?: string
   ) => {
     console.log("OCR TEXT:", text);
-
     setRawOCRText(text);
 
     const parsed = parseWithOwnAI(text);
@@ -305,7 +304,7 @@ export function ScanScreen({ onClose, onSave }: ScanScreenProps) {
       });
 
       stopCamera();
-      onSave(numAmount);
+      onSave(numAmount, category, merchant || "Unknown Merchant");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Failed to save expense";
       setSaveError(msg);
@@ -494,9 +493,11 @@ export function ScanScreen({ onClose, onSave }: ScanScreenProps) {
               </div>
 
               {rawOCRText && (
-                <div className="mt-4">
-                  <p className="text-xs text-gray-400 mb-1">Raw OCR Debug</p>
-                  <pre className="p-3 bg-gray-100 dark:bg-gray-800 rounded-xl text-xs text-gray-600 dark:text-gray-300 max-h-32 overflow-y-auto whitespace-pre-wrap">
+                <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-800/80 rounded-2xl border border-gray-100 dark:border-gray-700/60">
+                  <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">
+                    Raw OCR Debug
+                  </p>
+                  <pre className="p-3 bg-white dark:bg-gray-900 rounded-xl text-xs text-gray-600 dark:text-gray-300 max-h-32 overflow-y-auto whitespace-pre-wrap border border-gray-100 dark:border-gray-800">
                     {rawOCRText}
                   </pre>
                 </div>

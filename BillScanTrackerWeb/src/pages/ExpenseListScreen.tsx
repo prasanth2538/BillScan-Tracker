@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, X, Loader2, ShoppingCart, UtensilsCrossed, Fuel, Heart, Clapperboard, Bus, Plus } from 'lucide-react';
-import { getThisMonthExpenses, RawExpense } from '../services/expenseService';
+import { ChevronRight, X, Loader2, ShoppingCart, UtensilsCrossed, Fuel, Heart, Clapperboard, Bus, Plus, Edit2, Trash2 } from 'lucide-react';
+import { getThisMonthExpenses, RawExpense, deleteExpense } from '../services/expenseService';
 import { saveExpense } from "../services/saveExpense";
-
 import { getUserProfile } from '../services/userService';
+import { BillDetailScreen } from './BillDetailScreen';
 
 // ─── Category config ──────────────────────────────────────────────────────────
 
@@ -128,9 +128,20 @@ interface CategorySheetProps {
   isDark: boolean;
   categoryBudget?: number;
   onClose: () => void;
+  onEditExpense: (expense: RawExpense) => void;
+  onDeleteExpense: (expense: RawExpense) => void;
 }
 
-function CategorySheet({ config, expenses, total, isDark, categoryBudget = 0, onClose }: CategorySheetProps) {
+function CategorySheet({
+  config,
+  expenses,
+  total,
+  isDark,
+  categoryBudget = 0,
+  onClose,
+  onEditExpense,
+  onDeleteExpense,
+}: CategorySheetProps) {
   const [viewingImage, setViewingImage] = useState<string | null>(null);
 
   const grouped = useMemo(() => {
@@ -256,7 +267,8 @@ function CategorySheet({ config, expenses, total, isDark, categoryBudget = 0, on
                       initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.04 }}
-                      className="rounded-[14px] p-3.5 flex flex-col gap-2"
+                      onClick={() => onEditExpense(txn)}
+                      className="rounded-[14px] p-3.5 flex flex-col gap-2 cursor-pointer hover:opacity-95 transition-all group"
                       style={{
                         backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.03)',
                         border: isDark ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.05)',
@@ -275,15 +287,45 @@ function CategorySheet({ config, expenses, total, isDark, categoryBudget = 0, on
                           </p>
                           <p className="font-dm text-[12px] text-gray-400 dark:text-gray-500">{dateLabel}</p>
                         </div>
-                        <span className="font-mono font-semibold text-[15px] text-gray-900 dark:text-white flex-shrink-0">
-                          ₹{Number(txn.amount).toLocaleString('en-IN')}
-                        </span>
+                        
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <span className="font-mono font-semibold text-[15px] text-gray-900 dark:text-white">
+                            ₹{Number(txn.amount).toLocaleString('en-IN')}
+                          </span>
+
+                          {/* Quick action buttons: Edit & Delete */}
+                          <div className="flex items-center gap-1 ml-1">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onEditExpense(txn);
+                              }}
+                              title="Edit Bill"
+                              className="w-8 h-8 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center transition-colors"
+                            >
+                              <Edit2 size={14} />
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onDeleteExpense(txn);
+                              }}
+                              title="Delete Bill"
+                              className="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 flex items-center justify-center transition-colors"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </div>
                       </div>
 
                       {txn.imageUrl && (
                         <div className="pt-1 border-t border-black/5 dark:border-white/5 flex justify-end">
                           <button
-                            onClick={() => setViewingImage(txn.imageUrl!)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setViewingImage(txn.imageUrl!);
+                            }}
                             className="text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1"
                           >
                             📷 View Bill Image
@@ -345,6 +387,7 @@ export function ExpenseListScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [openCategory, setOpenCategory] = useState<CategoryConfig | null>(null);
+  const [selectedExpense, setSelectedExpense] = useState<RawExpense | null>(null);
   const [manualAmount, setManualAmount] = useState('');
   const [manualCategory, setManualCategory] = useState('Food');
   const [manualMerchant, setManualMerchant] = useState('');
@@ -364,24 +407,39 @@ export function ExpenseListScreen() {
     return () => observer.disconnect();
   }, []);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        setLoading(true);
-        const data = await getThisMonthExpenses(true);
-        setAllExpenses(data);
-        const prof = await getUserProfile();
-        if (prof?.categoryBudgets) {
-          setCategoryBudgets(prof.categoryBudgets);
-        }
-      } catch (err) {
-        console.error(err);
-        setError('Could not load expenses. Please try again.');
-      } finally {
-        setLoading(false);
+  const loadExpenses = async () => {
+    try {
+      setLoading(true);
+      const data = await getThisMonthExpenses(true);
+      setAllExpenses(data);
+      const prof = await getUserProfile();
+      if (prof?.categoryBudgets) {
+        setCategoryBudgets(prof.categoryBudgets);
       }
-    })();
+    } catch (err) {
+      console.error(err);
+      setError('Could not load expenses. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadExpenses();
   }, []);
+
+  const handleDeleteExpense = async (txn: RawExpense) => {
+    const ok = confirm(`Delete expense from "${txn.merchant || 'Expense'}" (₹${Number(txn.amount).toLocaleString('en-IN')})?`);
+    if (!ok) return;
+
+    try {
+      await deleteExpense(txn.id);
+      setAllExpenses(prev => prev.filter(e => e.id !== txn.id));
+    } catch (err: any) {
+      console.error('Delete failed:', err);
+      alert(err.message || 'Failed to delete expense');
+    }
+  };
 
   const bucketed = useMemo(() => {
     const map = new Map<string, RawExpense[]>();
@@ -407,7 +465,7 @@ export function ExpenseListScreen() {
         date: new Date().toISOString(), source: 'manual',
       });
       alert('Expense added successfully');
-      setAllExpenses(await getThisMonthExpenses(true));
+      loadExpenses();
       setManualAmount(''); setManualMerchant(''); setManualCategory('Food');
       setExpandedManual(false);
     } catch (err: any) {
@@ -417,6 +475,7 @@ export function ExpenseListScreen() {
 
   return (
     <div className="w-full h-full bg-page flex flex-col relative overflow-hidden">
+
 
       {/* Top bar */}
       <div className="pt-12 px-4 pb-3 bg-page flex-shrink-0">
@@ -603,7 +662,7 @@ export function ExpenseListScreen() {
         </div>
       )}
 
-      {/* ── Bottom sheet (slides bottom → top) ── */}
+      {/* ── Category Detail Bottom Sheet ── */}
       <AnimatePresence>
         {openCategory && (
           <CategorySheet
@@ -613,6 +672,28 @@ export function ExpenseListScreen() {
             isDark={isDark}
             categoryBudget={categoryBudgets[openCategory.label] || 0}
             onClose={() => setOpenCategory(null)}
+            onEditExpense={(expense) => setSelectedExpense(expense)}
+            onDeleteExpense={handleDeleteExpense}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* ── Bill Detail / Edit Sheet ── */}
+      <AnimatePresence>
+        {selectedExpense && (
+          <BillDetailScreen
+            expense={{
+              id: selectedExpense.id,
+              merchant: selectedExpense.merchant,
+              amount: selectedExpense.amount,
+              category: selectedExpense.category,
+              date: selectedExpense.date,
+              icon: resolveCategory(selectedExpense.category).emoji,
+              color: resolveCategory(selectedExpense.category).iconBg,
+              imageUrl: selectedExpense.imageUrl,
+            }}
+            onClose={() => setSelectedExpense(null)}
+            onChanged={loadExpenses}
           />
         )}
       </AnimatePresence>

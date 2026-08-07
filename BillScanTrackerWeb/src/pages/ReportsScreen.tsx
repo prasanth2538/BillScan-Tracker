@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { Download, ArrowUpRight, ArrowDownRight, Sparkles } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Download, ArrowUpRight, ArrowDownRight, Sparkles, CheckCircle2, FileText, X } from "lucide-react";
 import jsPDF from "jspdf";
 import {
   PieChart,
@@ -44,6 +44,8 @@ export function ReportsScreen() {
   const [activeMonth, setActiveMonth] = useState(currentMonth);
   const [expenses, setExpenses] = useState<any[]>([]);
   const [, setLoading] = useState(true);
+  const [showDownloadSuccess, setShowDownloadSuccess] = useState(false);
+  const [downloadFileName, setDownloadFileName] = useState("");
 
   useEffect(() => {
     const loadExpenses = async () => {
@@ -292,6 +294,8 @@ export function ReportsScreen() {
         doc.save(fileName);
       }
 
+      setDownloadFileName(fileName);
+      setShowDownloadSuccess(true);
     } catch (e: any) {
       console.error("PDF error:", e);
     }
@@ -581,6 +585,50 @@ export function ReportsScreen() {
           ))}
         </div>
       </motion.div>
+
+      {/* PDF Download Confirmation Popup Modal */}
+      <AnimatePresence>
+        {showDownloadSuccess && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="w-full max-w-sm bg-white dark:bg-gray-900 rounded-3xl p-6 shadow-2xl border border-gray-100 dark:border-gray-800 text-center relative overflow-hidden"
+            >
+              <button
+                onClick={() => setShowDownloadSuccess(false)}
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-white p-1 rounded-full bg-gray-100 dark:bg-gray-800 transition-colors"
+              >
+                <X size={18} />
+              </button>
+
+              <div className="w-14 h-14 rounded-full bg-green-500/10 text-green-500 flex items-center justify-center mx-auto mb-4">
+                <CheckCircle2 size={32} />
+              </div>
+
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
+                Report Downloaded!
+              </h3>
+
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-6 flex items-center justify-center gap-1.5">
+                <FileText size={14} className="text-green-500" />
+                <span className="font-semibold text-gray-700 dark:text-gray-300">
+                  {downloadFileName || `BillScan-${activeMonth}-2026.pdf`}
+                </span>{" "}
+                has been saved.
+              </p>
+
+              <button
+                onClick={() => setShowDownloadSuccess(false)}
+                className="w-full py-3 bg-brand-green hover:bg-brand-green/90 text-white font-bold text-xs rounded-xl shadow-md transition-all active:scale-95"
+              >
+                Done
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

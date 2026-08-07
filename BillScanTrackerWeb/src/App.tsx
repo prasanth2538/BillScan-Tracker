@@ -3,17 +3,24 @@ import { AnimatePresence } from "framer-motion";
 import { HomeScreen } from "./pages/HomeScreen";
 import { ScanScreen } from "./pages/ScanScreen";
 import { ExpenseListScreen } from "./pages/ExpenseListScreen";
+import { MonthlyTrendScreen } from "./pages/MonthlyTrendScreen";
 import { ReportsScreen } from "./pages/ReportsScreen";
 import { ProfileScreen } from "./pages/ProfileScreen";
 import { BillDetailScreen } from "./pages/BillDetailScreen";
-import { BottomNav } from "./components/BottomNav";
+import { BottomNav, TabId } from "./components/BottomNav";
 import { Toast } from "./components/Toast";
 import { Expense } from "./components/ExpenseCard";
 import { LoginScreen } from "./pages/LoginScreen";
 import { SignUpScreen, UserProfile } from "./pages/SignUpScreen";
 import { ResetPasswordScreen } from "./pages/ResetPasswordScreen";
+import { AIFinancialAdvisorModal } from "./components/AIFinancialAdvisorModal";
 import { getUserProfile } from "./services/userService";
 import { logoutUser } from "./services/authService";
+import { getExpenses } from "./services/expenseService";
+import {
+  buildStructuredPayload,
+  getAIFinancialAdvice,
+} from "./services/aiAdvisorService";
 import { auth } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
 
@@ -23,6 +30,7 @@ type Screen =
   | "reset-password"
   | "home"
   | "expenses"
+  | "trend"
   | "reports"
   | "profile"
   | "scan";
@@ -43,6 +51,16 @@ export function App() {
   const [toastMessage, setToastMessage] = useState("Expense saved!");
   const [user, setUser] = useState<UserProfile | null>(null);
   const [resetCode, setResetCode] = useState<string | null>(null);
+
+  // Post-Save AI Advisor Modal State
+  const [showAIModal, setShowAIModal] = useState(false);
+  const [postSaveDetails, setPostSaveDetails] = useState<{
+    amount: number;
+    category: string;
+    merchant: string;
+  } | null>(null);
+  const [postSaveAdvice, setPostSaveAdvice] = useState<string>("");
+  const [aiModalLoading, setAiModalLoading] = useState(false);
 
   const activeScreen = screenStack[screenStack.length - 1];
   const logoutTimer = useRef<any>(null);
@@ -122,10 +140,14 @@ export function App() {
     };
   }, [activeScreen, selectedExpense]);
 
-  const handleTabChange = (tab: "home" | "expenses" | "reports" | "profile") =>
+  const handleTabChange = (tab: TabId) =>
     navigateTo(tab);
 
-  const handleSaveScan = (amount?: number) => {
+  const handleSaveScan = async (
+    amount?: number,
+    category?: string,
+    merchant?: string
+  ) => {
     navigateTo("home");
     setToastMessage(
       amount
@@ -133,6 +155,30 @@ export function App() {
         : "Expense saved!"
     );
     setShowToast(true);
+
+    if (amount && amount > 0 && category) {
+      const savedMerchant = merchant || "Payee";
+      setPostSaveDetails({ amount, category, merchant: savedMerchant });
+      setShowAIModal(true);
+      setAiModalLoading(true);
+
+      try {
+        const updatedExpenses = await getExpenses(true);
+        const now = new Date();
+        const payload = buildStructuredPayload(
+          updatedExpenses,
+          now.getFullYear(),
+          now.getMonth(),
+          user?.monthlyBudget
+        );
+        const adviceRes = await getAIFinancialAdvice(payload);
+        setPostSaveAdvice(adviceRes.adviceText);
+      } catch (err) {
+        console.warn("Failed to generate post-save AI advice:", err);
+      } finally {
+        setAiModalLoading(false);
+      }
+    }
   };
 
   const handleLogin = async (email: string) => {
@@ -274,6 +320,8 @@ export function App() {
 
         {activeScreen === "expenses" && <ExpenseListScreen />}
 
+        {activeScreen === "trend" && <MonthlyTrendScreen user={user} />}
+
         {activeScreen === "reports" && user && <ReportsScreen />}
 
         {activeScreen === "profile" && user && (
@@ -310,6 +358,20 @@ export function App() {
               onTabChange={handleTabChange}
             />
           )}
+
+        <AIFinancialAdvisorModal
+          isVisible={showAIModal && !!postSaveDetails}
+          amount={postSaveDetails?.amount || 0}
+          category={postSaveDetails?.category || "Other"}
+          merchant={postSaveDetails?.merchant || ""}
+          adviceText={postSaveAdvice}
+          loading={aiModalLoading}
+          onClose={() => setShowAIModal(false)}
+          onViewTrends={() => {
+            setShowAIModal(false);
+            navigateTo("trend");
+          }}
+        />
 
         <Toast
           message={toastMessage}
